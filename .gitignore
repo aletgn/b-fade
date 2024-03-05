@@ -1,0 +1,10 @@
+# python cache
+__pycache__/
+.ipynb_checkpoints/
+
+# build distribution folders
+build/
+src/behaves.egg-info/
+
+# documentation folders
+docs/_build/
