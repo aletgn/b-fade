@@ -1,7 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, List
 import numpy as np
 import matplotlib.pyplot as plt
+from bfade.util import grid_factory
+import scipy
 
 class AbstractCurve(ABC):
     
@@ -98,8 +100,11 @@ class AbstractCurve(ABC):
             pass
 
         plt.xscale(scale)
-        plt.yscale(scale)         
-    
+        plt.yscale(scale)
+        
+    def get_curve(self) -> None:
+        return self.pars, self.equation
+
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
         return f"{self.__class__.__name__}({attributes_str})"
