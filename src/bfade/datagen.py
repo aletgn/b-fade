@@ -32,7 +32,7 @@ class SyntheticDataset:
         self.y = None
         
     def make_grid(self, x1_bounds: List[float], x2_bounds: List[float],
-                  n1: int, n2: int, scale:str ="lin") -> None:
+                  n1: int, n2: int, spacing: str ="lin") -> None:
         """
         Generate a grid of input points for the synthetic dataset.
         
@@ -55,7 +55,7 @@ class SyntheticDataset:
         None
 
         """
-        self.X = np.vstack(grid_factory(x1_bounds, x2_bounds, n1, n2, scale)).T
+        self.X = np.vstack(grid_factory(x1_bounds, x2_bounds, n1, n2, spacing)).T
     
     def make_tube(self, x1_bounds: List[float], n: int = 50, up: float = 0.1,
                   down: float = -0.1, step: int = 4, spacing: str = "lin") -> None:
@@ -110,7 +110,7 @@ class SyntheticDataset:
             else:
                 X2.append(x2 * s)
         X2 = np.array(X2)
-        X1 = np.array(list(x2)*X2.shape[0]).flatten()
+        X1 = np.array(list(x1)*X2.shape[0]).flatten()
         X2 = X2.flatten()
         self.X = np.vstack([X1,X2]).T
     

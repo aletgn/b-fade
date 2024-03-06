@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from bfade.util import grid_factory
 import scipy
+from scipy.optimize import minimize_scalar
 
 class AbstractCurve(ABC):
     
@@ -73,6 +74,43 @@ class AbstractCurve(ABC):
 
         """
         return np.array([self.squared_distance(t, x) for x in X])
+    
+    def signed_distance_to_dataset(self, X):
+        x_opt = []
+        y_opt = []        
+        l_dis = []
+        dd = []
+        signa = []
+        
+        for x in X:
+            res = minimize_scalar(self.squared_distance, args=(x), 
+                                  method="golden",
+                                  # bounds=(0, 100000),
+                                  )
+            
+            if res.success:
+                x_opt.append(res.x)
+                l_dis.append(res.fun)
+            else:
+                raise Exception("Error while minimising.")
+        
+        x_opt = np.array(x_opt)
+        y_opt = self.equation(x_opt)
+        
+        for x, xo, yo in zip(X, x_opt, y_opt):
+            d = np.array([x[0]-xo, x[1]-yo]).T
+            dd.append(np.inner(d, d)**0.5)
+            
+            if x[1] > yo:
+                signa.append(1)
+            else:
+                signa.append(-1)
+        
+        l_dis = np.array(l_dis)
+        dd = np.array(dd)
+        signa = np.array(signa)
+        
+        return dd*signa, x_opt, y_opt
 
     def inspect(self, x: np.ndarray, scale: str = "linear", **data: Dict) -> None:
         """

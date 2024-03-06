@@ -48,8 +48,8 @@ def grid_factory(x1_bounds: List[float], x2_bounds: List[float], n1: int, n2: in
         x2_points = np.linspace(x2_bounds[0], x2_bounds[1], n2)
 
     elif spacing == "log":
-        x1_points = np.logspace(np.log10(x1_points[0]), np.log10(x1_points[1]), n1)
-        x2_points = np.logspace(np.log10(x2_points[0]), np.log10(x2_points[1]), n2)
+        x1_points = np.logspace(np.log10(x1_bounds[0]), np.log10(x1_bounds[1]), n1)
+        x2_points = np.logspace(np.log10(x2_bounds[0]), np.log10(x2_bounds[1]), n2)
 
     else:
         raise KeyError("distribution spacing kind not available")
