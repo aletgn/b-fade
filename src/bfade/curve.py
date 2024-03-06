@@ -94,8 +94,8 @@ class AbstractCurve(ABC):
             if res.success:
                 x_opt.append(res.x)
                 l_dis.append(res.fun)
-            else:
-                raise Exception("Error while minimising.")
+            # else:
+            #     raise Exception("Error while minimising.")
         
         x_opt = np.array(x_opt)
         y_opt = self.equation(x_opt)

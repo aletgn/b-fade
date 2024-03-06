@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List
+from typing import List, Tuple
 
 class MissingInputException(Exception):
     """Ensure required parameters are passed in specific contexts."""
@@ -29,7 +29,7 @@ def identity(X: np.ndarray) -> None:
     """
     return X
 
-def grid_factory(x1_bounds: List[float], x2_bounds: List[float], n1: int, n2: int, spacing: str = "lin") -> np.ndarray:
+def grid_factory(x1_bounds: List[float], x2_bounds: List[float], n1: int, n2: int, spacing: str = "lin") -> Tuple[np.ndarray]:
     """
     Create a grid of points over a 2D space.
 
