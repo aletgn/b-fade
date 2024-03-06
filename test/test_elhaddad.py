@@ -32,13 +32,13 @@ def tube(dk_th=5, ds_w=600, y=0.65):
     d = SyntheticDataset(eh)
     d.make_tube([1,1000], up=0.5, down=-0.5, step=5, spacing="log")
     d.inspect(scale="log")
+    d.clear_points(tol=10)
     d.make_classes()
     d.inspect(np.linspace(1,1000,1000), scale="log")
     print(eh)
 
 if __name__ == "__main__":
-    # istantiation()
-    # inspection()
-    # grid()
-    # tube()
-    pass
+    istantiation()
+    inspection()
+    grid()
+    tube()

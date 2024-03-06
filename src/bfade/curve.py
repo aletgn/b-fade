@@ -9,9 +9,27 @@ from scipy.optimize import minimize_scalar
 
 class AbstractCurve(ABC):
     
-    def __init__(self, **pars):
+    def __init__(self, metrics: callable = identity, **pars) -> None:
+        """
+        Initialise curve.
+        
+        Parameters
+        ----------
+        metrics : callable
+            identity, logarithm, for instance. Default is identity
+            
+        pars: Dict
+            parameters of the curve.
+        
+
+        Returns
+        -------
+        None
+
+        """
         [setattr(self, p, pars[p]) for p in pars]
         self.pars = [k for k in pars.keys()]
+        self.metrics = metrics
 
     @abstractmethod
     def equation(self) -> np.ndarray:
@@ -19,22 +37,6 @@ class AbstractCurve(ABC):
         Abstract representation of a mathematical equation.
         """
         ...
-
-    def load_metrics(self, metrics: callable) -> None:
-        """
-        Load metrics to compute distances over feature plane.
-        
-        Parameters
-        ----------
-        metrics : callable
-            identity, logarithm, for instance.
-
-        Returns
-        -------
-        None
-
-        """
-        self.metrics = metrics
 
     def squared_distance(self, t: float, X: np.ndarray) -> None:
         """
@@ -123,7 +125,7 @@ class AbstractCurve(ABC):
             Array of x-values for plotting the equation curve.
         scale : str, optional
             The scale of the plot. Default is "linear".
-        **data : dict
+        data : dict
             Additional data for scatter points. Expected keys: "X", "y".
         
         Returns
@@ -141,7 +143,35 @@ class AbstractCurve(ABC):
         plt.xscale(scale)
         plt.yscale(scale)
         
-    def inspect_signed_distance(self, x: np.ndarray, x_opt: np.ndarray, y_opt: np.ndarray, dis: np.ndarray, X: np.ndarray = None, y: np.ndarray = None, scale: str = "linear"):
+    def inspect_signed_distance(self, x: np.ndarray, x_opt: np.ndarray, y_opt: np.ndarray, dis: np.ndarray,
+                                X: np.ndarray = None, y: np.ndarray = None, scale: str = "linear"):
+        """
+        Visualize the signed distance of data points to an minumum-distance (optimal) point
+        along the curve.
+    
+        Parameters
+        ----------
+        x : np.ndarray
+            Input values for the optimal point.
+        x_opt : np.ndarray
+            x-coordinate of the optimal point.
+        y_opt : np.ndarray
+            y-coordinate of the optimal point.
+        dis : np.ndarray
+            Signed distance values for each data point.
+        X : np.ndarray, optional
+            Input features of the synthetic dataset.
+        y : np.ndarray, optional
+            Target values of the synthetic dataset.
+        scale : str, optional
+            Scale for both x and y axes. Options are "linear" (default) or "log".
+    
+        Returns
+        -------
+        None
+            Displays a plot visualizing the signed distance of data points to the optimal point.
+
+        """
         fig, ax = plt.subplots(dpi=300)
         
         if X is not None:

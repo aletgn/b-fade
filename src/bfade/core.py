@@ -2,6 +2,11 @@ from bfade.statistics import distribution
 from bfade.elhaddad import ElHaddadCurve
 import numpy as np
 
+def logistic_predictor(P):
+    pass
+
+
+
 class Bayes:
     
     def __init__(self, name: str = "Untitled"):

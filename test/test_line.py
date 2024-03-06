@@ -19,7 +19,6 @@ class Line(AbstractCurve):
     
 def istantiation(m = 1, q = 0):
     l = Line(m = m, q = q)
-    l.load_metrics(identity)
     print(l)
 
 def inspection(m = 1, q = 0):
@@ -46,8 +45,7 @@ def tube(m = 1, q = 0):
     d.inspect(np.linspace(-10,10,100))
 
 if __name__ == "__main__":
-    # istantiation()
-    # inspection()
-    # grid()
-    # tube()
-    pass
+    istantiation()
+    inspection()
+    grid()
+    tube()
