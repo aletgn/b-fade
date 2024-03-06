@@ -3,6 +3,7 @@ from typing import Dict, List
 import numpy as np
 import matplotlib.pyplot as plt
 from bfade.util import grid_factory
+from bfade.util import identity
 import scipy
 from scipy.optimize import minimize_scalar
 
@@ -137,6 +138,24 @@ class AbstractCurve(ABC):
         except:
             pass
 
+        plt.xscale(scale)
+        plt.yscale(scale)
+        
+    def inspect_signed_distance(self, x: np.ndarray, x_opt: np.ndarray, y_opt: np.ndarray, dis: np.ndarray, X: np.ndarray = None, y: np.ndarray = None, scale: str = "linear"):
+        fig, ax = plt.subplots(dpi=300)
+        
+        if X is not None:
+            plt.scatter(X[:,0], X[:,1], c=y)
+        
+        plt.scatter(x_opt, y_opt)
+        
+        for x, xo, yo, d in zip(X, x_opt, y_opt, dis):
+            if d > 0:
+                ax.plot([x[0], xo], [x[1], yo], '-b')
+            else:
+                ax.plot([x[0], xo], [x[1], yo], '-.r')
+                
+        ax.axis("equal")
         plt.xscale(scale)
         plt.yscale(scale)
         

@@ -149,7 +149,21 @@ class SyntheticDataset:
         self.y = np.array(self.y)
     
     def add_noise(self, x1_std: float, x2_std: float) -> None:
-        # TODO edit with my distribution class
+        """
+        Add Gaussian noise to the data points in the synthetic dataset.
+    
+        Parameters
+        ----------
+        x1_std : float
+            Standard deviation of the Gaussian noise to be added to the first feature (x1).
+        x2_std : float
+            Standard deviation of the Gaussian noise to be added to the second feature (x2).
+    
+        Returns
+        -------
+        None
+
+        """
         self.X[:,0] += scipy.stats.norm(loc = 0, scale = x1_std).rvs(size=self.X.shape[0])
         self.X[:,1] += scipy.stats.norm(loc = 0, scale = x2_std).rvs(size=self.X.shape[0])
     
@@ -170,7 +184,7 @@ class SyntheticDataset:
             Displays a scatter plot of the synthetic dataset with an optional plot of the underlying curve.
         """
         fig, ax = plt.subplots(dpi=300)
-        ax.scatter(self.X[:,0], self.X[:,1], c=self.y)
+        ax.scatter(self.X[:,0], self.X[:,1], c=self.y, s=10)
         
         try:
             plt.plot(x, self.equation(x), "k")

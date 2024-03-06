@@ -1,6 +1,17 @@
 import numpy as np
 from typing import List
 
+class MissingInputException(Exception):
+    """Ensure required parameters are passed in specific contexts."""
+    def __init__(self, message:str) -> None:
+        self.message = message
+        super().__init__(self.message)
+
+class YieldException(Exception):
+    """Ensure the precedence of particular operations/stages over others."""
+    def __init__(self, message: str) -> None:
+        self.message = message
+        super().__init__(self.message)
 
 def identity(X: np.ndarray) -> None:
     """
