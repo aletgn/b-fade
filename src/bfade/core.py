@@ -194,10 +194,13 @@ class AbstractBayes(ABC):
     def predictive_posterior(self, posterior_samples, D):
         self.posterior_samples = posterior_samples
         predictions = []
+        
         for k in range(0,self.posterior_samples):
-            predictions.append(self.predictor(D, self.joint.rvs(1)))
+            predictions.append(self.predictor(D, *self.joint.rvs(1)))
+        
         predictions = np.array(predictions)
-        # TODO
+        
+        return predictions
     
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())

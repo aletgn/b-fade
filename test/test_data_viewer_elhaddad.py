@@ -38,10 +38,28 @@ def pi():
     pp.view(curve = [eh, eh1], prediction_interval=m, ref_curve=ElHaddadCurve, confidence=0.95, y=0.65)
     
 def pred_post():
-    pass
-
-
-
+    eh = ElHaddadCurve(dk_th=5, ds_w=600, y=0.65)
+    eh1 = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=500, y=0.65)
+    # eh.inspect(np.linspace(1, 1000, 1000), scale="log")
+    
+    d = SyntheticDataset(eh)
+    d.make_grid([1, 1000],[100, 700], 15, 15, spacing="log")
+    # d.inspect(scale="log")
+    
+    b = BayesElHaddad("dk_th", "ds_w", theta_hat=np.array([5.00663972,600.18485208]),
+                      ihess=np.array([[ 5.06170001e-01, -1.01078680e+01],   [-1.01078680e+01,  1.40680324e+03]]))
+    
+    m = MonteCarlo(1000)
+    m.sample_joint(b)
+    
+    pp = PreProViewer([1,1000], [100,700], 1000, "log", "y")
+    pp.view(predictive_posterior=b, post_samples = 10, data=d, post_op=np.mean, curve = [eh, eh1])
+    
+    pp.view(predictive_posterior=b, post_samples = 10, data=d, post_op=np.mean,
+            curve = [eh, eh1],
+            prediction_interval=m, ref_curve=ElHaddadCurve, confidence=0.95, y=0.65)  
+    
+    
 if __name__ == "__main__":
     # curves()
     # pi()

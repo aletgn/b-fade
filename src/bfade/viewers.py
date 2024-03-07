@@ -129,8 +129,26 @@ class PreProViewer():
         except:
             pass
         
-        det = [kwargs.pop(d) for d in self.deterministic]
-        det_pars = dict(zip(self.deterministic, det))
+        try:
+            post_samples = kwargs.pop("post_samples")
+        except:
+            pass
+        
+        try:
+            det = [kwargs.pop(d) for d in self.deterministic]
+            det_pars = dict(zip(self.deterministic, det))
+        except KeyError:
+            pass
+        
+        try:
+            data = kwargs.pop("data")
+        except KeyError:
+            pass
+        
+        try:
+            post_op = kwargs.pop("post_op")
+        except KeyError:
+            pass
         
         for k in kwargs:
             if k == "train_data":
@@ -150,7 +168,21 @@ class PreProViewer():
                 self.ax.plot(self.x, mean + pred, "k")
             
             elif k == "predictive_posterior":
-                pass
+                predictions = post_op(kwargs[k].predictive_posterior(post_samples, data), axis=0)
+                
+                pp = self.ax.tricontourf(data.X[:,0], data.X[:,1], predictions,
+                                         cmap='RdBu_r',
+                                         levels=np.linspace(predictions.min(),
+                                                            predictions.max()+1e-15, 21),
+                                         antialiased='False')
+        
+                cbar = self.fig.colorbar(pp, ax=self.ax, orientation="vertical",
+                                          pad=0.03, format="%.2f",
+                                          # ticks=list(np.linspace(0, 1+1e-15, 21)),
+                                          ticks = list(np.linspace(predictions.min(), predictions.max(), 11)),
+                                          # label=self.translator[sel]
+                                          )
+                cbar.ax.tick_params(direction='in', top=1, size=2.5)
             
             else:
                 raise KeyError
@@ -161,6 +193,3 @@ class PreProViewer():
         self.ax.set_ylim(self.y_edges)
         self.ax.tick_params(direction="in", which='both', right=1, top=1)
             
-        
-        # def prediction_interval(self, x_edges, n, spacing, curve, confidence=0.95, **args):
-        
