@@ -68,8 +68,10 @@ def view_laplace():
     print(l)
     # 
     # print(b)
+    print(eh)
 
 if __name__ == "__main__":
     # istantiation()
     # view_bayes()
-    # view_laplace()
+    view_laplace()
+    # pass
