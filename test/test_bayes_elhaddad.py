@@ -29,28 +29,24 @@ def contour(x, y, z):
     ax.tick_params(direction='in', top=1, right=1)
 
 def istantiation():
-    b = BayesElHaddad()
-    b.declare_parameters("dkt", "dsw")
+    b = BayesElHaddad("dkt", "dsw")
     print(b)
     
 def priors():
-    b = BayesElHaddad()
-    b.declare_parameters("dkt", "dsw")
+    b = BayesElHaddad("dkt", "dsw")
     b.load_prior("dkt", uniform, unif_value=1)
     b.load_prior("dsw", norm, loc=0, scale=1)
     print(b)
     return b
 
 def likelihood():
-    b = BayesElHaddad()
-    b.declare_parameters("dkt", "dsw")
+    b = BayesElHaddad("dkt", "dsw")
     b.load_log_likelihood(log_loss)
     print(b)
     return b
 
 def calc_prior():
-    b = BayesElHaddad()
-    b.declare_parameters("dkt", "dsw")
+    b = BayesElHaddad("dkt", "dsw")
     b.load_prior("dkt", uniform, unif_value=1)
     b.load_prior("dsw", norm, loc=0, scale=1)
     p = b.log_prior(7,8)
@@ -66,8 +62,7 @@ def calc_likelihood():
     d.make_classes()
     d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = BayesElHaddad()
-    b.declare_parameters("dk_th", "ds_w")
+    b = BayesElHaddad("dk_th", "ds_w")
     b.load_log_likelihood(log_loss, normalize=True)
     
     l = b.log_likelihood(d, 5, 600)
@@ -84,8 +79,7 @@ def display_log_likelihood():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = BayesElHaddad()
-    b.declare_parameters("dk_th", "ds_w")
+    b = BayesElHaddad("dk_th", "ds_w")
     b.load_log_likelihood(log_loss, normalize=True)
     
     dk_th, ds_w = grid_factory([3, 7], [400, 800], 10, 10, spacing="lin")
@@ -102,8 +96,7 @@ def display_log_prior():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = BayesElHaddad()
-    b.declare_parameters("dk_th", "ds_w")
+    b = BayesElHaddad("dk_th", "ds_w")
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     
@@ -121,8 +114,7 @@ def display_log_posterior():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = BayesElHaddad()
-    b.declare_parameters("dk_th", "ds_w")
+    b = BayesElHaddad("dk_th", "ds_w")
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -141,8 +133,7 @@ def display_bayes_tube():
     d.make_classes()
     d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = BayesElHaddad()
-    b.declare_parameters("dk_th", "ds_w")
+    b = BayesElHaddad("dk_th", "ds_w")
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -166,8 +157,7 @@ def run_map():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = BayesElHaddad()
-    b.declare_parameters("dk_th", "ds_w")
+    b = BayesElHaddad("dk_th", "ds_w")
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -186,14 +176,13 @@ def likelihood_args():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = BayesElHaddad()
-    b.declare_parameters("dk_th", "ds_w")
+    b = BayesElHaddad("dk_th", "ds_w")
     b.load_log_likelihood(log_loss, normalize=True, eps="auto")
     
-    dk_th, ds_w = grid_factory([3, 7], [400, 800], 5, 5, spacing="lin")
-    llh = np.array([b.log_likelihood(d, k, w) for k,w in zip(dk_th, ds_w)])
+    # dk_th, ds_w = grid_factory([3, 7], [400, 800], 5, 5, spacing="lin")
+    # llh = np.array([b.log_likelihood(d, k, w) for k,w in zip(dk_th, ds_w)])
     
-    contour(dk_th, ds_w, llh)
+    # contour(dk_th, ds_w, llh)
     
     print(b)
     
@@ -208,5 +197,5 @@ if __name__ == "__main__":
     # display_log_posterior()
     # display_bayes_tube()
     # run_map()
-    likelihood_args()
+    # likelihood_args()
     pass

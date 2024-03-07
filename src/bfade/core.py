@@ -1,18 +1,20 @@
 from bfade.statistics import distribution
 from bfade.elhaddad import ElHaddadCurve
 import numpy as np
-from typing import Dict
+from typing import Dict, List
 
 from scipy.special import expit
 from scipy.optimize import minimize
+from scipy.stats import multivariate_normal
+from scipy.stats import norm
 
 from abc import ABC, abstractmethod
 
 
 class AbstractBayes(ABC):
-    """Bayesian framework to perform Maximum a Posterior Estimation."""
+    """Bayesian framework to perform Maximum a Posterior Estimation and predictions."""
     
-    def __init__(self, name: str = "Untitled") -> None:
+    def __init__(self, *pars, **args) -> None:
         """
         Initialize the instance with a given name.
         
@@ -26,23 +28,38 @@ class AbstractBayes(ABC):
         None
 
         """
-        self.name = name
         
-    def declare_parameters(self, *pars: Dict) -> None:
-        """
-        Declare and assign parameters to the instance.
-    
-        Parameters
-        ----------
-        pars : Dict[str]
-            Variable-length argument list of dictionaries representing parameters.
-    
-        Returns
-        -------
-        None
-
-        """
+        try:
+            self.name = args["name"]
+        except:
+            self.name = "Untitled"
+        
         self.pars = pars
+        
+        try:
+            self.theta_hat = args["theta_hat"]
+            self.ihess = args["ihess"]
+            self.laplace_posterior()
+        except:
+            self.theta_hat = None
+            self.ihess = None
+            print("must run MAP")
+        
+    # def declare_parameters(self, *pars: Dict) -> None:
+    #     """
+    #     Declare and assign parameters to the instance.
+    
+    #     Parameters
+    #     ----------
+    #     pars : Dict[str]
+    #         Variable-length argument list of dictionaries representing parameters.
+    
+    #     Returns
+    #     -------
+    #     None
+
+    #     """
+    #     self.pars = pars
         
     def load_prior(self, par: str, dist, **args: Dict) -> None:
         """
@@ -66,7 +83,7 @@ class AbstractBayes(ABC):
         
     def load_log_likelihood(self, log_loss_fn: callable, **args):
         """
-        
+        Load a likelihood loss function.
 
         Parameters
         ----------
@@ -81,7 +98,6 @@ class AbstractBayes(ABC):
 
         """
         self.log_likelihood_args = args
-        # [setattr(self, a, args[a]) for a in args]
         self.log_likelihood_loss = log_loss_fn
     
     @abstractmethod
@@ -166,20 +182,37 @@ class AbstractBayes(ABC):
             print(f"Iter: {self.n_eval:d} -- Params: {X} -- Min {current_min:.3f}")
             self.n_eval += 1
         
-        self.n_eval = 0
-        result = minimize(lambda t: -self.log_posterior(D, *t), x0=x0, method=solver, callback=callback,
-                          options={'disp': True,
-                                   'maxiter': 1e10,
-                                   'maxls': 1e10,
-                                   'gtol': 1e-15,
-                                   'ftol': 1e-15,
-                                   'eps': 1e-6}, )
-
-        if result.success:
-            self.x_hat = result.x
-            self.ihess = result.hess_inv.todense()
+        if self.theta_hat is not None and self.ihess is not None:
+            print("skipping map")
         else:
-            raise Exception("MAP did not succeede.")
+            self.n_eval = 0
+            result = minimize(lambda t: -self.log_posterior(D, *t), x0=x0, method=solver, callback=callback,
+                              options={'disp': True,
+                                       'maxiter': 1e10,
+                                       'maxls': 1e10,
+                                       'gtol': 1e-15,
+                                       'ftol': 1e-15,
+                                       'eps': 1e-6}, )
+    
+            if result.success:
+                self.theta_hat = result.x
+                self.ihess = result.hess_inv.todense()
+                self.laplace_posterior()
+            else:
+                raise Exception("MAP did not succeede.")
+            
+    def laplace_posterior(self):
+        self.joint = multivariate_normal(mean = self.theta_hat, cov=self.ihess)
+        for idx in range(self.theta_hat.shape[0]):
+            setattr(self, "marginal_" + self.pars[idx], norm(loc=self.theta_hat[idx], scale=self.ihess[idx][idx]**0.5))
+            
+    def predictive_posterior(self, posterior_samples, D):
+        self.posterior_samples = posterior_samples
+        predictions = []
+        for k in range(0,self.posterior_samples):
+            predictions.append(self.predictor(D, self.joint.rvs(1)))
+        predictions = np.array(predictions)
+        # TODO
     
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
@@ -188,8 +221,8 @@ class AbstractBayes(ABC):
 
 class BayesElHaddad(AbstractBayes):
     
-    def __init__(self):    
-        super().__init__()
+    def __init__(self, *pars, **args):    
+        super().__init__(*pars, **args)
         
     def predictor(self, D, *P):
         eh = ElHaddadCurve(metrics=np.log10, dk_th=P[0], ds_w=P[1], y=0.65)
