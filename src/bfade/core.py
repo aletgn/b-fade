@@ -46,22 +46,6 @@ class AbstractBayes(ABC):
             self.ihess = None
             print("must run MAP")
         
-    # def declare_parameters(self, *pars: Dict) -> None:
-    #     """
-    #     Declare and assign parameters to the instance.
-    
-    #     Parameters
-    #     ----------
-    #     pars : Dict[str]
-    #         Variable-length argument list of dictionaries representing parameters.
-    
-    #     Returns
-    #     -------
-    #     None
-
-    #     """
-    #     self.pars = pars
-        
     def load_prior(self, par: str, dist, **args: Dict) -> None:
         """
         Load a prior distribution for a specified parameter.
