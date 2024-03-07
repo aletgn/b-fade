@@ -205,7 +205,7 @@ class AbstractBayes(ABC):
         self.joint = multivariate_normal(mean = self.theta_hat, cov=self.ihess)
         for idx in range(self.theta_hat.shape[0]):
             setattr(self, "marginal_" + self.pars[idx], norm(loc=self.theta_hat[idx], scale=self.ihess[idx][idx]**0.5))
-            
+      
     def predictive_posterior(self, posterior_samples, D):
         self.posterior_samples = posterior_samples
         predictions = []

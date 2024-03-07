@@ -193,7 +193,7 @@ if __name__ == "__main__":
     # calc_prior()
     # calc_likelihood()
     # display_log_likelihood()
-    # display_log_prior()
+    display_log_prior()
     # display_log_posterior()
     # display_bayes_tube()
     # run_map()
