@@ -80,7 +80,8 @@ class AbstractBayes(ABC):
         None.
 
         """
-        [setattr(self, a, args[a]) for a in args]
+        self.log_likelihood_args = args
+        # [setattr(self, a, args[a]) for a in args]
         self.log_likelihood_loss = log_loss_fn
     
     @abstractmethod
@@ -137,7 +138,7 @@ class AbstractBayes(ABC):
             The log-posterior probability.
 
         """
-        return -self.log_likelihood_loss(D.y, self.predictor(D, *P))
+        return -self.log_likelihood_loss(D.y, self.predictor(D, *P), **self.log_likelihood_args)
     
     def log_posterior(self, D, *P: Dict) -> float:
         """

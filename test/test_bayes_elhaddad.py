@@ -176,6 +176,28 @@ def run_map():
     b.MAP(d)
     
     print(b)
+    
+def likelihood_args():
+    eh = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=600, y=0.65)
+    
+    d = SyntheticDataset(eh)
+    d.make_grid([1, 1000], [100,700], 20, 20, spacing="log")
+    d.clear_points(tol=1)
+    d.make_classes()
+    # d.inspect(np.linspace(1, 1000, 1000), scale="log")
+    
+    b = BayesElHaddad()
+    b.declare_parameters("dk_th", "ds_w")
+    b.load_log_likelihood(log_loss, normalize=True, eps="auto")
+    
+    dk_th, ds_w = grid_factory([3, 7], [400, 800], 5, 5, spacing="lin")
+    llh = np.array([b.log_likelihood(d, k, w) for k,w in zip(dk_th, ds_w)])
+    
+    contour(dk_th, ds_w, llh)
+    
+    print(b)
+    
+    
 if __name__ == "__main__":
     # istantiation()
     # b = priors()
@@ -185,5 +207,6 @@ if __name__ == "__main__":
     # display_log_prior()
     # display_log_posterior()
     # display_bayes_tube()
-    run_map()
+    # run_map()
+    likelihood_args()
     pass
