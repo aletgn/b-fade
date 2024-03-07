@@ -35,9 +35,24 @@ class AbstractBayes(ABC):
     def log_posterior(self, D, *P):
         return self.log_prior(*P) + self.log_likelihood(D, *P)
     
-    def MAP(self, D):
-        max_log_posterior = minimize(lambda t: -self.log_posterior(D, *t), x0=[10,10])
-        print(max_log_posterior)
+    def MAP(self, D, x0=[1,1]):
+        
+        def callback(X):
+            current_min = -self.log_posterior(D, *X)
+            print(f"Iter: {self.n_eval:d} -- Params: {X} -- Min {current_min:.3f}")
+            self.n_eval += 1
+        
+        self.n_eval = 0
+        result = minimize(lambda t: -self.log_posterior(D, *t), x0=x0, method="L-BFGS-B", callback=callback,
+                          options={'disp': True,
+                                   'maxiter': 1e10,
+                                   'maxls': 1e10,
+                                   'gtol': 1e-15,
+                                   'ftol': 1e-15,
+                                   'eps': 1e-7}, )
+
+        print(result)
+        print(result.hess_inv.todense())
     
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
