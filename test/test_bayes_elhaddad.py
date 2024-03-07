@@ -174,7 +174,8 @@ def run_map():
     np.seterr(divide='ignore', 
               invalid='ignore')
     b.MAP(d)
-
+    
+    print(b)
 if __name__ == "__main__":
     # istantiation()
     # b = priors()
