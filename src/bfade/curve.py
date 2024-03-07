@@ -16,7 +16,7 @@ class AbstractCurve(ABC):
         Parameters
         ----------
         metrics : callable
-            identity, logarithm, for instance. Default is identity
+            identity, logarithm, for instance. Default is identity.
             
         pars: Dict
             parameters of the curve.

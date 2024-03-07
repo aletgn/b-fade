@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 
-
 class AbstractMAPViewer:
     
     def __init__(self, p1, b1, n1, p2, b2, n2, spacing):
@@ -99,3 +98,69 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
             fig, ax = plt.subplots(dpi=300)
             ax.plot(np.sort(getattr(self, p)),
                     getattr(bayes, "marginal_" + p).pdf(np.sort(getattr(self, p))))
+
+
+class PreProViewer():
+    
+    def __init__(self, x_edges=[1,1000], y_edges=[100,700], n=1000, scale="linear", *deterministic):
+        
+        self.x_edges = x_edges
+        self.y_edges = y_edges
+        self.x_scale = scale
+        self.y_scale = scale
+        self.n = n
+        self.deterministic = deterministic
+        
+        if scale == "log":
+            self.x = np.logspace(np.log10(x_edges[0]), np.log10(x_edges[1]), n)
+        else:
+            self.x = np.linspace(x_edges[0], x_edges[1], n)
+    
+    def view(self, **kwargs):
+        self.fig, self.ax = plt.subplots(dpi=300)
+
+        try:
+            confidence = kwargs.pop("confidence")
+        except:
+            pass
+        
+        try:
+            curve = kwargs.pop("ref_curve")
+        except:
+            pass
+        
+        det = [kwargs.pop(d) for d in self.deterministic]
+        det_pars = dict(zip(self.deterministic, det))
+        
+        for k in kwargs:
+            if k == "train_data":
+                pass
+            
+            elif k == "test_data":
+                pass
+            
+            elif k == "curve":
+                for c in kwargs[k]:
+                    self.ax.plot(self.x, c.equation(self.x))
+            
+            elif k == "prediction_interval":
+                mean, pred = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, curve, confidence, **det_pars)
+                self.ax.plot(self.x, mean, "k")
+                self.ax.plot(self.x, mean - pred, "k")
+                self.ax.plot(self.x, mean + pred, "k")
+            
+            elif k == "predictive_posterior":
+                pass
+            
+            else:
+                raise KeyError
+                
+        self.ax.set_xscale(self.x_scale)
+        self.ax.set_yscale(self.y_scale)
+        self.ax.set_xlim(self.x_edges)
+        self.ax.set_ylim(self.y_edges)
+        self.ax.tick_params(direction="in", which='both', right=1, top=1)
+            
+        
+        # def prediction_interval(self, x_edges, n, spacing, curve, confidence=0.95, **args):
+        
