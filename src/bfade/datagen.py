@@ -4,7 +4,7 @@ import numpy as np
 import scipy
 import matplotlib.pyplot as plt
 
-from bfade.curve import AbstractCurve
+from bfade.abstract import AbstractCurve
 from bfade.util import grid_factory, MissingInputException, YieldException
 from bfade.fracture import sif_equiv, sif_range
 
@@ -356,6 +356,7 @@ class SyntheticDataset:
         
         plt.xscale(scale)
         plt.yscale(scale)
+        plt.show()
         
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())

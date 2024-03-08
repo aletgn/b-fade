@@ -15,7 +15,7 @@ from scipy.stats import norm
 
 def invoke_curve():
     eh = ElHaddadCurve(dk_th=3, ds_w=400, y=0.73, name = "EH test", metrics=np.log10)
-    eh.inspect(np.linspace(1,1000, 1000), scale="log")
+    # eh.inspect(np.linspace(1,1000, 1000), scale="log")
     return eh
 
 def gen_data(curve):
@@ -23,7 +23,7 @@ def gen_data(curve):
     sd.make_grid([1, 1000],[50, 800], 20, 20, spacing="log")
     sd.clear_points(tol=10)
     sd.make_classes()
-    sd.inspect(np.linspace(1,1000,1000), scale="log")
+    # sd.inspect(np.linspace(1,1000,1000), scale="log")
     return sd
 
 def signed_distance(curve, dataset):
@@ -39,7 +39,7 @@ def bayesian_inference():
 if __name__ == "__main__":
     eh = invoke_curve()
     sd = gen_data(eh)
-    signed_distance(eh, sd)
+    #signed_distance(eh, sd)
     
     
     

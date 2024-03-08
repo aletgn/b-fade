@@ -4,7 +4,10 @@ __pycache__/
 
 # build distribution folders
 build/
-src/behaves.egg-info/
+src/bfade.egg-info/
 
 # documentation folders
 docs/_build/
+
+# files
+*.csv

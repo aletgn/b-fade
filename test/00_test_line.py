@@ -3,7 +3,7 @@ from os import path as ospath
 syspath.append(ospath.join(ospath.expanduser("~"),
                            '/home/ale/Desktop/b-fade/src'))
 
-from bfade.curve import AbstractCurve
+from bfade.abstract import AbstractCurve
 from bfade.util import identity 
 from bfade.datagen import SyntheticDataset
 

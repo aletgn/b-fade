@@ -1,4 +1,4 @@
-from bfade.curve import AbstractCurve
+from bfade.abstract import AbstractCurve
 from bfade.fracture import inv_sif_range
 
 class ElHaddadCurve(AbstractCurve):
