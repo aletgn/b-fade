@@ -12,8 +12,3 @@ class ElHaddadCurve(AbstractCurve):
     
     def load_metrics(self, metrics):
         self.metrics = metrics
-        
-    # def load_scalers(self, scaler, X):
-    #     self.sa_sc = StandardScaler().fit(X[:,0].reshape(-1,1))
-    #     self.ds_sc = StandardScaler().fit(X[:,1].reshape(-1,1))
-    #     self.dk_sc = StandardScaler().fit(sif_range(X[:,1], self.y, X[:,0]*1e-6).reshape(-1,1))

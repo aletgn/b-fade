@@ -27,6 +27,16 @@ class AbstractCurve(ABC):
         None
 
         """
+        try:
+            self.name = pars.pop("name")
+        except KeyError:
+            self.name = "Untitled"
+            
+        try:
+            self.metrics = pars.pop("metrics")
+        except KeyError:
+            self.metrics = identity
+        
         [setattr(self, p, pars[p]) for p in pars]
         self.pars = [k for k in pars.keys()]
         self.metrics = metrics
@@ -58,27 +68,30 @@ class AbstractCurve(ABC):
         return (self.metrics(X[0]) - self.metrics(t))**2 +\
                (self.metrics(X[1]) - self.metrics(self.equation(t)))**2
 
-    def squared_distance_dataset(self, t: float, X: np.ndarray) -> None:
-        """
-        Wraps squared_distance to compute the squared distance to each point of the datase.
+    # def squared_distance_dataset(self, t: float, X: np.ndarray) -> None:
+    #     """
+    #     Wraps squared_distance to compute the squared distance to each point of the dataset.
 
-        Parameters
-        ----------
-        t : float
-            Dummy parameter. Abscissa along the equation.
-        X : np.ndarray
-            Dataset.
+    #     Parameters
+    #     ----------
+    #     t : float
+    #         Dummy parameter. Abscissa along the equation.
+    #     X : np.ndarray
+    #         Dataset.
 
-        Returns
-        -------
-        np.ndarray
-            An array containing the squared distances between [t, equation(t)]
-            and each point of the dataset.
+    #     Returns
+    #     -------
+    #     np.ndarray
+    #         An array containing the squared distances between [t, equation(t)]
+    #         and each point of the dataset.
 
-        """
-        return np.array([self.squared_distance(t, x) for x in X])
+    #     """
+    #     return np.array([self.squared_distance(t, x) for x in X])
     
     def signed_distance_to_dataset(self, X):
+        """
+        Wraps squared_distance to compute the squared distance to each point of the dataset.
+        """
         x_opt = []
         y_opt = []        
         l_dis = []
@@ -142,6 +155,7 @@ class AbstractCurve(ABC):
 
         plt.xscale(scale)
         plt.yscale(scale)
+        plt.show()
         
     def inspect_signed_distance(self, x: np.ndarray, x_opt: np.ndarray, y_opt: np.ndarray, dis: np.ndarray,
                                 X: np.ndarray = None, y: np.ndarray = None, scale: str = "linear"):
@@ -188,6 +202,7 @@ class AbstractCurve(ABC):
         ax.axis("equal")
         plt.xscale(scale)
         plt.yscale(scale)
+        plt.show()
         
     def get_curve(self) -> None:
         return self.pars, self.equation

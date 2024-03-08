@@ -29,8 +29,8 @@ class AbstractDataset(ABC):
             [setattr(self, k, kwargs[k]) for k in kwargs.keys()]
             print(self.X)
             
-            assert self.X != None
-            assert self.y != None
+            assert self.X is not None
+            assert self.y is not None
             
         except KeyError:
             self.X = kwargs.pop("X")
@@ -356,3 +356,7 @@ class SyntheticDataset:
         
         plt.xscale(scale)
         plt.yscale(scale)
+        
+    def __repr__(self):
+        attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
+        return f"{self.__class__.__name__}({attributes_str})"
