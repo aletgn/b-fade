@@ -7,8 +7,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
-from bfade.datagen import SyntheticDataset, ElHaddadDataset
-from bfade.elhaddad import BayesElHaddad, ElHaddadCurve
+from bfade.datagen import SyntheticDataset
+from bfade.elhaddad import ElHaddadBayes, ElHaddadCurve, ElHaddadDataset
 from bfade.statistics import uniform, MonteCarlo
 from bfade.util import grid_factory
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer, PreProViewer
@@ -22,7 +22,7 @@ def curves():
     pp.view(curve=[eh, eh1])
     
 def pi():
-    b = BayesElHaddad("dk_th", "ds_w", theta_hat=np.array([5.00663972,600.18485208]),
+    b = ElHaddadBayes("dk_th", "ds_w", theta_hat=np.array([5.00663972,600.18485208]),
                       ihess=np.array([[ 5.06170001e-01, -1.01078680e+01],   [-1.01078680e+01,  1.40680324e+03]]))
 
     m = MonteCarlo(1000)
@@ -46,7 +46,7 @@ def pred_post():
     d.make_grid([1, 1000],[100, 700], 15, 15, spacing="log")
     # d.inspect(scale="log")
     
-    b = BayesElHaddad("dk_th", "ds_w",
+    b = ElHaddadBayes("dk_th", "ds_w",
                       theta_hat=np.array([5.00663972,600.18485208]),
                       ihess=np.array([[ 5.06170001e-01, -1.01078680e+01], [-1.01078680e+01,  1.40680324e+03]]))
     
@@ -64,7 +64,6 @@ def data_view():
     a = ElHaddadDataset(reader=pd.read_csv, path="./SyntheticEH.csv")
     data = a.pre_process()
     train, test = a.partition("random")
-    print(a.aux)
     
     pp = PreProViewer([1,1000], [100,700], 1000, "log")
     pp.view(train_data=train, test_data=test)
@@ -74,3 +73,4 @@ if __name__ == "__main__":
     # pi()
     # pred_post()
     data_view()
+    

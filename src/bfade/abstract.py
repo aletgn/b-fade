@@ -441,3 +441,40 @@ class AbstractMAPViewer(ABC):
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
         return f"{self.__class__.__name__}({attributes_str})"
+
+
+class AbstractDataset(ABC):
+
+    def __init__(self, **kwargs):
+        self.X = None
+        self.y = None
+
+        try:
+            path = kwargs.pop("path")
+            reader = kwargs.pop("reader")
+            self.data = reader(path, **kwargs)
+
+        except KeyError:
+            [setattr(self, k, kwargs[k]) for k in kwargs.keys()]
+
+            assert self.X is not None
+            assert self.y is not None
+
+        except KeyError:
+            self.X = kwargs.pop("X")
+            self.y = kwargs.pop("y")
+
+        except KeyError:
+            raise Exception("data load unsuccessful.")
+
+    @abstractmethod
+    def pre_process():
+        pass
+
+    @abstractmethod
+    def populate():
+        pass
+
+    @abstractmethod
+    def partition():
+        pass

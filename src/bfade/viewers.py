@@ -201,7 +201,7 @@ class PreProViewer():
                     self.ax.plot(self.x, c.equation(self.x))
             
             elif k == "prediction_interval":
-                mean, pred = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, curve, confidence, **det_pars)
+                mean, pred, _ = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, curve, confidence, **det_pars)
                 self.ax.plot(self.x, mean, "k")
                 self.ax.plot(self.x, mean - pred, "k")
                 self.ax.plot(self.x, mean + pred, "k")
@@ -231,4 +231,5 @@ class PreProViewer():
         self.ax.set_xlim(self.x_edges)
         self.ax.set_ylim(self.y_edges)
         self.ax.tick_params(direction="in", which='both', right=1, top=1)
+        plt.show()
             
