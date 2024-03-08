@@ -1,38 +1,8 @@
-from bfade.util import grid_factory
 import numpy as np
 import matplotlib.pyplot as plt
-from abc import ABC, abstractmethod
 
-class AbstractMAPViewer:
-    
-    def __init__(self, p1, b1, n1, p2, b2, n2, spacing):
-        
-        self.pars = (p1, p2)
-        self.p1 = p1
-        self.p2 = p2
-        self.n1 = n1
-        self.n2 = n2
-        self.spacing = spacing
-        setattr(self, "bounds_" + p1, b1)
-        setattr(self, "bounds_" + p2, b2)
-        
-        X1, X2 = grid_factory(getattr(self, "bounds_" + p1),
-                              getattr(self, "bounds_" + p2),
-                              self.n1, self.n2, spacing)
-        setattr(self, p1, X1)
-        setattr(self, p2, X2)
-    
-    @abstractmethod
-    def contour(self):
-        ...
-    
-    def config_contour(self):
-        pass
-    
-    def __repr__(self):
-        attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
-        return f"{self.__class__.__name__}({attributes_str})"
-
+from bfade.util import grid_factory
+from bfade.abstract import AbstractMAPViewer
 
 class BayesViewer(AbstractMAPViewer):
     
@@ -58,6 +28,7 @@ class BayesViewer(AbstractMAPViewer):
                                   format="%.1f",
                                   label=element,
                                   alpha=0.65)
+        plt.show()
 
 
 class LaplacePosteriorViewer(AbstractMAPViewer):
@@ -92,12 +63,15 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
                                   format="%.3f",
                                   label="posterior",
                                   alpha=0.65)
-    
+        plt.show()
+
     def marginals(self, bayes):
         for p in bayes.pars:
             fig, ax = plt.subplots(dpi=300)
             ax.plot(np.sort(getattr(self, p)),
                     getattr(bayes, "marginal_" + p).pdf(np.sort(getattr(self, p))))
+        
+        plt.show()
 
 
 class PreProViewer():

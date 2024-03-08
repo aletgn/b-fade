@@ -1,26 +1,12 @@
 import numpy as np
 from typing import Dict, List
 
-from scipy.special import expit
 from scipy.optimize import minimize
 from scipy.stats import multivariate_normal
 from scipy.stats import norm
 from scipy.stats import t as t_student
 
-from bfade.abstract import AbstractBayes
 from bfade.statistics import distribution
-from bfade.elhaddad import ElHaddadCurve
-
-class BayesElHaddad(AbstractBayes):
-    
-    def __init__(self, *pars, **args):    
-        super().__init__(*pars, **args)
-        
-    def predictor(self, D, *P):
-        eh = ElHaddadCurve(metrics=np.log10, dk_th=P[0], ds_w=P[1], y=0.65)
-        signed_distance, _, _ = eh.signed_distance_to_dataset(D.X)
-        return expit(signed_distance)
-
 
 class MonteCarlo:
     

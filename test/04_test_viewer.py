@@ -9,7 +9,7 @@ from scipy.stats import norm
 
 from bfade.datagen import SyntheticDataset
 from bfade.elhaddad import ElHaddadCurve
-from bfade.core import BayesElHaddad
+from bfade.elhaddad import ElHaddadBayes
 from bfade.statistics import uniform
 from bfade.util import grid_factory
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer
@@ -33,7 +33,7 @@ def view_bayes():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = BayesElHaddad("dk_th", "ds_w")
+    b = ElHaddadBayes("dk_th", "ds_w")
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -55,7 +55,7 @@ def view_laplace():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = BayesElHaddad("dk_th", "ds_w", theta_hat=np.array([5.00663972,600.18485208]),
+    b = ElHaddadBayes("dk_th", "ds_w", theta_hat=np.array([5.00663972,600.18485208]),
                       ihess=np.array([[ 5.06170001e-01, -1.01078680e+01],   [-1.01078680e+01,  1.40680324e+03]]))
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
@@ -73,5 +73,5 @@ def view_laplace():
 if __name__ == "__main__":
     # istantiation()
     # view_bayes()
-    view_laplace()
-    # pass
+    # view_laplace()
+    pass

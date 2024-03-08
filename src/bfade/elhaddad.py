@@ -1,4 +1,6 @@
-from bfade.abstract import AbstractCurve
+import numpy as np
+from scipy.special import expit
+from bfade.abstract import AbstractBayes, AbstractCurve
 from bfade.fracture import inv_sif_range
 
 class ElHaddadCurve(AbstractCurve):
@@ -12,3 +14,14 @@ class ElHaddadCurve(AbstractCurve):
     
     def load_metrics(self, metrics):
         self.metrics = metrics
+
+
+class ElHaddadBayes(AbstractBayes):
+
+    def __init__(self, *pars, **args):
+        super().__init__(*pars, **args)
+
+    def predictor(self, D, *P):
+        eh = ElHaddadCurve(metrics=np.log10, dk_th=P[0], ds_w=P[1], y=0.65)
+        signed_distance, _, _ = eh.signed_distance_to_dataset(D.X)
+        return expit(signed_distance)

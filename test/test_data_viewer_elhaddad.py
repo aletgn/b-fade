@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 
 from bfade.datagen import SyntheticDataset, ElHaddadDataset
-from bfade.elhaddad import ElHaddadCurve
-from bfade.core import BayesElHaddad, MonteCarlo
+from bfade.elhaddad import BayesElHaddad, ElHaddadCurve
+from bfade.core import MonteCarlo
 from bfade.statistics import uniform
 from bfade.util import grid_factory
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer, PreProViewer
