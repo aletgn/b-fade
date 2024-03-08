@@ -7,12 +7,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
-from bfade.datagen import SyntheticDataset
+from bfade.datagen import SyntheticDataset, ElHaddadDataset
 from bfade.elhaddad import ElHaddadCurve
 from bfade.core import BayesElHaddad, MonteCarlo
 from bfade.statistics import uniform
 from bfade.util import grid_factory
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer, PreProViewer
+import pandas as pd
 
 def curves():
     pp = PreProViewer(scale="log")
@@ -59,8 +60,17 @@ def pred_post():
             curve = [eh, eh1],
             prediction_interval=m, ref_curve=ElHaddadCurve, confidence=0.95, y=0.65)  
     
+def data_view():
+    a = ElHaddadDataset()
+    a.read(pd.read_csv, "SyntheticEH.csv")
+    data = a.pre_process()
+    train, test = a.partition("random")
+    
+    pp = PreProViewer([1,1000], [100,700], 1000, "log")
+    pp.view(train_data=train, test_data=test)
     
 if __name__ == "__main__":
     # curves()
     # pi()
-    pred_post()
+    # pred_post()
+    data_view()

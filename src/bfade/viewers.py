@@ -118,7 +118,9 @@ class PreProViewer():
     
     def view(self, **kwargs):
         self.fig, self.ax = plt.subplots(dpi=300)
-
+        self.sr = None
+        self.ss = None
+        
         try:
             confidence = kwargs.pop("confidence")
         except:
@@ -152,10 +154,73 @@ class PreProViewer():
         
         for k in kwargs:
             if k == "train_data":
-                pass
-            
+                y0 = np.where(kwargs[k].y==0)
+                y1 = np.where(kwargs[k].y==1)
+                
+                try:
+                    c0=kwargs[k].aux[y0]
+                    c1=kwargs[k].aux[y1]
+                    vmin=kwargs[k].aux_min
+                    vmax=kwargs[k].aux_max
+                except:
+                    c0 = [0]*len(y0[0])
+                    c1 = [1]*len(y1[0])
+                    vmin = 0
+                    vmax = 1
+                
+                self.sr = self.ax.scatter(kwargs[k].X[y0, 0], kwargs[k].X[y0, 1],
+                                          marker='o',
+                                          c=c0, vmin=vmin, vmax=vmax,
+                                          cmap='RdYlBu_r',
+                                          edgecolor='k',
+                                          s=50,
+                                          # label='Runout', zorder=10
+                                          )
+
+                self.ax.scatter(kwargs[k].X[y1, 0], kwargs[k].X[y1, 1],
+                                marker='X',
+                                c=c1, vmin=vmin, vmax=vmax,
+                                cmap='RdYlBu_r',
+                                edgecolor='k',
+                                s=50,
+                                # label='Runout', zorder=10
+                                )
+
+
             elif k == "test_data":
-                pass
+                y0 = np.where(kwargs[k].y==0)
+                y1 = np.where(kwargs[k].y==1)
+                
+                try:
+                    c0=kwargs[k].aux[y0]
+                    c1=kwargs[k].aux[y1]
+                    vmin=kwargs[k].aux_min
+                    vmax=kwargs[k].aux_max
+                except:
+                    c0 = [0]*len(y0[0])
+                    c1 = [1]*len(y1[0])
+                    vmin = 0
+                    vmax = 1
+
+                y0 = np.where(kwargs[k].y==0)
+                y1 = np.where(kwargs[k].y==1)
+                self.ss = self.ax.scatter(kwargs[k].X[y0,0], kwargs[k].X[y0,1],
+                                          marker='s',
+                                          c=c0, vmin=vmin, vmax=vmax,
+                                          cmap='RdYlBu_r',
+                                          edgecolor='k',
+                                          s=50,
+                                          # label='Runout', zorder=10
+                                          )
+                
+                self.ax.scatter(kwargs[k].X[y1,0], kwargs[k].X[y1,1],
+                                          marker='P',
+                                          c=c1, vmin=vmin, vmax=vmax,
+                                          cmap='RdYlBu_r',
+                                          edgecolor='k',
+                                          s=50,
+                                          # label='Runout', zorder=10
+                                          )
             
             elif k == "curve":
                 for c in kwargs[k]:
