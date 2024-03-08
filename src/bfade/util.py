@@ -16,7 +16,8 @@ class YieldException(Exception):
         super().__init__(self.message)
 
 def logger_factory(name: str="root", level: str="DEBUG") -> logging.Logger:
-    """ Instantiate a logger object.
+    """
+    Instantiate a logger object.
 
     Parameters
     ----------
@@ -199,7 +200,7 @@ def sif_equiv(sqrt_area_orig: np.ndarray, y_orig: np.ndarray, y_ref: float):
 
     Returns
     -------
-    TYPE: array-like
+    array-like
         equivalent sqrt_area computed by equalling delta_k.
 
     """

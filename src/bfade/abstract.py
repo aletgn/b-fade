@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Dict, List
+from typing import Dict, List, Tuple, Any
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,16 +13,17 @@ from bfade.statistics import distribution, uniform
 
 class AbstractCurve(ABC):
     
-    def __init__(self, metrics: callable = identity, **pars) -> None:
+    def __init__(self, metrics: callable = identity, **pars: Dict[str, Any]) -> None:
         """
         Initialise curve.
         
         Parameters
         ----------
         metrics : callable
-            identity, logarithm, for instance. Default is identity.
+            identity, logarithm, for instance. Default is identity. This determines\
+            whether minimum distance points are sought over the lin-lin or log-log space.
             
-        pars: Dict
+        pars: Dict[str, Any]
             parameters of the curve.
         
 
@@ -92,9 +93,14 @@ class AbstractCurve(ABC):
     #     """
     #     return np.array([self.squared_distance(t, x) for x in X])
     
-    def signed_distance_to_dataset(self, D):
+    def signed_distance_to_dataset(self, D) -> Tuple:
         """
-        Wraps squared_distance to compute the squared distance to each point of the dataset.
+        Wraps squared_distance to compute the minimum squared distance of each point of the dataset\
+        to the given curve
+
+        D : dataset
+            Any object containing attributes X and y as features and output, respectively.
+
         """
         x_opt = []
         y_opt = []        
@@ -132,7 +138,7 @@ class AbstractCurve(ABC):
         
         return dd*signa, x_opt, y_opt
 
-    def inspect(self, x: np.ndarray, scale: str = "linear", **data: Dict) -> None:
+    def inspect(self, x: np.ndarray, scale: str = "linear", **data: Dict[str, Any]) -> None:
         """
         Plot the equation of the curve and optionally the provided dataset.
         
@@ -148,6 +154,7 @@ class AbstractCurve(ABC):
         Returns
         -------
         None
+
         """
         fig, ax = plt.subplots(dpi=300)
         plt.plot(x, self.equation(x), "k")
@@ -162,7 +169,7 @@ class AbstractCurve(ABC):
         plt.show()
         
     def inspect_signed_distance(self, x: np.ndarray, x_opt: np.ndarray, y_opt: np.ndarray, dis: np.ndarray,
-                                X: np.ndarray = None, y: np.ndarray = None, scale: str = "linear"):
+                                X: np.ndarray = None, y: np.ndarray = None, scale: str = "linear") -> None:
         """
         Visualize the signed distance of data points to an minumum-distance (optimal) point
         along the curve.
@@ -208,7 +215,15 @@ class AbstractCurve(ABC):
         plt.yscale(scale)
         plt.show()
         
-    def get_curve(self) -> None:
+    def get_curve(self) -> Tuple:
+        """
+        Get curve parameters and its equation
+
+        Returns
+        -------
+        Tuple
+
+        """
         return self.pars, self.equation
 
     def __repr__(self):
@@ -240,7 +255,6 @@ class AbstractBayes(ABC):
             self.name = "Untitled"
         
         self.pars = pars
-        # initialise priors as uniform distributions
         [setattr(self, "prior_" + p, distribution(uniform, unif_value=1)) for p in self.pars]
         
         try:

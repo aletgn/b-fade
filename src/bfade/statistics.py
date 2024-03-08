@@ -1,7 +1,9 @@
-from typing import Dict, Any
+from typing import Dict, Any, Tuple, List
 import numpy as np
 from scipy.stats import t as t_student
-from bfade.util import MissingInputException
+from bfade.util import MissingInputException, logger_factory
+
+_log = logger_factory(name=__name__, level="DEBUG")
 
 class distribution():
     """Interface to scipy random variables.
@@ -138,18 +140,103 @@ class uniform():
 
 class MonteCarlo:
 
-    def __init__(self, n_samples):
+    def __init__(self, n_samples: int) -> None:
+        """
+        Initialise Monte Carlo simulation
+
+        Parameters
+        ----------
+        samples : int
+            number of samples to draw.
+
+        Returns
+        -------
+        None
+
+        """
+        _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__}")
         self.n_samples = n_samples
 
-    def sample_joint(self, bayes):
+    def sample_joint(self, bayes) -> None:
+        """
+        Sample the joint posterior distribution.
+
+        Parameters
+        ----------
+        bayes : AbstractBayes
+
+        Returns
+        -------
+        None
+
+        """
+        _log.debug(f"{self.__class__.__name__}.{self.sample_joint.__name__}")
         self.pars = bayes.pars
         self.samples = bayes.joint.rvs(self.n_samples)
 
-    def sample_marginals(self, bayes):
+    def sample_marginals(self, bayes) -> None:
+        """
+        Sample the marginal posterior distributions.
+
+        Parameters
+        ----------
+        bayes : AbstractBayes
+
+
+        Returns
+        -------
+        None
+
+        """
+        _log.debug(f"{self.__class__.__name__}.{self.sample_marginals.__name__}")
         self.pars = bayes.pars
         self.samples = np.array([getattr(bayes, "marginal_" + p).rvs(self.n_samples) for p in bayes.pars]).T
 
-    def prediction_interval(self, x_edges, n, spacing, curve, confidence=0.95, **args):
+    def prediction_interval(self, x_edges: List[float], n: int, spacing: str, 
+                            curve, confidence: float = 0.95, **args: Dict[str, Any]) -> Tuple:
+        """
+        Compute prediction intervals for a curve.
+
+        .. math::
+            P\\Big[\overline{\mathcal{E}^{(\sf M)}} \
+                            - \mathcal{P}^{(\sf M)} \
+                                \le \mathcal{E}^{({\sf M}+1)} \
+                                    \le \overline{\mathcal{E}^{(\sf M)}} \
+                                        + \mathcal{P}^{(\sf M)}\\Big] = \\beta
+
+        where :math:`\\beta` is the confidence level. The semi ampliture of \
+            the prediction interval is:
+
+        .. math::
+            \mathcal{P}^{(\sf M)} = T_{\\beta} S^{(\sf M)}  \sqrt{1 + 1/{\mathsf{M}}}
+
+        Parameters
+        ----------
+        confidence : int, optional
+            Confidence level of the prediction interval. The default is 95.
+        spacing : str, optional
+            spacing for x and y axes.
+        x_edges : list of float, optional
+            Edges of the x-axis over which the curve is plotted.
+        curve : AbstractCurve
+            Reference curve.    
+        n : int, optional
+            Resolution of the curve (number of points over x-axis). The default is 100.
+
+        Returns
+        -------
+        result : Tuple
+            A tuple containing the following elements:
+
+            - 'mean': The expected curve data.
+
+            - 'pred': The semi-amplitude of the prediction interval.
+
+            - 'x1': abscissa along with the prediction interval is computed.
+
+        """
+        _log.info(f"{self.__class__.__name__}.{self.compute_prediction_interval.__name__}")
+        self.confidence = confidence
         curves = []
         if spacing == "log":
             x1 = np.logspace(np.log10(x_edges[0]), np.log10(x_edges[1]), n)
