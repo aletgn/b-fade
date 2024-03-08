@@ -92,7 +92,7 @@ class AbstractCurve(ABC):
     #     """
     #     return np.array([self.squared_distance(t, x) for x in X])
     
-    def signed_distance_to_dataset(self, X):
+    def signed_distance_to_dataset(self, D):
         """
         Wraps squared_distance to compute the squared distance to each point of the dataset.
         """
@@ -102,7 +102,7 @@ class AbstractCurve(ABC):
         dd = []
         signa = []
         
-        for x in X:
+        for x in D.X:
             res = minimize_scalar(self.squared_distance, args=(x), 
                                   method="golden",
                                   # bounds=(0, 100000),
@@ -117,7 +117,7 @@ class AbstractCurve(ABC):
         x_opt = np.array(x_opt)
         y_opt = self.equation(x_opt)
         
-        for x, xo, yo in zip(X, x_opt, y_opt):
+        for x, xo, yo in zip(D.X, x_opt, y_opt):
             d = np.array([x[0]-xo, x[1]-yo]).T
             dd.append(np.inner(d, d)**0.5)
             

@@ -90,6 +90,28 @@ class PreProViewer():
         else:
             self.x = np.linspace(x_edges[0], x_edges[1], n)
     
+    def add_colourbar(self, ref):
+        """
+        Add a colorbar to the El Haddad plot.
+
+        Parameters
+        ----------
+        ref : matplotlib.image.AxesImage
+            A reference to the image onto which the colorbar is drawn.
+
+        Returns
+        -------
+        None
+
+        """
+        # _log.debug(f"{self.__class__.__name__}.{self.add_colourbar.__name__}")
+        cbar = self.fig.colorbar(ref, ax=self.ax, orientation="vertical",
+                                  pad=0.05, format="%.1f",
+                                #   ticks=list(np.linspace(self.delta_k_min,
+                                #                          self.delta_k_max, 11)),
+                                  label='$\Delta K$ [MPa $\sqrt{m}]$')
+        cbar.ax.tick_params(direction='in', top=1, size=2.5)
+
     def view(self, **kwargs):
         self.fig, self.ax = plt.subplots(dpi=300)
         self.sr = None
@@ -159,7 +181,8 @@ class PreProViewer():
                                 s=50,
                                 # label='Runout', zorder=10
                                 )
-
+                if self.ss is None:
+                    self.add_colourbar(self.sr)
 
             elif k == "test_data":
                 y0 = np.where(kwargs[k].y==0)
@@ -195,7 +218,9 @@ class PreProViewer():
                                           s=50,
                                           # label='Runout', zorder=10
                                           )
-            
+                if self.sr is None:
+                    self.add_colourbar(self.ss)
+
             elif k == "curve":
                 for c in kwargs[k]:
                     self.ax.plot(self.x, c.equation(self.x))

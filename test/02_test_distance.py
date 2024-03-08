@@ -27,7 +27,7 @@ def line_distance(m = 1, q = 0):
     d.make_classes()
     d.inspect(np.linspace(-5, 5))
     
-    signed_dist, x1_min, x2_min = l.signed_distance_to_dataset(d.X)
+    signed_dist, x1_min, x2_min = l.signed_distance_to_dataset(d)
     l.inspect_signed_distance(np.linspace(-10, 10), x1_min, x2_min, signed_dist, d.X)
 
 def el_haddad_distance(dk_th=5, ds_w=600, y=0.65):
@@ -39,7 +39,7 @@ def el_haddad_distance(dk_th=5, ds_w=600, y=0.65):
     d.make_classes()
     d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    signed_dist, x1_min, x2_min = eh.signed_distance_to_dataset(d.X)
+    signed_dist, x1_min, x2_min = eh.signed_distance_to_dataset(d)
     eh.inspect_signed_distance(np.linspace(1, 1000, 1000), x1_min, x2_min, signed_dist, d.X, scale="log")
 
 
@@ -52,7 +52,7 @@ def el_haddad_distance_log(dk_th=5, ds_w=600, y=0.65):
     d.make_classes()
     d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    signed_dist, x1_min, x2_min = eh.signed_distance_to_dataset(d.X)
+    signed_dist, x1_min, x2_min = eh.signed_distance_to_dataset(d)
     eh.inspect_signed_distance(np.linspace(1, 1000, 1000), x1_min, x2_min, signed_dist, d.X, scale="log")
 
 

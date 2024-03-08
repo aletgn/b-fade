@@ -28,7 +28,7 @@ def gen_data(curve):
     return sd
 
 def signed_distance(curve, dataset):
-    signed_dist, x1_min, x2_min = curve.signed_distance_to_dataset(dataset.X)
+    signed_dist, x1_min, x2_min = curve.signed_distance_to_dataset(dataset)
     curve.inspect_signed_distance(np.linspace(1, 1000, 100), x1_min, x2_min, signed_dist, dataset.X, scale="log")
 
 def bayesian_inference(dataset):
@@ -69,12 +69,12 @@ def monte_carlo():
 
 
 if __name__ == "__main__":
-    # eh = invoke_curve()
-    # sd = gen_data(eh)
-    # signed_distance(eh, sd)
+    eh = invoke_curve()
+    sd = gen_data(eh)
+    signed_distance(eh, sd)
     # bay = bayesian_inference(sd)
     # laplace_view()
-    monte_carlo()
+    # monte_carlo()
     
     
     
