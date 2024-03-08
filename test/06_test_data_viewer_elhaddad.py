@@ -63,11 +63,10 @@ def pred_post():
 def data_view():
     a = ElHaddadDataset(reader=pd.read_csv, path="./SyntheticEH.csv")
     data = a.pre_process()
-    train, test = a.partition("random")
-    
+    train, test = a.partition("user")
     pp = PreProViewer([1,1000], [100,700], 1000, "log")
-    pp.view(train_data=train, test_data=test)
-    
+    pp.view(train_data=train,test_data=test)
+
 if __name__ == "__main__":
     # curves()
     # pi()

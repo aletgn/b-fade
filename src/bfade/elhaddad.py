@@ -133,7 +133,7 @@ class ElHaddadDataset(AbstractDataset):
     def populate(self, data):
         return {"X": getattr(self, data)[["sqrt_area", "delta_sigma"]].to_numpy(),
                 "y": getattr(self, data)["failed"].to_numpy(),
-                "aux": self.aux,
+                "aux": getattr(self, data)["dk"].to_numpy(),
                 "aux_min": self.aux_min,
                 "aux_max": self.aux_max,
                 "Y": self.Y}

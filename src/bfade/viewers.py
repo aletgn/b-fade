@@ -89,8 +89,9 @@ class PreProViewer():
             self.x = np.logspace(np.log10(x_edges[0]), np.log10(x_edges[1]), n)
         else:
             self.x = np.linspace(x_edges[0], x_edges[1], n)
-    
-    def add_colourbar(self, ref):
+
+
+    def add_colourbar(self, ref, vmin, vmax):
         """
         Add a colorbar to the El Haddad plot.
 
@@ -107,16 +108,17 @@ class PreProViewer():
         # _log.debug(f"{self.__class__.__name__}.{self.add_colourbar.__name__}")
         cbar = self.fig.colorbar(ref, ax=self.ax, orientation="vertical",
                                   pad=0.05, format="%.1f",
-                                #   ticks=list(np.linspace(self.delta_k_min,
-                                #                          self.delta_k_max, 11)),
+                                  ticks=list(np.linspace(vmin, vmax, 11)),
                                   label='$\Delta K$ [MPa $\sqrt{m}]$')
+        
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
 
     def view(self, **kwargs):
         self.fig, self.ax = plt.subplots(dpi=300)
         self.sr = None
         self.ss = None
-        
+        #self.state = self.name
+                
         try:
             confidence = kwargs.pop("confidence")
         except:
@@ -152,7 +154,7 @@ class PreProViewer():
             if k == "train_data":
                 y0 = np.where(kwargs[k].y==0)
                 y1 = np.where(kwargs[k].y==1)
-                
+
                 try:
                     c0=kwargs[k].aux[y0]
                     c1=kwargs[k].aux[y1]
@@ -163,7 +165,7 @@ class PreProViewer():
                     c1 = [1]*len(y1[0])
                     vmin = 0
                     vmax = 1
-                
+
                 self.sr = self.ax.scatter(kwargs[k].X[y0, 0], kwargs[k].X[y0, 1],
                                           marker='o',
                                           c=c0, vmin=vmin, vmax=vmax,
@@ -182,7 +184,7 @@ class PreProViewer():
                                 # label='Runout', zorder=10
                                 )
                 if self.ss is None:
-                    self.add_colourbar(self.sr)
+                    self.add_colourbar(self.sr, vmin, vmax)
 
             elif k == "test_data":
                 y0 = np.where(kwargs[k].y==0)
@@ -199,8 +201,6 @@ class PreProViewer():
                     vmin = 0
                     vmax = 1
 
-                y0 = np.where(kwargs[k].y==0)
-                y1 = np.where(kwargs[k].y==1)
                 self.ss = self.ax.scatter(kwargs[k].X[y0,0], kwargs[k].X[y0,1],
                                           marker='s',
                                           c=c0, vmin=vmin, vmax=vmax,
@@ -219,7 +219,7 @@ class PreProViewer():
                                           # label='Runout', zorder=10
                                           )
                 if self.sr is None:
-                    self.add_colourbar(self.ss)
+                    self.add_colourbar(self.ss, vmin, vmax)
 
             elif k == "curve":
                 for c in kwargs[k]:
