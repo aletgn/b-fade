@@ -17,23 +17,28 @@ from abc import ABC, abstractmethod
 class AbstractDataset(ABC):
     
     def __init__(self, **kwargs):
-        
-        [setattr(self, k, kwargs[k]) for k in kwargs.keys()]
-        # self.train = None
-        # self.test = None
-        
-        # self.X = None
-        # self.y = None
-        
-    def read(self, reader: callable, filename: str, folder: str = "./", **kwargs: Dict[str, Any]) -> None:
-        self.data = reader(folder + filename)
-    
-    def enter(self, X, y, test, **kwargs):
-        self.X = X
-        self.y = y
-        self.test = test
-        [setattr(self, k, kwargs[k]) for k in kwargs]
-        
+        self.X = None
+        self.y = None
+
+        try:
+            path = kwargs.pop("path")
+            reader = kwargs.pop("reader")
+            self.data = reader(path, **kwargs)
+
+        except KeyError:
+            [setattr(self, k, kwargs[k]) for k in kwargs.keys()]
+            print(self.X)
+            
+            assert self.X != None
+            assert self.y != None
+            
+        except KeyError:
+            self.X = kwargs.pop("X")
+            self.y = kwargs.pop("y")
+
+        except KeyError:
+            raise Exception("data load unsuccessful.")
+
     @abstractmethod
     def pre_process():
         pass
@@ -42,6 +47,7 @@ class AbstractDataset(ABC):
     def populate():
         pass
     
+    @abstractmethod
     def partition():
         pass
     
@@ -101,8 +107,9 @@ class ElHaddadDataset(AbstractDataset):
                         sif_range(self.data.delta_sigma, self.data.Y, self.data.sqrt_area*1e-6))
 
         # _log.debug(f"Calculate min max of delta_k for colour bars")
-        self.aux_min = self.data.dk.min()
-        self.aux_max = self.data.dk.max()
+        self.aux = self.data["dk"].to_numpy()
+        self.aux_min = self.aux.min()
+        self.aux_max = self.aux.max()
         
         return ElHaddadDataset(**self.populate("data"))
         
@@ -155,11 +162,13 @@ class ElHaddadDataset(AbstractDataset):
         return ElHaddadDataset(**self.populate("train")), ElHaddadDataset(**self.populate("test"))
             
     def populate(self, data):
+        print(self.aux)
+        
         return {"X": getattr(self, data)[["sqrt_area", "delta_sigma"]].to_numpy(),
                 "y": getattr(self, data)["failed"].to_numpy(),
-                # "aux": getattr(self, data)["dk"].to_numpy(),
-                # "aux_min": self.aux_min,
-                # "aux_max": self.aux_max,
+                "aux": self.aux,
+                "aux_min": self.aux_min,
+                "aux_max": self.aux_max,
                 "Y": self.Y}
         
 class SyntheticDataset:

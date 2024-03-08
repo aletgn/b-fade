@@ -47,8 +47,9 @@ def pred_post():
     d.make_grid([1, 1000],[100, 700], 15, 15, spacing="log")
     # d.inspect(scale="log")
     
-    b = BayesElHaddad("dk_th", "ds_w", theta_hat=np.array([5.00663972,600.18485208]),
-                      ihess=np.array([[ 5.06170001e-01, -1.01078680e+01],   [-1.01078680e+01,  1.40680324e+03]]))
+    b = BayesElHaddad("dk_th", "ds_w",
+                      theta_hat=np.array([5.00663972,600.18485208]),
+                      ihess=np.array([[ 5.06170001e-01, -1.01078680e+01], [-1.01078680e+01,  1.40680324e+03]]))
     
     m = MonteCarlo(1000)
     m.sample_joint(b)
@@ -60,17 +61,16 @@ def pred_post():
             curve = [eh, eh1],
             prediction_interval=m, ref_curve=ElHaddadCurve, confidence=0.95, y=0.65)  
     
-def data_view():
-    a = ElHaddadDataset()
-    a.read(pd.read_csv, "SyntheticEH.csv")
-    data = a.pre_process()
-    train, test = a.partition("random")
+a = ElHaddadDataset(reader=pd.read_csv, path="./SyntheticEH.csv")
+# data = a.pre_process()
+# train, test = a.partition("random")
+# print(a.aux)
     
-    pp = PreProViewer([1,1000], [100,700], 1000, "log")
-    pp.view(train_data=train, test_data=test)
+    # pp = PreProViewer([1,1000], [100,700], 1000, "log")
+    # pp.view(train_data=train, test_data=test)
     
-if __name__ == "__main__":
-    # curves()
-    # pi()
-    # pred_post()
-    data_view()
+# if __name__ == "__main__":
+#     # curves()
+#     # pi()
+#     # pred_post()
+#     data_view()
