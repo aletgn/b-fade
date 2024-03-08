@@ -10,9 +10,11 @@ from scipy.stats import norm
 from bfade.datagen import SyntheticDataset
 from bfade.elhaddad import ElHaddadBayes, ElHaddadCurve, ElHaddadDataset
 from bfade.statistics import uniform, MonteCarlo
-from bfade.util import grid_factory
+from bfade.util import grid_factory, logger_manager
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer, PreProViewer
 import pandas as pd
+
+logger_manager(level="INFO")
 
 def curves():
     pp = PreProViewer(scale="log")
@@ -64,8 +66,8 @@ def data_view():
     a = ElHaddadDataset(reader=pd.read_csv, path="./SyntheticEH.csv")
     data = a.pre_process()
     train, test = a.partition("user")
-    pp = PreProViewer([1,1000], [100,700], 1000, "log")
-    pp.view(train_data=train,test_data=test)
+    # pp = PreProViewer([1,1000], [100,700], 1000, "log")
+    # pp.view(train_data=train,test_data=test)
 
 if __name__ == "__main__":
     # curves()

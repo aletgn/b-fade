@@ -1,11 +1,15 @@
+from typing import Dict, Any
 import numpy as np
+import pandas as pd
 from scipy.special import expit
 
 from sklearn.model_selection import train_test_split as tts
 
 from bfade.abstract import AbstractBayes, AbstractCurve, AbstractDataset
 from bfade.util import sif_equiv, inv_sif_range, sif_range
-from bfade.util import MissingInputException
+from bfade.util import MissingInputException, YieldException, logger_factory
+
+_log = logger_factory(name=__name__, level="DEBUG")
 
 class ElHaddadCurve(AbstractCurve):
     
@@ -22,7 +26,7 @@ class ElHaddadCurve(AbstractCurve):
 
 class ElHaddadDataset(AbstractDataset):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__(**kwargs)
 
     def pre_process(self, **kwargs):
@@ -33,7 +37,7 @@ class ElHaddadDataset(AbstractDataset):
 
              - convert sqrt_area using the SIF equivalence
 
-             - compute SIF dk
+             - compute SIF
 
         Parameters
         ----------
@@ -47,35 +51,35 @@ class ElHaddadDataset(AbstractDataset):
             as a keyword argument.
 
         """
-        # _log.debug(f"{self.__class__.__name__}.{self.pre_process.__name__}")
+        _log.debug(f"{self.__class__.__name__}.{self.pre_process.__name__}")
         try:
-            self.y_ref = kwargs.pop("Y_ref")
-            # _log.warning(f"y_ref user-provided = {self.y_ref:.2f}")
+            self.Y = kwargs.pop("Y_ref")
+            _log.warning(f"Y_ref user-provided = {self.Y:.2f}")
         except KeyError:
-            # _log.warning(f"y_ref not user-provided")
-            # _log.warning("Verify uniqueness of y")
+            _log.warning(f"Y_ref not user-provided")
+            _log.warning("Verify uniqueness of Y")
             if len(set(self.data.Y)) == 1:
                 self.Y = list(set(self.data.Y))[0]
-                # _log.debug(f"y_ref is unique = {self.y_ref:.2f}")              
+                _log.debug(f"Y is unique = {self.Y:.2f}")              
             else:
-                # _log.error(f"y is not unique")
-                # _log.debug(f"Values found: {set(self.data.y)}")
-                raise MissingInputException("y_ref is neither unique nor provided")
+                _log.error(f"Y is not unique")
+                _log.debug(f"Values found: {set(self.data.Y)}")
+                raise MissingInputException("Y_ref is neither unique nor provided")
 
-        # _log.info("Update dataframe")
+        _log.info("Update dataframe")
         self.data.rename(columns={"Y": "Y_"}, inplace=True)
         self.data.insert(list(self.data.columns).index("Y_")+1, "Y", self.Y)
 
-        # _log.warning(f"Convert sqrt_area by {self.y_ref:.2f}")
+        _log.warning(f"Convert sqrt_area by {self.Y:.2f}")
         self.data.rename(columns={"sqrt_area": "sqrt_area_"}, inplace=True)
         self.data.insert(list(self.data.columns).index("sqrt_area_")+1, "sqrt_area",
                         sif_equiv(self.data.sqrt_area_, self.data.Y_, self.Y))
 
-        # _log.info("Compute SIF range")
+        _log.info("Compute SIF range")
         self.data.insert(list(self.data.columns).index("Y")+1, "dk",
                         sif_range(self.data.delta_sigma, self.data.Y, self.data.sqrt_area*1e-6))
 
-        # _log.debug(f"Calculate min max of delta_k for colour bars")
+        _log.debug(f"Calculate min max of delta_k for colour bars")
         self.aux = self.data["dk"].to_numpy()
         self.aux_min = self.aux.min()
         self.aux_max = self.aux.max()
@@ -113,10 +117,9 @@ class ElHaddadDataset(AbstractDataset):
         None.
 
         """
-        # _log.debug(f"{self.__class__.__name__}.{self.partition.__name__}")
-        # if self.scaler_delta_k or self.scaler_delta_sigma or self.scaler_sqrt_area:
-            # raise YieldException("Partitioning must be done before defining scalers")
-        # _log.warning(f"Train/test split. Method: {method}")
+        _log.debug(f"{self.__class__.__name__}.{self.partition.__name__}")
+        
+        _log.warning(f"Train/test split. Method: {method}")
         if method == "random":
             self.split_method = method
             self.train, self.test = tts(self.data, test_size=test_size,
@@ -130,14 +133,33 @@ class ElHaddadDataset(AbstractDataset):
 
         return ElHaddadDataset(**self.populate("train")), ElHaddadDataset(**self.populate("test"))
 
-    def populate(self, data):
+    def populate(self, data: str) -> Dict[str, Any]:
+        """
+        Compose dataset making attributes X = [sqrt_area, delta_sigma], y = failed, and aux = dk.
+
+        Parameters
+        ----------
+        data : string
+            
+
+        Raises
+        ------
+        Exception
+            if "method" is not included in the possible choices, then throw an
+            exception.
+
+        Returns
+        -------
+        Dict[str, Any]
+            The composed dataset to be loaded.
+
+        """
         return {"X": getattr(self, data)[["sqrt_area", "delta_sigma"]].to_numpy(),
                 "y": getattr(self, data)["failed"].to_numpy(),
                 "aux": getattr(self, data)["dk"].to_numpy(),
                 "aux_min": self.aux_min,
                 "aux_max": self.aux_max,
                 "Y": self.Y}
-
 
 class ElHaddadBayes(AbstractBayes):
 

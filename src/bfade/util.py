@@ -1,6 +1,7 @@
-from math import pi
-import numpy as np
 from typing import List, Tuple
+from math import pi
+import logging
+import numpy as np
 
 class MissingInputException(Exception):
     """Ensure required parameters are passed in specific contexts."""
@@ -13,6 +14,63 @@ class YieldException(Exception):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
+
+def logger_factory(name: str="root", level: str="DEBUG") -> logging.Logger:
+    """ Instantiate a logger object.
+
+    Parameters
+    ----------
+    name : str
+        name of the logger. The default is "root".
+    level: str
+        level of logging. The default is "DEBUG".
+
+    Return
+    ------
+    logger : Logger from logging module.
+
+    """
+    level = level.upper()
+    logger = logging.getLogger(name)
+    logger.setLevel(getattr(logging, level))
+    
+    ch1 = logging.StreamHandler()
+    ch1.setLevel(getattr(logging, level))
+    logger.addHandler(ch1)
+
+    fmt1 = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                            #  "%Y-%m-%d %H:%M:%S"
+                            "%H:%M:%S",
+                            )
+    ch1.setFormatter(fmt1)
+
+    return logger
+
+def logger_manager(level: str, fmt: str = None) -> None:
+    """
+    Manage loggers. Get the loggers to modify level and format.
+
+    Parameters
+    ----------
+    level : str
+        level of logging. The default is "DEBUG".
+    fmt : str
+        format of logging
+
+    Return
+    ------
+        None.
+    """
+    for name, logg in logging.Logger.manager.loggerDict.items():
+        if isinstance(logg, logging.Logger):
+            if __package__ in name:
+                logg.setLevel(getattr(logging, level.upper()))
+                if fmt:
+                    [h.setFormatter(
+                        logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+                        ) for h in logg.handlers]
+
+_log = logger_factory(name=__name__, level="DEBUG")
 
 def identity(X: np.ndarray) -> None:
     """
