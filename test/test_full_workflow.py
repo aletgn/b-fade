@@ -9,6 +9,7 @@ np.seterr(divide='ignore', invalid='ignore')
 from bfade.elhaddad import ElHaddadCurve, ElHaddadBayes
 from bfade.datagen import SyntheticDataset
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer
+from bfade.statistics import MonteCarlo
 
 from sklearn.metrics import log_loss
 from scipy.stats import norm
@@ -19,7 +20,7 @@ def invoke_curve():
     return eh
 
 def gen_data(curve):
-    sd = SyntheticDataset(eh)
+    sd = SyntheticDataset(curve)
     sd.make_grid([1, 1000],[50, 800], 30, 30, spacing="log")
     sd.clear_points(tol=1)
     sd.make_classes()
@@ -56,13 +57,24 @@ def laplace_view():
     l.contour(bay)
     l.marginals(bay)
 
+def monte_carlo():
+    bay = ElHaddadBayes("dk_th", "ds_w", theta_hat = np.array([2.64310718, 400.28437582]),
+                        ihess = np.array([[ 2.60637826e-01, -1.33212611e+01],
+                                          [-1.33212611e+01,  6.57914950e+03]]))
+
+    mc = MonteCarlo(100)
+    mc = MonteCarlo(1000)
+    mc.sample_marginals(bay)
+    mean, pred, _ = mc.prediction_interval([1,1000], 1000, "lin", ElHaddadCurve, y=0.65)
+
 
 if __name__ == "__main__":
-    eh = invoke_curve()
-    sd = gen_data(eh)
+    # eh = invoke_curve()
+    # sd = gen_data(eh)
     # signed_distance(eh, sd)
     # bay = bayesian_inference(sd)
     # laplace_view()
+    monte_carlo()
     
     
     
