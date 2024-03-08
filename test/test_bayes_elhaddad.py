@@ -188,14 +188,14 @@ def likelihood_args():
     
     
 if __name__ == "__main__":
-    # istantiation()
-    # b = priors()
-    # calc_prior()
-    # calc_likelihood()
-    # display_log_likelihood()
+    istantiation()
+    b = priors()
+    calc_prior()
+    calc_likelihood()
+    display_log_likelihood()
     display_log_prior()
-    # display_log_posterior()
-    # display_bayes_tube()
-    # run_map()
-    # likelihood_args()
+    display_log_posterior()
+    display_bayes_tube()
+    run_map()
+    likelihood_args()
     pass

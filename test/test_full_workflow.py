@@ -31,15 +31,17 @@ def signed_distance(curve, dataset):
     curve.inspect_signed_distance(np.linspace(1, 1000, 100), x1_min, x2_min, signed_dist, dataset.X, scale="log")
 
 def bayesian_inference():
-    b = BayesElHaddad("dk_th", "ds_w")
-    b.load_prior("dk_th", norm, loc=5, scale=1)
-    b.load_prior("ds_w", norm, loc=600, scale=50)
-    b.load_log_likelihood(log_loss, normalize=True)
+    bay = BayesElHaddad("dk_th", "ds_w")
+    bay.load_prior("dk_th", norm, loc=5, scale=1)
+    bay.load_prior("ds_w", norm, loc=600, scale=50)
+    bay.load_log_likelihood(log_loss, normalize=True)
+    return bay
 
 if __name__ == "__main__":
     eh = invoke_curve()
     sd = gen_data(eh)
-    #signed_distance(eh, sd)
+    # signed_distance(eh, sd)
+    bay = bayesian_inference()
     
     
     
