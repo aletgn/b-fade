@@ -205,6 +205,9 @@ class ElHaddadBayes(AbstractBayes):
         :math:`\mathcal{H}(\mathbf{x}_i, \\theta)` is the signed distance of the sample
         to the El Haddad curve of parameters :math:`\\theta`.
 
+        The position of the training points wrt the target curve are computed over\
+        the log-log plane.
+
         Parameters
         ----------
         D : ElHaddadDataset

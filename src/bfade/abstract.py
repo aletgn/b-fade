@@ -214,14 +214,22 @@ class AbstractCurve(ABC):
 class AbstractBayes(ABC):
     """Bayesian framework to perform Maximum a Posterior Estimation and predictions."""
     
-    def __init__(self, *pars, **args) -> None:
+    def __init__(self, *pars: List[float], **args: Dict[str, Any]) -> None:
         """
         Initialize the instance with a given name.
         
         Parameters
         ----------
-        name : str, optional
-            The name to assign to the instance. Default is "Untitled".
+        pars : List[str]
+            List of the names of the trainable parameters.
+
+        args: Dict[str, Any]
+
+            - theta_hat : np.ndarray
+                expected value of the parameter (if available).
+
+            - ihess : np.ndarray
+                Inverse Hessian matrix of the log-posterior (if available).
         
         Returns
         -------
@@ -266,16 +274,16 @@ class AbstractBayes(ABC):
         """
         setattr(self, "prior_" + par, distribution(dist, **args))
         
-    def load_log_likelihood(self, log_loss_fn: callable, **args):
+    def load_log_likelihood(self, log_loss_fn: callable, **args: Dict[str, Any]) -> None:
         """
         Load a likelihood loss function.
 
         Parameters
         ----------
         log_loss_fn : callable
-            DESCRIPTION.
-        **args : TYPE
-            DESCRIPTION.
+            Log-likelihood function.
+        **args : Dict[str, Any]
+            Arguments of the log-likelihood function.
 
         Returns
         -------
@@ -286,33 +294,33 @@ class AbstractBayes(ABC):
         self.log_likelihood_loss = log_loss_fn
     
     @abstractmethod
-    def predictor(self, D, *P: Dict) -> None:
+    def predictor(self, D, *P: Dict[str, Any]) -> None:
         """
         Abstract method for making predictions using a model.
          
         Parameters
         ----------
-        D : np.ndarray
+        D : AbstractDataset
             Training Input dataset.
-        P : Any
+        P : Dict[str, Any]
             Trainable parameters.
          
         Returns
         -------
-        Any
+        np.ndarray
             The result of the prediction.
     
         """
         ...
     
-    def log_prior(self, *P: Dict) -> float:
+    def log_prior(self, *P: Dict[str, Any]) -> float:
         """
-        Calculate the log-prior probability.
+        Calculate the log-prior probability hypthesising initially independent distributions.
     
         Parameters
         ----------
-        P : Dict
-            Trainable parameters.
+        P : Dict[str, Any]
+            Distribution and related arguments to be prescribed over the parameter.
     
         Returns
         -------
@@ -322,13 +330,13 @@ class AbstractBayes(ABC):
         """
         return np.array([getattr(self, "prior_" + p).logpdf(P[(self.pars.index(p))]) for p in self.pars]).sum()
     
-    def log_likelihood(self, D, *P: Dict) -> float:
+    def log_likelihood(self, D, *P: Dict[str, Any]) -> float:
         """
         Calculate the log-likelihood.
     
         Parameters
         ----------
-        D : 
+        D : AbstractDataset
             Input dataset.
         P : Dict[str]
             Trainable parameters.
@@ -341,15 +349,15 @@ class AbstractBayes(ABC):
         """
         return -self.log_likelihood_loss(D.y, self.predictor(D, *P), **self.log_likelihood_args)
     
-    def log_posterior(self, D, *P: Dict) -> float:
+    def log_posterior(self, D, *P: Dict[str, Any]) -> float:
         """
         Calculate the log-posterior.
     
         Parameters
         ----------
-        D : 
+        D : AbstractDataset
             Input dataset.
-        P : Dict[str]
+        P : Dict[str, Any]
             Trainable parameters.
     
         Returns
@@ -360,8 +368,29 @@ class AbstractBayes(ABC):
         """
         return self.log_prior(*P) + self.log_likelihood(D, *P)
     
-    def MAP(self, D, x0=[1,1], solver: str ="L-BFGS-B"):
-        
+    def MAP(self, D, x0=[1,1], solver: str ="L-BFGS-B") -> None:
+        """
+        Find the Maximum A Posteriori (MAP) estimate for the parameters.
+
+        Parameters
+        ----------
+        D : AbstractDataset
+            The input data.
+        x0 : list, optional
+            Initial guess for the parameters, by default [1, 1].
+        solver : str, optional
+            The optimization solver to use, by default "L-BFGS-B".
+
+        Raises
+        ------
+        Exception
+            Raised if MAP optimization does not succeed.
+
+        Returns
+        -------
+        None
+
+        """
         def callback(X):
             current_min = -self.log_posterior(D, *X)
             print(f"Iter: {self.n_eval:d} -- Params: {X} -- Min {current_min:.3f}")
@@ -386,12 +415,41 @@ class AbstractBayes(ABC):
             else:
                 raise Exception("MAP did not succeede.")
             
-    def laplace_posterior(self):
+    def laplace_posterior(self) -> None:
+        """
+        Load Laplace approximation.
+
+        .. math::
+            P[\\theta | D] \sim \mathcal{N}(\hat{\\theta}, \mathbf{H}^{-1})
+
+        and its marginal distributions, where :math:`\hat{\\theta}` is the optimal value from MAP,\
+            and :math:`\mathbf{H}^{-1}` is the inverse Hessian matrix of :math:`-\log P[\\theta | D]`
+
+        Returns
+        -------
+        None.
+
+        """
         self.joint = multivariate_normal(mean = self.theta_hat, cov=self.ihess)
         for idx in range(self.theta_hat.shape[0]):
             setattr(self, "marginal_" + self.pars[idx], norm(loc=self.theta_hat[idx], scale=self.ihess[idx][idx]**0.5))
       
-    def predictive_posterior(self, posterior_samples, D):
+    def predictive_posterior(self, posterior_samples: int, D) -> None:
+        """
+        Evaluate the predictive posterior using the specified number of samples.
+
+        Parameters
+        ----------
+        posterior_samples : int
+            The number of posterior samples to generate. Default is 10.
+        D : AbstractDataset
+            The input data for prediction.
+
+        Returns
+        -------
+        np.ndarray
+            Predictive posterior samples.
+        """
         self.posterior_samples = posterior_samples
         predictions = []
         
@@ -402,14 +460,37 @@ class AbstractBayes(ABC):
         
         return predictions
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
         return f"{self.__class__.__name__}({attributes_str})"
 
 class AbstractMAPViewer(ABC):
     
-    def __init__(self, p1, b1, n1, p2, b2, n2, spacing):
-        
+    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float) -> None:
+        """
+        Initialize the AbstractMAPViewer.
+
+        Parameters
+        ----------
+        p1 : str
+            Name of the first parameter.
+        b1 : list
+            Bounds for the first parameter.
+        n1 : int
+            Number of grid points for the first parameter.
+        p2 : str
+            Name of the second parameter.
+        b2 : list
+            Bounds for the second parameter.
+        n2 : int
+            Number of grid points for the second parameter.
+        spacing : float
+            Spacing between grid points, linear of logarithmic.
+
+        Returns
+        -------
+        None
+        """
         self.pars = (p1, p2)
         self.p1 = p1
         self.p2 = p2
@@ -427,6 +508,9 @@ class AbstractMAPViewer(ABC):
     
     @abstractmethod
     def contour(self):
+        """
+        Display the contour of the Bayes elements log-prior, -likelihood, and -posterior.
+        """
         ...
     
     def config_contour(self):
@@ -484,12 +568,21 @@ class AbstractDataset(ABC):
 
     @abstractmethod
     def pre_process():
+        """
+        Abstract method for pre processing the input data.
+        """
         pass
 
     @abstractmethod
     def populate():
+        """
+        Abstract method for assembling input and output features.
+        """
         pass
 
     @abstractmethod
     def partition():
+        """
+        Abstract method for making train/test split.
+        """
         pass

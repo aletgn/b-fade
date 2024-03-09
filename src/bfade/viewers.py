@@ -6,10 +6,26 @@ from bfade.abstract import AbstractMAPViewer
 
 class BayesViewer(AbstractMAPViewer):
     
-    def __init__(self, p1, b1, n1, p2, b2, n2, spacing):
+    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float) -> None:
         super().__init__(p1, b1, n1, p2, b2, n2, spacing)
         
     def contour(self, element="log_prior", bayes=None, dataset=None):
+        """
+        Create a contour plot for the specified element.
+
+        Parameters
+        ----------
+        element : str, optional
+            The element for which the contour plot is generated. Default is "log_prior".
+        bayes : ElHaddadBayes, optional
+            An instance of the Bayesian class. Default is default None.
+        dataset : AbstractDataset
+            The trainin dataset. Default is None.
+
+        Returns
+        -------
+        None
+        """
         fig, ax = plt.subplots(dpi=300)
         
         if element == "log_prior":
@@ -33,8 +49,31 @@ class BayesViewer(AbstractMAPViewer):
 
 class LaplacePosteriorViewer(AbstractMAPViewer):
     
-    def __init__(self, p1, c1, n1, p2, c2, n2, bayes):
-        
+    def __init__(self, p1: str, c1: float, n1: int, p2: str, c2: float, n2: int, bayes: YourBayesClass) -> None:
+        """
+        Initialize LaplacePosteriorViewer.
+
+        Parameters
+        ----------
+        p1 : str
+            Name of the first parameter.
+        c1 : float
+            Coverage factore for the first parameter.
+        n1 : int
+            Number of grid points for the first parameter.
+        p2 : str
+            Name of the second parameter.
+        c2 : float
+            Coverage factore for  the second parameter.
+        n2 : int
+            Number of grid points for the second parameter.
+        bayes : AbstractBayes
+            An instance of AbstractBayes.
+
+        Returns
+        -------
+        None
+        """
         self.c1 = c1
         self.c2 = c2
         
@@ -49,6 +88,10 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         pass
     
     def contour(self, bayes):
+        """
+        Plot joint posterior distribution.
+
+        """
         fig, ax = plt.subplots(dpi=300)
         
         el_cnt = np.array([bayes.joint.pdf([pp1, pp2]) for pp1, pp2 
@@ -66,6 +109,10 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         plt.show()
 
     def marginals(self, bayes):
+        """
+        Plot joint posterior distribution.
+        
+        """
         for p in bayes.pars:
             fig, ax = plt.subplots(dpi=300)
             ax.plot(np.sort(getattr(self, p)),

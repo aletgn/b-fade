@@ -194,6 +194,6 @@ class SyntheticDataset:
         plt.yscale(scale)
         plt.show()
         
-    def __repr__(self):
+    def __repr__(self) -> str:
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
         return f"{self.__class__.__name__}({attributes_str})"
