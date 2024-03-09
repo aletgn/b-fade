@@ -16,7 +16,32 @@ class ElHaddadCurve(AbstractCurve):
     def __init__(self, **pars):    
         super().__init__(**pars)
     
-    def equation(self, X):
+    def equation(self, X: np.ndarray) -> np.ndarray:
+        """
+        Concrete representation of Evaluate El-Haddad curve over a given :math:`\sqrt{\\text{area}}` range.
+
+        .. math::
+            \Delta\sigma = \Delta\sigma_w\sqrt{{\sqrt{\\text{area}_0}}\
+                                            \over{\sqrt{\\text{area}_0} \
+                                                    + \sqrt{\\text{area}}}}
+
+        where
+
+        .. math::
+            \sqrt{\\text{area}_0} = {1 \over \pi} \\bigg({{\Delta K_{th}}
+                                            \over {Y \Delta \sigma_{w}}}\\bigg)^2
+        
+        Parameters
+        ----------
+            X : np.ndarray
+                range of sqrt_area
+
+        Returns
+        -------
+        np.ndarray
+            Evaluated El Haddad curve along the given sqrt_area values.
+            
+        """
         self.sqrt_a0 = inv_sif_range(self.dk_th*1000, self.ds_w, self.y)
         return self.ds_w * ((self.sqrt_a0/(X+self.sqrt_a0))**0.5)
 
@@ -163,7 +188,36 @@ class ElHaddadBayes(AbstractBayes):
     def __init__(self, *pars, **args):
         super().__init__(*pars, **args)
 
-    def predictor(self, D, *P):
+    def predictor(self, D, *P: Dict[str, float]):
+        """
+        Perform logistic prediction based on the given parameters and dataset.
+
+        .. math::
+            P[\mathbf{x}_i | \\theta] = {{1}\over{1+\exp [-\mathcal{H}(\mathbf{x}_i, \\theta)]}}
+
+        where :math:`\\theta` is the vector of trainable parameters
+
+        .. math::
+            \\theta = [\Delta K_{th,lc}\ \Delta\sigma_w]
+
+        and :math:`\mathbf{x}_i \in D` is a sample from the given dataset.
+
+        :math:`\mathcal{H}(\mathbf{x}_i, \\theta)` is the signed distance of the sample
+        to the El Haddad curve of parameters :math:`\\theta`.
+
+        Parameters
+        ----------
+        D : ElHaddadDataset
+        
+        P : Dict[str, float]
+            Dictionary of the trainable parameters
+
+        Returns
+        -------
+        numpy.ndarray
+            An array containing the logistic predictions.
+
+        """
         eh = ElHaddadCurve(metrics=np.log10, dk_th=P[0], ds_w=P[1], y=0.65)
         signed_distance, _, _ = eh.signed_distance_to_dataset(D)
         return expit(signed_distance)

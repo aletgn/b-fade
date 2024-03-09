@@ -439,7 +439,28 @@ class AbstractMAPViewer(ABC):
 
 class AbstractDataset(ABC):
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Dict[str, Any]) -> None:
+        """
+        Abstract representation of train/test datasets.
+
+        Parameters
+        ----------
+        kwargs : Dict[str, Any]
+            X : np.ndarray
+                Array of the input features.
+
+            y : np.ndarray
+                Array of the output features.
+
+            reader : callable
+                Pandas reader. 
+
+        Returns
+        -------
+        None
+
+        """
+        
         self.X = None
         self.y = None
 
