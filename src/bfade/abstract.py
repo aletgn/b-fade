@@ -466,7 +466,7 @@ class AbstractBayes(ABC):
 
 class AbstractMAPViewer(ABC):
     
-    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float) -> None:
+    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float, **kwargs: Dict[str, float]) -> None:
         """
         Initialize the AbstractMAPViewer.
 
@@ -486,11 +486,22 @@ class AbstractMAPViewer(ABC):
             Number of grid points for the second parameter.
         spacing : float
             Spacing between grid points, linear of logarithmic.
+        kwargs: Dict[str, float]
+
+            - name: str
+                name of the instance.
+
 
         Returns
         -------
         None
+
         """
+        try:
+            self.name = kwargs.pop("name")
+        except KeyError:
+            self.name = "Untitled"
+
         self.pars = (p1, p2)
         self.p1 = p1
         self.p2 = p2
@@ -513,8 +524,26 @@ class AbstractMAPViewer(ABC):
         """
         ...
     
-    def config_contour(self):
-        pass
+    def config_contour(self, levels: int = 21, clevels: int = 11,  cmap: str = "viridis") -> None:
+        """
+        Configure contour plot settings.
+
+        Parameters
+        ----------
+        levels : int, optional
+            The number of contour levels for the main plot. Default 21.
+        clevels : int, optional
+            The number of contour levels for the colorbar. Default 11.
+        cmap : str, optional
+            The colormap to use for the plot, by default "viridis".
+
+        Returns
+        -------
+        None
+        """
+        self.levels = levels
+        self.clevels = clevels
+        self.cmap = cmap
     
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
@@ -543,8 +572,7 @@ class AbstractDataset(ABC):
         -------
         None
 
-        """
-        
+        """        
         self.X = None
         self.y = None
 

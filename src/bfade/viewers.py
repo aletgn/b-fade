@@ -1,14 +1,18 @@
+from typing import Dict, Any
 import numpy as np
 import matplotlib.pyplot as plt
 
-from bfade.util import grid_factory
+from bfade.util import grid_factory, logger_factory
 from bfade.abstract import AbstractMAPViewer
+
+_log = logger_factory(name=__name__, level="DEBUG")
 
 class BayesViewer(AbstractMAPViewer):
     
-    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float) -> None:
-        super().__init__(p1, b1, n1, p2, b2, n2, spacing)
-        
+    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float, **kwargs: Dict[str, float]) -> None:
+        super().__init__(p1, b1, n1, p2, b2, n2, spacing, **kwargs)
+        self.config_contour()
+
     def contour(self, element="log_prior", bayes=None, dataset=None):
         """
         Create a contour plot for the specified element.
@@ -36,14 +40,23 @@ class BayesViewer(AbstractMAPViewer):
                                zip(getattr(self, self.p1), getattr(self, self.p2))])
         
         cnt =  ax.tricontour(getattr(self, self.p1), getattr(self, self.p2), el_cnt,
-                             levels=np.linspace(el_cnt.min(), el_cnt.max(), 21))
+                             levels=np.linspace(el_cnt.min(), el_cnt.max(), self.levels),
+                             cmap=self.cmap)
         
+        _log.debug(f"{self.__class__.__name__}.{self.contour.__name__}. Contour: {element:s}")
+
         cbar = plt.gcf().colorbar(cnt, ax=ax,
                                   orientation="vertical",
                                   pad=0.1,
-                                  format="%.1f",
+                                  format="%.3f",
+                                  ticks=np.linspace(el_cnt.min(), el_cnt.max(), self.clevels),
                                   label=element,
                                   alpha=0.65)
+        
+        ax.set_xlabel(self.p1)
+        ax.set_ylabel(self.p2)
+        ax.tick_params(direction='in', top=1, right =1)
+        cbar.ax.tick_params(direction='in', top=1, size=2.5)
         plt.show()
 
 
@@ -73,6 +86,7 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         Returns
         -------
         None
+
         """
         self.c1 = c1
         self.c2 = c2
@@ -83,17 +97,15 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         b2 = np.array([-c2, c2])*(bayes.ihess[idx_2][idx_2]**0.5) + bayes.theta_hat[idx_2]
         
         super().__init__(p1, b1, n1, p2, b2, n2, spacing="lin")
-
-    def config_marginals():
-        pass
+        self.config_contour()
     
-    def contour(self, bayes):
+    def contour(self, bayes) -> None:
         """
         Plot joint posterior distribution.
 
         """
+        _log.debug(f"{self.__class__.__name__}.{self.contour.__name__} -- joint poterior")
         fig, ax = plt.subplots(dpi=300)
-        
         el_cnt = np.array([bayes.joint.pdf([pp1, pp2]) for pp1, pp2 
                                       in zip(getattr(self, self.p1), getattr(self, self.p2))])
         
@@ -104,20 +116,35 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
                                   orientation="vertical",
                                   pad=0.1,
                                   format="%.3f",
-                                  label="posterior",
+                                  label="joint posterior",
                                   alpha=0.65)
+        ax.tick_params(direction='in', top=1, right =1)
+        cbar.ax.tick_params(direction='in', top=1, size=2.5)
         plt.show()
 
-    def marginals(self, bayes):
+    def marginals(self, p: str, bayes) -> None:
         """
-        Plot joint posterior distribution.
+        Plot marginal posterior distribution.
+
+        Parameters
+        ----------
+        p : str
+            Name of the parameter to be inspected.
+        bayes : AbstractBayes
+            Instance of AbstractBayes to query.
+
+        Returns
+        -------
+        None
         
         """
-        for p in bayes.pars:
-            fig, ax = plt.subplots(dpi=300)
-            ax.plot(np.sort(getattr(self, p)),
-                    getattr(bayes, "marginal_" + p).pdf(np.sort(getattr(self, p))))
-        
+        _log.debug(f"{self.__class__.__name__}.{self.marginals.__name__}")
+        fig, ax = plt.subplots(dpi=300)
+        ax.plot(np.sort(getattr(self, p)),
+                getattr(bayes, "marginal_" + p).pdf(np.sort(getattr(self, p))), "k")
+        ax.set_xlabel(p)
+        ax.set_ylabel("marginal posterior")
+        ax.tick_params(direction='in', top=1, right =1)
         plt.show()
 
 
