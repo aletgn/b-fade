@@ -140,7 +140,7 @@ class uniform():
 
 class MonteCarlo:
 
-    def __init__(self, n_samples: int) -> None:
+    def __init__(self, n_samples: int, curve, confidence: float = 95) -> None:
         """
         Initialise Monte Carlo simulation
 
@@ -148,6 +148,10 @@ class MonteCarlo:
         ----------
         samples : int
             number of samples to draw.
+        confidence : int, optional
+            Confidence level of the prediction interval. The default is 95.
+        curve : AbstractCurve
+            Reference curve.    
 
         Returns
         -------
@@ -156,6 +160,8 @@ class MonteCarlo:
         """
         _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__}")
         self.n_samples = n_samples
+        self.curve = curve
+        self.confidence = confidence
 
     def sample_joint(self, bayes) -> None:
         """
@@ -192,8 +198,7 @@ class MonteCarlo:
         self.pars = bayes.pars
         self.samples = np.array([getattr(bayes, "marginal_" + p).rvs(self.n_samples) for p in bayes.pars]).T
 
-    def prediction_interval(self, x_edges: List[float], n: int, spacing: str, 
-                            curve, confidence: float = 0.95, **args: Dict[str, Any]) -> Tuple:
+    def prediction_interval(self, x_edges: List[float], n: int, spacing: str, **args: Dict[str, Any]) -> Tuple:
         """
         Compute prediction intervals for a curve.
 
@@ -212,17 +217,14 @@ class MonteCarlo:
 
         Parameters
         ----------
-        confidence : int, optional
-            Confidence level of the prediction interval. The default is 95.
         spacing : str, optional
             spacing for x and y axes.
         x_edges : list of float, optional
             Edges of the x-axis over which the curve is plotted.
-        curve : AbstractCurve
-            Reference curve.    
         n : int, optional
             Resolution of the curve (number of points over x-axis). The default is 100.
-
+        kwargs:
+            extra input parameters of the curve not included in AbstractBayes
         Returns
         -------
         result : Tuple
@@ -235,8 +237,7 @@ class MonteCarlo:
             - 'x1': abscissa along with the prediction interval is computed.
 
         """
-        _log.info(f"{self.__class__.__name__}.{self.compute_prediction_interval.__name__}")
-        self.confidence = confidence
+        _log.info(f"{self.__class__.__name__}.{self.prediction_interval.__name__}")
         curves = []
         if spacing == "log":
             x1 = np.logspace(np.log10(x_edges[0]), np.log10(x_edges[1]), n)
@@ -246,11 +247,11 @@ class MonteCarlo:
         for s in self.samples:
             d = dict(zip(self.pars, s))
             d.update(**args)
-            curves.append(curve(**d).equation(x1))
+            curves.append(self.curve(**d).equation(x1))
 
         curves = np.array(curves)
         mean = curves.mean(axis=0)
         std = curves.std(axis=0)
-        pred = t_student(df=len(curves)-1).ppf(confidence/100)*std*((1+1/len(curves))**0.5)
+        pred = t_student(df=len(curves)-1).ppf(self.confidence/100)*std*((1+1/len(curves))**0.5)
 
         return mean, pred, x1

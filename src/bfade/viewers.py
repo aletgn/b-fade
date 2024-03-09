@@ -179,7 +179,7 @@ class PreProViewer():
         None
 
         """
-        # _log.debug(f"{self.__class__.__name__}.{self.add_colourbar.__name__}")
+        _log.debug(f"{self.__class__.__name__}.{self.add_colourbar.__name__}")
         cbar = self.fig.colorbar(ref, ax=self.ax, orientation="vertical",
                                   pad=0.05, format="%.1f",
                                   ticks=list(np.linspace(vmin, vmax, 11)),
@@ -192,17 +192,7 @@ class PreProViewer():
         self.sr = None
         self.ss = None
         #self.state = self.name
-                
-        try:
-            confidence = kwargs.pop("confidence")
-        except:
-            pass
-        
-        try:
-            curve = kwargs.pop("ref_curve")
-        except:
-            pass
-        
+       
         try:
             post_samples = kwargs.pop("post_samples")
         except:
@@ -300,10 +290,10 @@ class PreProViewer():
                     self.ax.plot(self.x, c.equation(self.x))
             
             elif k == "prediction_interval":
-                mean, pred, _ = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, curve, confidence, **det_pars)
-                self.ax.plot(self.x, mean, "k")
-                self.ax.plot(self.x, mean - pred, "k")
-                self.ax.plot(self.x, mean + pred, "k")
+                mean, pred, _ = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, **det_pars)
+                # self.ax.plot(self.x, mean, "k")
+                self.ax.plot(self.x, mean - pred, "-.k", label=fr"Pred. band. (@{50 - kwargs[k].confidence/2}$\%$)")
+                self.ax.plot(self.x, mean + pred, "--k", label=fr"Pred. band. (@{50 + kwargs[k].confidence/2}$\%$)")
             
             elif k == "predictive_posterior":
                 predictions = post_op(kwargs[k].predictive_posterior(post_samples, data), axis=0)
@@ -330,5 +320,6 @@ class PreProViewer():
         self.ax.set_xlim(self.x_edges)
         self.ax.set_ylim(self.y_edges)
         self.ax.tick_params(direction="in", which='both', right=1, top=1)
+        self.ax.legend()
         plt.show()
             

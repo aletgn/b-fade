@@ -62,19 +62,18 @@ def monte_carlo():
                         ihess = np.array([[ 2.60637826e-01, -1.33212611e+01],
                                           [-1.33212611e+01,  6.57914950e+03]]))
 
-    mc = MonteCarlo(100)
-    mc = MonteCarlo(1000)
+    mc = MonteCarlo(100, ElHaddadCurve, 0.95)
     mc.sample_marginals(bay)
-    mean, pred, _ = mc.prediction_interval([1,1000], 1000, "lin", ElHaddadCurve, y=0.65)
+    mean, pred, _ = mc.prediction_interval([1,1000], 1000, "lin", y=0.65)
 
 
 if __name__ == "__main__":
-    eh = invoke_curve()
-    sd = gen_data(eh)
-    signed_distance(eh, sd)
+    #eh = invoke_curve()
+    #sd = gen_data(eh)
+    #signed_distance(eh, sd)
     # bay = bayesian_inference(sd)
     # laplace_view()
-    # monte_carlo()
+    monte_carlo()
     
     
     
