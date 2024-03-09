@@ -1,8 +1,8 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 import numpy as np
 import matplotlib.pyplot as plt
 
-from bfade.util import grid_factory, logger_factory
+from bfade.util import grid_factory, logger_factory,  state_modifier
 from bfade.abstract import AbstractMAPViewer
 
 _log = logger_factory(name=__name__, level="DEBUG")
@@ -150,7 +150,8 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
 
 class PreProViewer():
     
-    def __init__(self, x_edges=[1,1000], y_edges=[100,700], n=1000, scale="linear", *deterministic):
+    def __init__(self, x_edges=[1,1000], y_edges=[100,700], n=1000, scale="linear",
+                 *deterministic: List[Any], **args: Dict[str, Any]):
         
         self.x_edges = x_edges
         self.y_edges = y_edges
@@ -159,12 +160,35 @@ class PreProViewer():
         self.n = n
         self.deterministic = deterministic
         
+        try:
+            self.name = args.pop("name")
+        except:
+            self.name = "Untitled"
+        
         if scale == "log":
             self.x = np.logspace(np.log10(x_edges[0]), np.log10(x_edges[1]), n)
         else:
             self.x = np.linspace(x_edges[0], x_edges[1], n)
+        
+        self.config()
 
-
+    def config(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = " ",
+               class0: str = "0", class1: str = "1",
+               save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300, 
+               legend_config: Dict[str, Any] = None) -> None:
+        
+        _log.debug(f"{self.__class__.__name__}.{self.config.__name__}")
+        self.xlabel = xlabel
+        self.ylabel = ylabel
+        self.cbarlabel = cbarlabel
+        self.class0 = class0
+        self.class1 = class1
+        self.save = save
+        self.folder = folder
+        self.fmt = fmt
+        self.dpi = dpi
+        self.legend_config = legend_config
+    
     def add_colourbar(self, ref, vmin, vmax):
         """
         Add a colorbar to the El Haddad plot.
@@ -183,21 +207,16 @@ class PreProViewer():
         cbar = self.fig.colorbar(ref, ax=self.ax, orientation="vertical",
                                   pad=0.05, format="%.1f",
                                   ticks=list(np.linspace(vmin, vmax, 11)),
-                                  label='$\Delta K$ [MPa $\sqrt{m}]$')
+                                  label=self.cbarlabel)
         
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
 
     def view(self, **kwargs):
-        self.fig, self.ax = plt.subplots(dpi=300)
+        self.fig, self.ax = plt.subplots(dpi=self.dpi)
         self.sr = None
         self.ss = None
-        #self.state = self.name
-       
-        try:
-            post_samples = kwargs.pop("post_samples")
-        except:
-            pass
-        
+        self.state = self.name
+               
         try:
             det = [kwargs.pop(d) for d in self.deterministic]
             det_pars = dict(zip(self.deterministic, det))
@@ -205,7 +224,12 @@ class PreProViewer():
             pass
         
         try:
-            data = kwargs.pop("data")
+            post_samples = kwargs.pop("post_samples")
+        except:
+            pass
+        
+        try:
+            post_data = kwargs.pop("post_data")
         except KeyError:
             pass
         
@@ -216,6 +240,7 @@ class PreProViewer():
         
         for k in kwargs:
             if k == "train_data":
+                _log.info("Inspect training data")
                 y0 = np.where(kwargs[k].y==0)
                 y1 = np.where(kwargs[k].y==1)
 
@@ -236,7 +261,7 @@ class PreProViewer():
                                           cmap='RdYlBu_r',
                                           edgecolor='k',
                                           s=50,
-                                          # label='Runout', zorder=10
+                                          label=self.class0+" (train)", zorder=10
                                           )
 
                 self.ax.scatter(kwargs[k].X[y1, 0], kwargs[k].X[y1, 1],
@@ -245,12 +270,15 @@ class PreProViewer():
                                 cmap='RdYlBu_r',
                                 edgecolor='k',
                                 s=50,
-                                # label='Runout', zorder=10
+                                label=self.class1+" (train)", zorder=10
                                 )
                 if self.ss is None:
                     self.add_colourbar(self.sr, vmin, vmax)
+                self.state = state_modifier(self.state, "test", "data", "train")
+                _log.debug(f"State: {self.state}")
 
             elif k == "test_data":
+                _log.info("Inspect test data")
                 y0 = np.where(kwargs[k].y==0)
                 y1 = np.where(kwargs[k].y==1)
                 
@@ -271,7 +299,7 @@ class PreProViewer():
                                           cmap='RdYlBu_r',
                                           edgecolor='k',
                                           s=50,
-                                          # label='Runout', zorder=10
+                                          label=self.class0+" (test)", zorder=10
                                           )
                 
                 self.ax.scatter(kwargs[k].X[y1,0], kwargs[k].X[y1,1],
@@ -280,37 +308,45 @@ class PreProViewer():
                                           cmap='RdYlBu_r',
                                           edgecolor='k',
                                           s=50,
-                                          # label='Runout', zorder=10
+                                          label=self.class1+" (test)", zorder=10
                                           )
                 if self.sr is None:
                     self.add_colourbar(self.ss, vmin, vmax)
+                self.state = state_modifier(self.state, "train", "data", "test")
+                _log.debug(f"State: {self.state}")
 
             elif k == "curve":
+                _log.info("Inspect given curves")
                 for c in kwargs[k]:
-                    self.ax.plot(self.x, c.equation(self.x))
-            
+                    self.ax.plot(self.x, c.equation(self.x), label=c.name)
+                    
+                    self.state += "_" + c.name.replace(" ", "")
+                    _log.debug(f"State: {self.state}")
+
             elif k == "prediction_interval":
+                _log.info("Inspect prediction interval")
                 mean, pred, _ = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, **det_pars)
                 # self.ax.plot(self.x, mean, "k")
                 self.ax.plot(self.x, mean - pred, "-.k", label=fr"Pred. band. (@{50 - kwargs[k].confidence/2}$\%$)")
                 self.ax.plot(self.x, mean + pred, "--k", label=fr"Pred. band. (@{50 + kwargs[k].confidence/2}$\%$)")
+                self.state += "_pi"
+                _log.debug(f"State: {self.state}")
             
             elif k == "predictive_posterior":
-                predictions = post_op(kwargs[k].predictive_posterior(post_samples, data), axis=0)
+                predictions = post_op(kwargs[k].predictive_posterior(post_samples, post_data), axis=0)
                 
-                pp = self.ax.tricontourf(data.X[:,0], data.X[:,1], predictions,
+                pp = self.ax.tricontourf(post_data.X[:,0], post_data.X[:,1], predictions,
                                          cmap='RdBu_r',
-                                         levels=np.linspace(predictions.min(),
-                                                            predictions.max()+1e-15, 21),
+                                         levels=np.linspace(predictions.min(), predictions.max()+1e-15, 21),
                                          antialiased='False')
         
                 cbar = self.fig.colorbar(pp, ax=self.ax, orientation="vertical",
                                           pad=0.03, format="%.2f",
-                                          # ticks=list(np.linspace(0, 1+1e-15, 21)),
                                           ticks = list(np.linspace(predictions.min(), predictions.max(), 11)),
-                                          # label=self.translator[sel]
-                                          )
+                                          label=post_op.__name__)
                 cbar.ax.tick_params(direction='in', top=1, size=2.5)
+                self.state += "_" + post_op.__name__
+                _log.debug(f"State: {self.state}")
             
             else:
                 raise KeyError
@@ -319,7 +355,15 @@ class PreProViewer():
         self.ax.set_yscale(self.y_scale)
         self.ax.set_xlim(self.x_edges)
         self.ax.set_ylim(self.y_edges)
+        self.ax.set_xlabel(self.xlabel)
+        self.ax.set_ylabel(self.ylabel)
         self.ax.tick_params(direction="in", which='both', right=1, top=1)
-        self.ax.legend()
+        
+        try:
+            legend = self.ax.legend(**self.legend_config)
+            _log.debug(f"{__class__.__name__}.{self.view.__name__}. Custom legend config")
+        except:
+            _log.info(f"{__class__.__name__}.{self.view.__name__}. Setting 'best'")
+            legend = self.ax.legend(loc="best")
         plt.show()
             

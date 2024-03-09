@@ -14,7 +14,7 @@ from bfade.util import grid_factory, logger_manager
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer, PreProViewer
 import pandas as pd
 
-logger_manager(level="INFO")
+logger_manager(level="DEBUG")
 
 def curves():
     pp = PreProViewer(scale="log")
@@ -56,20 +56,22 @@ def pred_post():
     m.sample_joint(b)
     
     pp = PreProViewer([1,1000], [100,700], 1000, "log", "y")
-    # pp.view(predictive_posterior=b, post_samples = 10, data=d, post_op=np.mean, curve = [eh, eh1])
+    pp.view(predictive_posterior=b, post_samples = 10, post_data=d, post_op=np.mean, curve = [eh, eh1])
     
-    pp.view(prediction_interval=m, y=0.65)  
+    #pp.view(prediction_interval=m, y=0.65)  
 
 def data_view():
     a = ElHaddadDataset(reader=pd.read_csv, path="./SyntheticEH.csv")
     data = a.pre_process()
     train, test = a.partition("user")
     pp = PreProViewer([1,1000], [100,700], 1000, "log")
+    pp.config(class0="Runout", class1="Failed", xlabel="sqrt_area", ylabel="delta_sigma", cbarlabel="delta_k")
+    
     pp.view(train_data=train, test_data=test)
 
 if __name__ == "__main__":
     # curves()
     # pi()
-    pred_post()
-    # data_view()
+    #pred_post()
+    data_view()
     

@@ -100,6 +100,33 @@ def logger_manager(level: str, fmt: str = None) -> None:
 
 _log = logger_factory(name=__name__, level="DEBUG")
 
+def state_modifier(string: str, target: str, repl_text: str, add_text: str) -> str:
+    """
+    Modify a string by replacing or adding text based on a target substring.
+
+    Parameters
+    ----------
+    string : str
+        The input string to be modified.
+    target : str
+        The target substring to search in the input string.
+    repl_text : str
+        The text that replaces the target substring when present.
+    add_text : str
+        The text added to the input string when if the target substring is absent.
+
+    Returns
+    -------
+    str
+        The modified string after applying the specified modifications.
+
+    """
+    if target in string:
+        string = string.replace(target, repl_text)
+    else:
+        string += "_" + add_text
+    return string
+
 def identity(X: np.ndarray) -> None:
     """
     Return the input array unchanged.

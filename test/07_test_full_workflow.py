@@ -14,6 +14,7 @@ from bfade.statistics import MonteCarlo
 from sklearn.metrics import log_loss
 from scipy.stats import norm
 
+
 def invoke_curve():
     eh = ElHaddadCurve(dk_th=3, ds_w=400, y=0.73, name = "EH test", metrics=np.log10)
     # eh.inspect(np.linspace(1,1000, 1000), scale="log")
