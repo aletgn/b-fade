@@ -72,26 +72,6 @@ class AbstractCurve(ABC):
         """
         return (self.metrics(X[0]) - self.metrics(t))**2 +\
                (self.metrics(X[1]) - self.metrics(self.equation(t)))**2
-
-    # def squared_distance_dataset(self, t: float, X: np.ndarray) -> None:
-    #     """
-    #     Wraps squared_distance to compute the squared distance to each point of the dataset.
-
-    #     Parameters
-    #     ----------
-    #     t : float
-    #         Dummy parameter. Abscissa along the equation.
-    #     X : np.ndarray
-    #         Dataset.
-
-    #     Returns
-    #     -------
-    #     np.ndarray
-    #         An array containing the squared distances between [t, equation(t)]
-    #         and each point of the dataset.
-
-    #     """
-    #     return np.array([self.squared_distance(t, x) for x in X])
     
     def signed_distance_to_dataset(self, D) -> Tuple:
         """
