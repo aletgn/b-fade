@@ -1,7 +1,8 @@
 from typing import List, Tuple
-from math import pi
 import logging
+from math import pi
 import numpy as np
+import matplotlib
 
 class MissingInputException(Exception):
     """Ensure required parameters are passed in specific contexts."""
@@ -14,6 +15,32 @@ class YieldException(Exception):
     def __init__(self, message: str) -> None:
         self.message = message
         super().__init__(self.message)
+
+def config_matplotlib(font_size: int = 12,
+                      font_family: str = 'sans-serif',
+                      use_latex: bool = False) -> None:
+    """
+    Set Matplotlib RC parameters for font size, font family, and LaTeX usage.
+
+    Parameters
+    ----------
+    font_size : int, optional
+        The font size of text. The default is 12.
+
+    font_family : str, optional
+        The font family of text. The default is 'sans-serif'.
+
+    use_latex : bool, optional
+        Whether to enable LaTeX text rendering in Matplotlib. The default is False.
+
+    Returns
+    -------
+    None
+
+    """
+    matplotlib.rcParams['font.size'] = font_size
+    matplotlib.rcParams['font.family'] = font_family
+    matplotlib.rcParams['text.usetex'] = use_latex
 
 def logger_factory(name: str="root", level: str="DEBUG") -> logging.Logger:
     """
@@ -205,3 +232,4 @@ def sif_equiv(sqrt_area_orig: np.ndarray, y_orig: np.ndarray, y_ref: float):
 
     """
     return ((y_orig/y_ref)**2) * sqrt_area_orig
+

@@ -1,0 +1,36 @@
+from sys import path as syspath
+from os import path as ospath
+syspath.append(ospath.join(ospath.expanduser("~"),
+                           '/home/ale/Desktop/b-fade/src'))
+
+import numpy as np
+np.seterr(divide='ignore', invalid='ignore')
+
+from bfade.elhaddad import ElHaddadCurve, ElHaddadBayes
+from bfade.datagen import SyntheticDataset
+from bfade.viewers import BayesViewer, LaplacePosteriorViewer
+from bfade.statistics import MonteCarlo
+
+from sklearn.metrics import log_loss
+from scipy.stats import norm
+
+from bfade.util import config_matplotlib
+
+config_matplotlib(font_size=12, font_family="serif", use_latex="False")
+
+def invoke_curve():
+    eh = ElHaddadCurve(dk_th=3, ds_w=400, y=0.73, name = "EH test", metrics=np.log10)
+    eh.inspect(np.linspace(1,1000, 1000), scale="log")
+    return eh
+
+def gen_data(curve):
+    sd = SyntheticDataset(curve)
+    sd.make_grid([1, 1000],[50, 800], 30, 30, spacing="log")
+    sd.clear_points(tol=1)
+    sd.make_classes()
+    # sd.inspect(np.linspace(1,1000,1000), scale="log")
+    return sd
+
+if __name__ == "__main__":
+    eh = invoke_curve()
+    sd = gen_data(eh)

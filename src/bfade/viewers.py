@@ -49,7 +49,7 @@ class BayesViewer(AbstractMAPViewer):
 
 class LaplacePosteriorViewer(AbstractMAPViewer):
     
-    def __init__(self, p1: str, c1: float, n1: int, p2: str, c2: float, n2: int, bayes: YourBayesClass) -> None:
+    def __init__(self, p1: str, c1: float, n1: int, p2: str, c2: float, n2: int, bayes) -> None:
         """
         Initialize LaplacePosteriorViewer.
 
