@@ -56,7 +56,7 @@ def laplace_view():
 
     l = LaplacePosteriorViewer("dk_th", 2, 10, "ds_w", 2, 10, bayes=bay)
     l.contour(bay)
-    l.marginals(bay)
+    l.marginals("ds_w", bay)
 
 def monte_carlo():
     bay = ElHaddadBayes("dk_th", "ds_w", theta_hat = np.array([2.64310718, 400.28437582]),
@@ -72,9 +72,10 @@ if __name__ == "__main__":
     #eh = invoke_curve()
     #sd = gen_data(eh)
     #signed_distance(eh, sd)
-    # bay = bayesian_inference(sd)
-    # laplace_view()
-    monte_carlo()
+    #bay = bayesian_inference(sd)
+    #laplace_view()
+    #monte_carlo()
+    pass
     
     
     

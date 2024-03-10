@@ -62,5 +62,5 @@ if __name__ == "__main__":
     eh = invoke_curve()
     sd = gen_data(eh)
     bayesian_view(sd)
-    # laplace_view()
+    laplace_view()
     pass

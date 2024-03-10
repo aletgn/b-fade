@@ -27,17 +27,17 @@ def pi():
     b = ElHaddadBayes("dk_th", "ds_w", theta_hat=np.array([5.00663972,600.18485208]),
                       ihess=np.array([[ 5.06170001e-01, -1.01078680e+01],   [-1.01078680e+01,  1.40680324e+03]]))
 
-    m = MonteCarlo(1000)
+    m = MonteCarlo(1000, ElHaddadCurve, 95)
     m.sample_joint(b)
     # m.sample_marginals(b)
     # m.prediction_interval([1,1000], 1000, "lin", ElHaddadCurve, y=0.65)
     
     pp = PreProViewer([1,1000], [100,700], 1000, "log", "y")
-    pp.view(prediction_interval=m, ref_curve=ElHaddadCurve, confidence=0.95, y=0.65)
+    pp.view(prediction_interval=m, y=0.65)
     
     eh = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=600, y=0.65)
     eh1 = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=500, y=0.65)
-    pp.view(curve = [eh, eh1], prediction_interval=m, ref_curve=ElHaddadCurve, confidence=0.95, y=0.65)
+    pp.view(curve = [eh, eh1], prediction_interval=m, y=0.65)
     
 def pred_post():
     eh = ElHaddadCurve(dk_th=5, ds_w=600, y=0.65)
@@ -66,13 +66,13 @@ def data_view():
     train, test = a.partition("user")
 
     pp = PreProViewer([1,1000], [100,700], 1000, "log")
-    pp.config(save=True, folder="/home/ale/Desktop/plots/", fmt="png", dpi=300)
+    pp.config(save=False, folder="/home/ale/Desktop/plots/", fmt="png", dpi=300)
     pp.config_canvas(class0="Runout", class1="Failed", xlabel="sqrt_area", ylabel="delta_sigma", cbarlabel="delta_k")
     pp.view(train_data=train, test_data=test)
 
 if __name__ == "__main__":
-    # curves()
-    # pi()
-    # pred_post()
+    curves()
+    pi()
+    pred_post()
     data_view()
     

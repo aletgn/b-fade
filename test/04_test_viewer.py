@@ -63,8 +63,9 @@ def view_laplace():
     
     
     l = LaplacePosteriorViewer("dk_th", 2, 10, "ds_w", 2, 10, bayes=b)
-    # l.contour(b)
-    l.marginals(b)
+    l.contour(b)
+    # l.marginals("dk_th", b)
+    # l.marginals("ds_w", b)
     print(l)
     # 
     # print(b)
