@@ -199,13 +199,7 @@ class ElHaddadDataset(AbstractDataset):
             Displays a scatter plot of the synthetic dataset with an optional plot of the underlying curve.
         """
         fig, ax = plt.subplots(dpi=300)
-        ax.scatter(self.X[:,0], self.X[:,1], c=self.y, s=10)
-        
-        try:
-            plt.plot(x, self.equation(x), "k")
-        except:
-            pass
-        
+        ax.scatter(self.X[:,0], self.X[:,1], c=self.y, s=10)        
         plt.xscale(scale)
         plt.yscale(scale)
         plt.show()

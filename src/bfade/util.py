@@ -1,5 +1,7 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any
+import os
 import functools
+import pickle
 import logging
 from math import pi
 import numpy as np
@@ -159,6 +161,88 @@ def printer(func: callable):
             _log.debug(f"SHOW PIC: {title}")
             plt.show()
     return saver
+
+def save(*args: Tuple, **kwargs: Dict[str, Any]) -> None:
+    """
+    Save a collection of data objects to binary files.
+
+    Parameters
+    ----------
+    args : Tuple
+        Any number of data objects to be saved as binary files.
+
+    kwargs : Dict[str, Any]
+        folder : str, optional
+            The directory where the binary files will be saved.
+
+    Raises
+    ------
+    MissingInputException
+        If the 'folder' keyword argument is missing.
+
+    """
+    try:
+        folder = kwargs.pop("folder")
+    except KeyError as KE:
+        raise MissingInputException(f"{KE} not provided")
+
+    for data in args:
+        with open(folder + data.name + "_" + data.__class__.__name__ + ".bvs", 'wb') as file:
+            pickle.dump(data, file)
+
+def load(**kwargs: Dict[str, Any]) -> List:
+    """
+    Load data from binary files in a specified directory.
+
+    Parameters
+    ----------
+    kwargs : dict
+        folder : str
+            The folder where the binary files are located.
+
+        extension : str, optional
+            If provided, filter by 'extension'.
+
+        filename : str, optional
+            If provided, load files matching 'filename'.
+
+    Returns
+    -------
+    List
+        A list with the loaded data objects loaded from the specified folder.
+
+    Raises
+    ------
+    MissingInputException
+        If the 'folder' keyword argument is missing.
+
+    FileNotFoundError
+        If no matching files are found in the specified directory.
+
+    """
+    readfiles = []
+    try:
+        folder = kwargs.pop("folder")
+    except KeyError as KE:
+        raise MissingInputException(f"{KE} not provided")
+
+    filelist = os.listdir(folder)
+
+    if kwargs.get("extension") is not None:
+        extension = kwargs.pop("extension")
+        filelist = [file for file in filelist if file.endswith(extension)]
+
+    if kwargs.get("filename") is not None:
+        filename = kwargs.pop("filename")
+        filelist = [file for file in filelist if filename == file]
+
+    if len(filelist) == 0:
+        raise FileNotFoundError
+    else:
+        for data in filelist:
+            with open(folder + data, 'rb') as file:
+                readfiles.append(pickle.load(file))
+        return readfiles
 
 def identity(X: np.ndarray) -> None:
     """

@@ -65,11 +65,10 @@ def data_view():
     data = a.pre_process()
     train, test = a.partition("user")
 
-    train.inspect()
-    
-    #pp = PreProViewer([1,1000], [100,700], 1000, "log")
-    #pp.config(class0="Runout", class1="Failed", xlabel="sqrt_area", ylabel="delta_sigma", cbarlabel="delta_k")
-    #pp.view(train_data=train, test_data=test)
+    pp = PreProViewer([1,1000], [100,700], 1000, "log")
+    pp.config(save=True, folder="/home/ale/Desktop/plots/", fmt="png", dpi=300)
+    pp.config_canvas(class0="Runout", class1="Failed", xlabel="sqrt_area", ylabel="delta_sigma", cbarlabel="delta_k")
+    pp.view(train_data=train, test_data=test)
 
 if __name__ == "__main__":
     # curves()

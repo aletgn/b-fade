@@ -182,24 +182,27 @@ class PreProViewer():
             self.x = np.linspace(x_edges[0], x_edges[1], n)
         
         self.config()
+        self.config_canvas()
 
-    def config(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = " ",
-               class0: str = "0", class1: str = "1",
-               save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300, 
-               legend_config: Dict[str, Any] = None) -> None:
-        
+    def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300, 
+               legend_config: Dict[str, Any] = None):
         _log.debug(f"{self.__class__.__name__}.{self.config.__name__}")
-        self.xlabel = xlabel
-        self.ylabel = ylabel
-        self.cbarlabel = cbarlabel
-        self.class0 = class0
-        self.class1 = class1
         self.save = save
         self.folder = folder
         self.fmt = fmt
         self.dpi = dpi
         self.legend_config = legend_config
-    
+
+    def config_canvas(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = " ",
+               class0: str = "0", class1: str = "1") -> None:
+        
+        _log.debug(f"{self.__class__.__name__}.{self.config_canvas.__name__}")
+        self.xlabel = xlabel
+        self.ylabel = ylabel
+        self.cbarlabel = cbarlabel
+        self.class0 = class0
+        self.class1 = class1
+       
     def add_colourbar(self, ref, vmin, vmax):
         """
         Add a colorbar to the El Haddad plot.
