@@ -1,8 +1,10 @@
 from typing import List, Tuple
+import functools
 import logging
 from math import pi
 import numpy as np
 import matplotlib
+from matplotlib import pyplot as plt
 
 class MissingInputException(Exception):
     """Ensure required parameters are passed in specific contexts."""
@@ -126,6 +128,37 @@ def state_modifier(string: str, target: str, repl_text: str, add_text: str) -> s
     else:
         string += "_" + add_text
     return string
+
+def printer(func: callable):
+    """
+    A decorator for class methods that saves a figure if 'save' is True.
+
+    This decorator wraps a method that generates a figure and a title,
+    and it saves the figure to the specified location if 'save' is True.
+
+    Parameters
+    ----------
+    func : callable
+        The function to be decorated, which generates a figure and a title.
+
+    Returns
+    -------
+    callable
+        The decorated function.
+    """
+    @functools.wraps(func)
+    def saver(self, *args, **kwargs):
+        fig, title = func(self, *args, **kwargs)
+        if self.save == True:
+            fig.savefig(self.folder + title + "." + self.fmt,
+                        format = self.fmt,
+                        dpi = self.dpi,
+                        bbox_inches='tight')
+            _log.info(f"SAVE PIC: {self.folder + title}.{self.fmt}")
+        else:
+            _log.debug(f"SHOW PIC: {title}")
+            plt.show()
+    return saver
 
 def identity(X: np.ndarray) -> None:
     """

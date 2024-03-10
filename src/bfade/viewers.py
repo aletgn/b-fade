@@ -2,7 +2,7 @@ from typing import Dict, Any, List
 import numpy as np
 import matplotlib.pyplot as plt
 
-from bfade.util import grid_factory, logger_factory,  state_modifier
+from bfade.util import grid_factory, logger_factory,  state_modifier, printer
 from bfade.abstract import AbstractMAPViewer
 
 _log = logger_factory(name=__name__, level="DEBUG")
@@ -11,8 +11,10 @@ class BayesViewer(AbstractMAPViewer):
     
     def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float, **kwargs: Dict[str, float]) -> None:
         super().__init__(p1, b1, n1, p2, b2, n2, spacing, **kwargs)
+        self.config()
         self.config_contour()
 
+    @printer
     def contour(self, element="log_prior", bayes=None, dataset=None):
         """
         Create a contour plot for the specified element.
@@ -57,7 +59,8 @@ class BayesViewer(AbstractMAPViewer):
         ax.set_ylabel(self.p2)
         ax.tick_params(direction='in', top=1, right =1)
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
-        plt.show()
+        
+        return fig, self.name + "_" + element
 
 
 class LaplacePosteriorViewer(AbstractMAPViewer):
@@ -97,8 +100,10 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         b2 = np.array([-c2, c2])*(bayes.ihess[idx_2][idx_2]**0.5) + bayes.theta_hat[idx_2]
         
         super().__init__(p1, b1, n1, p2, b2, n2, spacing="lin")
+        self.config()
         self.config_contour()
     
+    @printer
     def contour(self, bayes) -> None:
         """
         Plot joint posterior distribution.
@@ -120,8 +125,10 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
                                   alpha=0.65)
         ax.tick_params(direction='in', top=1, right =1)
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
-        plt.show()
+        
+        return fig, self.name + "_posterior_joint"
 
+    @printer
     def marginals(self, p: str, bayes) -> None:
         """
         Plot marginal posterior distribution.
@@ -144,8 +151,12 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
                 getattr(bayes, "marginal_" + p).pdf(np.sort(getattr(self, p))), "k")
         ax.set_xlabel(p)
         ax.set_ylabel("marginal posterior")
+        ax.set_title(f"mean = {getattr(bayes, 'marginal_' + p).mean():.2f}" + \
+                     f"-- st. dev. = {getattr(bayes, 'marginal_' + p).std():.2f}")
+
         ax.tick_params(direction='in', top=1, right =1)
-        plt.show()
+        
+        return fig, self.name + "_posterior_marginal_" + p
 
 
 class PreProViewer():
@@ -211,6 +222,7 @@ class PreProViewer():
         
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
 
+    @printer
     def view(self, **kwargs):
         self.fig, self.ax = plt.subplots(dpi=self.dpi)
         self.sr = None
@@ -365,5 +377,6 @@ class PreProViewer():
         except:
             _log.info(f"{__class__.__name__}.{self.view.__name__}. Setting 'best'")
             legend = self.ax.legend(loc="best")
-        plt.show()
+        
+        return self.fig, self.state 
             

@@ -54,12 +54,13 @@ def laplace_view():
                                         [-1.33212611e+01,  6.57914950e+03]]))
 
     l = LaplacePosteriorViewer("dk_th", 2, 50, "ds_w", 2, 50, bayes=bay)
-    l.contour(bay)
+    #l.contour(bay)
     l.marginals("ds_w", bay)
+
 
 if __name__ == "__main__":
     eh = invoke_curve()
     sd = gen_data(eh)
-    #bayesian_view(sd)
-    laplace_view()
+    bayesian_view(sd)
+    # laplace_view()
     pass

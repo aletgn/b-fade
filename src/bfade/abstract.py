@@ -7,9 +7,11 @@ import scipy
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import minimize_scalar, minimize
 
-from bfade.util import grid_factory
+from bfade.util import grid_factory, logger_factory
 from bfade.util import identity
 from bfade.statistics import distribution, uniform
+
+_log = logger_factory(name=__name__, level="DEBUG")
 
 class AbstractCurve(ABC):
     
@@ -524,6 +526,13 @@ class AbstractMAPViewer(ABC):
         """
         ...
     
+    def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300) -> None:
+        _log.debug(f"{self.__class__.__name__}.{self.config.__name__}")
+        self.save = save
+        self.folder = folder
+        self.fmt = fmt
+        self.dpi = dpi
+
     def config_contour(self, levels: int = 21, clevels: int = 11,  cmap: str = "viridis") -> None:
         """
         Configure contour plot settings.

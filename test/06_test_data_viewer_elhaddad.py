@@ -72,6 +72,6 @@ def data_view():
 if __name__ == "__main__":
     # curves()
     # pi()
-    #pred_post()
-    data_view()
+    pred_post()
+    # data_view()
     
