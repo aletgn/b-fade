@@ -117,7 +117,7 @@ class uniform():
             If `unif_value` is not provided.
 
         """
-        # _log.info(f"(Non-scipy). {self.__class__.__name__}.{self.__init__.__name__}")
+        _log.info(f"(Non-scipy). {self.__class__.__name__}.{self.__init__.__name__}")
         try:
             self.unif_value = kwargs.pop("unif_value")
         except KeyError as KE:

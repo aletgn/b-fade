@@ -254,7 +254,7 @@ class AbstractBayes(ABC):
         except:
             self.theta_hat = None
             self.ihess = None
-            print("must run MAP")
+            _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- Optimal values unknown. Must run MAP.")
         
     def load_prior(self, par: str, dist, **args: Dict) -> None:
         """
@@ -274,6 +274,7 @@ class AbstractBayes(ABC):
         None
 
         """
+        _log.info(f"{self.__class__.__name__}.{self.load_prior.__name__} for {par}")
         setattr(self, "prior_" + par, distribution(dist, **args))
         
     def load_log_likelihood(self, log_loss_fn: callable, **args: Dict[str, Any]) -> None:
@@ -292,6 +293,7 @@ class AbstractBayes(ABC):
         None.
 
         """
+        _log.info(f"{self.__class__.__name__}.{self.load_log_likelihood.__name__}")
         self.log_likelihood_args = args
         self.log_likelihood_loss = log_loss_fn
     
@@ -395,12 +397,13 @@ class AbstractBayes(ABC):
         """
         def callback(X):
             current_min = -self.log_posterior(D, *X)
-            print(f"Iter: {self.n_eval:d} -- Params: {X} -- Min {current_min:.3f}")
+            _log.info(f"Iter: {self.n_eval:d} -- Params: {X} -- Min {current_min:.3f}")
             self.n_eval += 1
         
         if self.theta_hat is not None and self.ihess is not None:
-            print("skipping map")
+            _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- Optimal value known. Skipping MAP.")
         else:
+            _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- Run MAP.")
             self.n_eval = 0
             result = minimize(lambda t: -self.log_posterior(D, *t), x0=x0, method=solver, callback=callback,
                               options={'disp': True,
@@ -550,6 +553,7 @@ class AbstractMAPViewer(ABC):
         -------
         None
         """
+        _log.debug(f"{self.__class__.__name__}.{self.config_contour.__name__}")
         self.levels = levels
         self.clevels = clevels
         self.cmap = cmap

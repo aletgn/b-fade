@@ -7,6 +7,7 @@ from math import pi
 import numpy as np
 import matplotlib
 from matplotlib import pyplot as plt
+import argparse, yaml
 
 class MissingInputException(Exception):
     """Ensure required parameters are passed in specific contexts."""
@@ -243,6 +244,50 @@ def load(**kwargs: Dict[str, Any]) -> List:
             with open(folder + data, 'rb') as file:
                 readfiles.append(pickle.load(file))
         return readfiles
+
+def parse_arguments() -> argparse.Namespace:
+    """
+    Parse command-line arguments to configure BEHAVES using a YAML file.
+
+    Parameters
+    ----------
+    None.
+
+    Command Line Arguments
+    ----------------------
+
+    --config (str, optional): Path to the YAML config file. The default is "config.yaml".
+
+    Returns
+    -------
+    argparse.Namespace
+        An object containing the parsed command-line arguments.
+
+    """
+    parser = argparse.ArgumentParser(description="Configure BEHAVES via YAML file")
+    parser.add_argument("--config",
+                        default="config.yaml",
+                        help="Path to the YAML config file")
+    return parser.parse_args()
+
+def get_config_file(args: argparse.Namespace) -> Dict:
+    """
+    Get the configuration data from a YAML file.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        A namespace containing parsed command-line arguments.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the configuration data loaded from the YAML file.
+
+    """
+    with open(args.config, "r") as config_file:
+        config = yaml.safe_load(config_file)
+    return config
 
 def identity(X: np.ndarray) -> None:
     """

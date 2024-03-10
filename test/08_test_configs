@@ -38,11 +38,11 @@ def bayesian_view(dataset):
     bay.load_log_likelihood(log_loss, normalize=True)
     bay.load_prior("dk_th", norm, loc=5, scale=1)
     bay.load_prior("ds_w", norm, loc=600, scale=50)
-    
+    bay.MAP(sd)
     v = BayesViewer("dk_th", [1, 5], 2, "ds_w", [200, 600], 2, spacing="lin", name="testBay")
 
     v.config_contour(cmap="RdYlBu_r")
-    v.contour("log_prior", bay)
+    # v.contour("log_prior", bay)
     # v.contour("log_likelihood", bay, dataset)
     # v.contour("log_posterior", bay, dataset)
 
