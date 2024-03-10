@@ -9,7 +9,7 @@ _log = logger_factory(name=__name__, level="DEBUG")
 
 class BayesViewer(AbstractMAPViewer):
     
-    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: str = "lin", **kwargs: Dict[str, float]) -> None:
+    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: str = "lin", **kwargs: Dict[str, Any]) -> None:
         super().__init__(p1, b1, n1, p2, b2, n2, spacing, **kwargs)
         self.config()
         self.config_contour()
@@ -32,6 +32,7 @@ class BayesViewer(AbstractMAPViewer):
         -------
         None
         """
+        _log.debug(f"{self.__class__.__name__}.{self.contour.__name__}. Contour: {element:s}")
         fig, ax = plt.subplots(dpi=300)
         
         if element == "log_prior":
@@ -45,7 +46,6 @@ class BayesViewer(AbstractMAPViewer):
                              levels=np.linspace(el_cnt.min(), el_cnt.max(), self.levels),
                              cmap=self.cmap)
         
-        _log.debug(f"{self.__class__.__name__}.{self.contour.__name__}. Contour: {element:s}")
 
         cbar = plt.gcf().colorbar(cnt, ax=ax,
                                   orientation="vertical",
@@ -60,12 +60,12 @@ class BayesViewer(AbstractMAPViewer):
         ax.tick_params(direction='in', top=1, right =1)
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
         
-        return fig, self.name + "_" + element
+        return fig, self.name + "_bay_" + element
 
 
 class LaplacePosteriorViewer(AbstractMAPViewer):
     
-    def __init__(self, p1: str, c1: float, n1: int, p2: str, c2: float, n2: int, bayes) -> None:
+    def __init__(self, p1: str, c1: float, n1: int, p2: str, c2: float, n2: int, bayes, **kwargs: Dict[str, Any]) -> None:
         """
         Initialize LaplacePosteriorViewer.
 
@@ -100,7 +100,7 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         b1 = np.array([-c1, c1])*(bayes.ihess[idx_1][idx_1]**0.5) + bayes.theta_hat[idx_1]
         b2 = np.array([-c2, c2])*(bayes.ihess[idx_2][idx_2]**0.5) + bayes.theta_hat[idx_2]
         
-        super().__init__(p1, b1, n1, p2, b2, n2, spacing="lin")
+        super().__init__(p1, b1, n1, p2, b2, n2, spacing="lin", **kwargs)
         self.config()
         self.config_contour()
     
@@ -127,7 +127,7 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         ax.tick_params(direction='in', top=1, right =1)
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
         
-        return fig, self.name + "_posterior_joint"
+        return fig, self.name + "_laplace_joint"
 
     @printer
     def marginals(self, p: str, bayes) -> None:
@@ -157,25 +157,26 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
 
         ax.tick_params(direction='in', top=1, right =1)
         
-        return fig, self.name + "_posterior_marginal_" + p
+        return fig, self.name + "_lap_marginal_" + p
 
 
 class PreProViewer():
     
     def __init__(self, x_edges=[1,1000], y_edges=[100,700], n=1000, scale="linear",
-                 *deterministic: List[Any], **args: Dict[str, Any]):
+                 **args: Dict[str, Any]) -> None:
         
         self.x_edges = x_edges
         self.y_edges = y_edges
         self.x_scale = scale
         self.y_scale = scale
         self.n = n
-        self.deterministic = deterministic
         
         try:
             self.name = args.pop("name")
         except:
             self.name = "Untitled"
+        
+        self.det_pars = args
 
         _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- {self}")
         
@@ -235,12 +236,6 @@ class PreProViewer():
         self.ss = None
         self.state = self.name
                
-        try:
-            det = [kwargs.pop(d) for d in self.deterministic]
-            det_pars = dict(zip(self.deterministic, det))
-        except KeyError:
-            pass
-        
         try:
             post_samples = kwargs.pop("post_samples")
         except:
@@ -343,7 +338,7 @@ class PreProViewer():
 
             elif k == "prediction_interval":
                 _log.info("Inspect prediction interval")
-                mean, pred, _ = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, **det_pars)
+                mean, pred, _ = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, **self.det_pars)
                 # self.ax.plot(self.x, mean, "k")
                 self.ax.plot(self.x, mean - pred, "-.k", label=fr"Pred. band. (@{50 - kwargs[k].confidence/2}$\%$)")
                 self.ax.plot(self.x, mean + pred, "--k", label=fr"Pred. band. (@{50 + kwargs[k].confidence/2}$\%$)")
@@ -351,6 +346,7 @@ class PreProViewer():
                 _log.debug(f"State: {self.state}")
             
             elif k == "predictive_posterior":
+                _log.info("Inspect predictive posterior")
                 predictions = post_op(kwargs[k].predictive_posterior(post_samples, post_data), axis=0)
                 
                 pp = self.ax.tricontourf(post_data.X[:,0], post_data.X[:,1], predictions,
@@ -381,7 +377,7 @@ class PreProViewer():
             legend = self.ax.legend(**self.legend_config)
             _log.debug(f"{__class__.__name__}.{self.view.__name__}. Custom legend config")
         except:
-            _log.info(f"{__class__.__name__}.{self.view.__name__}. Setting 'best'")
+            _log.info(f"{__class__.__name__}.{self.view.__name__}. Legend Setting 'best'")
             legend = self.ax.legend(loc="best")
         
         return self.fig, self.state

@@ -157,7 +157,7 @@ class AbstractCurve(ABC):
         plt.title(f"{self.__class__.__name__} -- {self.pars} = {[getattr(self, p) for p in self.pars]}")
         plt.xscale(scale)
         plt.yscale(scale)
-        return fig, self.name
+        return fig, self.name + "_curve"
 
     @printer  
     def inspect_signed_distance(self, x: np.ndarray, x_opt: np.ndarray, y_opt: np.ndarray, dis: np.ndarray,
@@ -453,6 +453,7 @@ class AbstractBayes(ABC):
         None.
 
         """
+        _log.debug(f"{self.__class__.__name__}.{self.laplace_posterior.__name__}")
         self.joint = multivariate_normal(mean = self.theta_hat, cov=self.ihess)
         for idx in range(self.theta_hat.shape[0]):
             setattr(self, "marginal_" + self.pars[idx], norm(loc=self.theta_hat[idx], scale=self.ihess[idx][idx]**0.5))
@@ -473,12 +474,12 @@ class AbstractBayes(ABC):
         np.ndarray
             Predictive posterior samples.
         """
+        _log.debug(f"{self.__class__.__name__}.{self.predictive_posterior.__name__}")
         self.posterior_samples = posterior_samples
         predictions = []
         
         for k in range(0,self.posterior_samples):
             predictions.append(self.predictor(D, *self.joint.rvs(1)))
-        
         predictions = np.array(predictions)
         
         return predictions

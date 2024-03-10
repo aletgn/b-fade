@@ -55,7 +55,7 @@ def pred_post():
     m = MonteCarlo(1000, ElHaddadCurve, 95)
     m.sample_joint(b)
     
-    pp = PreProViewer([1,1000], [100,700], 1000, "log", "y")
+    pp = PreProViewer([1,1000], [100,700], 1000, "log", y=0.65)
     pp.view(predictive_posterior=b, post_samples = 10, post_data=d, post_op=np.mean, curve = [eh, eh1])
     
     #pp.view(prediction_interval=m, y=0.65)  
@@ -71,8 +71,8 @@ def data_view():
     pp.view(train_data=train, test_data=test)
 
 if __name__ == "__main__":
-    curves()
-    pi()
+    #curves()
+    #pi()
     pred_post()
-    data_view()
+    #data_view()
     

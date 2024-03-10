@@ -5,7 +5,7 @@ import scipy
 import matplotlib.pyplot as plt
 
 from bfade.abstract import AbstractCurve
-from bfade.util import grid_factory, logger_factory, YieldException
+from bfade.util import grid_factory, logger_factory, YieldException, printer
 
 _log = logger_factory(name=__name__, level="DEBUG")
 
@@ -193,6 +193,7 @@ class SyntheticDataset:
         self.X[:,0] += scipy.stats.norm(loc = 0, scale = x1_std).rvs(size=self.X.shape[0])
         self.X[:,1] += scipy.stats.norm(loc = 0, scale = x2_std).rvs(size=self.X.shape[0])
     
+    @printer
     def inspect(self, x: np.ndarray = None, scale="linear"):
         """
         Visualize the synthetic dataset and optionally plot the underlying curve.
@@ -221,6 +222,8 @@ class SyntheticDataset:
         plt.xscale(scale)
         plt.yscale(scale)
         plt.show()
+        
+        return fig, self.name + "_dataset"
         
     def __repr__(self) -> str:
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())

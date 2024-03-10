@@ -3,7 +3,7 @@ id: "ElHaddad_3_350"
 save: True
 dpi: 300
 fmt: png
-pic_folder: /home/ale/Desktop/plots
+pic_folder: /home/ale/Desktop/plots/
 
 curve:
  dk_th: 3
@@ -14,8 +14,8 @@ curve:
 dataset:
  x1: [1,1000]
  x2: [50, 800]
- n1: 5
- n2: 5
+ n1: 50
+ n2: 50
  spacing: log
  tol: 1
 
@@ -45,12 +45,19 @@ laplace:
  p2: ds_w
  c1: 4
  c2: 4
- n1: 10
- n2: 10
+ n1: 50
+ n2: 50
+
+predpost:
+ post_samples: 10
 
 montecarlo:
  samples: 100
  confidence: 95
 
 prepro:
- name: 
+ x_edges: [1,1000]
+ y_edges: [50, 800]
+ n: 1000
+ scale: log
+ y: 0.65
