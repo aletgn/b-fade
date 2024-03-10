@@ -16,7 +16,7 @@ from bfade.util import parse_arguments, get_config_file, config_matplotlib
 from bfade.statistics import MonteCarlo
 
 config_matplotlib(font_size=14, font_family="serif", use_latex=True, interactive=True)
-cf = get_config_file(parse_arguments("./09_test_elhaddad.yaml"))
+cf = get_config_file(parse_arguments("./09_test_elhaddad_3_350.yaml"))
 
 #%% Istantiate El Haddad curve
 eh = ElHaddadCurve(dk_th=cf["curve"]["dk_th"], ds_w=cf["curve"]["ds_w"], y=cf["curve"]["y"],
