@@ -1,5 +1,6 @@
 from typing import Dict, Any
 import numpy as np
+import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.special import expit
 
@@ -182,6 +183,33 @@ class ElHaddadDataset(AbstractDataset):
                 "aux_min": self.aux_min,
                 "aux_max": self.aux_max,
                 "Y": self.Y}
+    
+    def inspect(self, scale="linear"):
+        """
+        Visualize the synthetic dataset and optionally plot the underlying curve.
+    
+        Parameters
+        ----------
+        scale : str, optional
+            Scale for both x and y axes. Options are "linear" (default) or "log".
+    
+        Returns
+        -------
+        None
+            Displays a scatter plot of the synthetic dataset with an optional plot of the underlying curve.
+        """
+        fig, ax = plt.subplots(dpi=300)
+        ax.scatter(self.X[:,0], self.X[:,1], c=self.y, s=10)
+        
+        try:
+            plt.plot(x, self.equation(x), "k")
+        except:
+            pass
+        
+        plt.xscale(scale)
+        plt.yscale(scale)
+        plt.show()
+
 
 class ElHaddadBayes(AbstractBayes):
 
