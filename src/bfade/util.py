@@ -23,7 +23,8 @@ class YieldException(Exception):
 
 def config_matplotlib(font_size: int = 12,
                       font_family: str = 'sans-serif',
-                      use_latex: bool = False) -> None:
+                      use_latex: bool = False,
+                      interactive: str = False) -> None:
     """
     Set Matplotlib RC parameters for font size, font family, and LaTeX usage.
 
@@ -38,6 +39,9 @@ def config_matplotlib(font_size: int = 12,
     use_latex : bool, optional
         Whether to enable LaTeX text rendering in Matplotlib. The default is False.
 
+    interactive : bool, optional
+        Whether to enable plt.show() output. The default is False, i.e. display.
+
     Returns
     -------
     None
@@ -46,6 +50,7 @@ def config_matplotlib(font_size: int = 12,
     matplotlib.rcParams['font.size'] = font_size
     matplotlib.rcParams['font.family'] = font_family
     matplotlib.rcParams['text.usetex'] = use_latex
+    matplotlib.rcParams["interactive"] = interactive
 
 def logger_factory(name: str="root", level: str="DEBUG") -> logging.Logger:
     """
@@ -245,13 +250,14 @@ def load(**kwargs: Dict[str, Any]) -> List:
                 readfiles.append(pickle.load(file))
         return readfiles
 
-def parse_arguments() -> argparse.Namespace:
+def parse_arguments(config_path: str = "./config.yaml") -> argparse.Namespace:
     """
-    Parse command-line arguments to configure BEHAVES using a YAML file.
+    Parse command-line arguments to configure the execution using a YAML file.
 
     Parameters
     ----------
-    None.
+    config_path : str
+        Path to yaml config file.
 
     Command Line Arguments
     ----------------------
@@ -264,9 +270,9 @@ def parse_arguments() -> argparse.Namespace:
         An object containing the parsed command-line arguments.
 
     """
-    parser = argparse.ArgumentParser(description="Configure BEHAVES via YAML file")
+    parser = argparse.ArgumentParser(description="Configure the execution via YAML file")
     parser.add_argument("--config",
-                        default="config.yaml",
+                        default=config_path,
                         help="Path to the YAML config file")
     return parser.parse_args()
 

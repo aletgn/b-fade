@@ -9,7 +9,7 @@ _log = logger_factory(name=__name__, level="DEBUG")
 
 class BayesViewer(AbstractMAPViewer):
     
-    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float, **kwargs: Dict[str, float]) -> None:
+    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: str = "lin", **kwargs: Dict[str, float]) -> None:
         super().__init__(p1, b1, n1, p2, b2, n2, spacing, **kwargs)
         self.config()
         self.config_contour()
@@ -91,6 +91,7 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         None
 
         """
+        _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__}")
         self.c1 = c1
         self.c2 = c2
         
@@ -175,6 +176,8 @@ class PreProViewer():
             self.name = args.pop("name")
         except:
             self.name = "Untitled"
+
+        _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- {self}")
         
         if scale == "log":
             self.x = np.logspace(np.log10(x_edges[0]), np.log10(x_edges[1]), n)
@@ -381,5 +384,9 @@ class PreProViewer():
             _log.info(f"{__class__.__name__}.{self.view.__name__}. Setting 'best'")
             legend = self.ax.legend(loc="best")
         
-        return self.fig, self.state 
+        return self.fig, self.state
+
+    def __repr__(self):
+        attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
+        return f"{self.__class__.__name__}({attributes_str})"
             

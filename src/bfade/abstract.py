@@ -8,7 +8,7 @@ from scipy.stats import norm, multivariate_normal
 from scipy.optimize import minimize_scalar, minimize
 
 from bfade.util import grid_factory, logger_factory
-from bfade.util import identity
+from bfade.util import identity, printer
 from bfade.statistics import distribution, uniform
 
 _log = logger_factory(name=__name__, level="DEBUG")
@@ -47,6 +47,13 @@ class AbstractCurve(ABC):
         [setattr(self, p, pars[p]) for p in pars]
         self.pars = [k for k in pars.keys()]
         self.metrics = metrics
+        self.config()
+
+    def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300) -> None:
+        self.save = save
+        self.folder = folder
+        self.fmt = fmt
+        self.dpi = dpi
 
     @abstractmethod
     def equation(self) -> np.ndarray:
@@ -120,6 +127,7 @@ class AbstractCurve(ABC):
         
         return dd*signa, x_opt, y_opt
 
+    @printer
     def inspect(self, x: np.ndarray, scale: str = "linear", **data: Dict[str, Any]) -> None:
         """
         Plot the equation of the curve and optionally the provided dataset.
@@ -138,6 +146,7 @@ class AbstractCurve(ABC):
         None
 
         """
+        _log.warning(f"{self.__class__.__name__}.{self.inspect.__name__}")
         fig, ax = plt.subplots(dpi=300)
         plt.plot(x, self.equation(x), "k")
 
@@ -145,11 +154,12 @@ class AbstractCurve(ABC):
             plt.scatter(data["X"][:,0], data["X"][:,1], c=data["y"], s=10)
         except:
             pass
-
+        plt.title(f"{self.__class__.__name__} -- {self.pars} = {[getattr(self, p) for p in self.pars]}")
         plt.xscale(scale)
         plt.yscale(scale)
-        plt.show()
-        
+        return fig, self.name
+
+    @printer  
     def inspect_signed_distance(self, x: np.ndarray, x_opt: np.ndarray, y_opt: np.ndarray, dis: np.ndarray,
                                 X: np.ndarray = None, y: np.ndarray = None, scale: str = "linear") -> None:
         """
@@ -195,7 +205,7 @@ class AbstractCurve(ABC):
         ax.axis("equal")
         plt.xscale(scale)
         plt.yscale(scale)
-        plt.show()
+        return fig, self.name + "_sig_dist"
         
     def get_curve(self) -> Tuple:
         """
@@ -238,7 +248,6 @@ class AbstractBayes(ABC):
         None
 
         """
-        
         try:
             self.name = args["name"]
         except:
@@ -246,6 +255,7 @@ class AbstractBayes(ABC):
         
         self.pars = pars
         [setattr(self, "prior_" + p, distribution(uniform, unif_value=1)) for p in self.pars]
+        _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- {self}")
         
         try:
             self.theta_hat = args["theta_hat"]
@@ -293,7 +303,7 @@ class AbstractBayes(ABC):
         None.
 
         """
-        _log.info(f"{self.__class__.__name__}.{self.load_log_likelihood.__name__}")
+        _log.info(f"{self.__class__.__name__}.{self.load_log_likelihood.__name__} -- {log_loss_fn}")
         self.log_likelihood_args = args
         self.log_likelihood_loss = log_loss_fn
     
@@ -372,7 +382,7 @@ class AbstractBayes(ABC):
         """
         return self.log_prior(*P) + self.log_likelihood(D, *P)
     
-    def MAP(self, D, x0=[1,1], solver: str ="L-BFGS-B") -> None:
+    def MAP(self, D, x0=[1,1], solver: Dict[str, Any] = None) -> None:
         """
         Find the Maximum A Posteriori (MAP) estimate for the parameters.
 
@@ -399,24 +409,32 @@ class AbstractBayes(ABC):
             current_min = -self.log_posterior(D, *X)
             _log.info(f"Iter: {self.n_eval:d} -- Params: {X} -- Min {current_min:.3f}")
             self.n_eval += 1
-        
+        try:
+            method = solver.pop("method")
+            solver = solver
+            _log.info(f"{self.__class__.__name__}.{self.MAP.__name__} -- User defined solver {method}, {solver}")
+        except (KeyError, AttributeError):
+            method = "L-BFGS-B"
+            solver = {'disp': True, 'maxiter': 1e10, 'maxls': 1e10, 'gtol': 1e-15,
+                       'ftol': 1e-15, 'eps': 1e-6}
+            _log.info(f"{self.__class__.__name__}.{self.MAP.__name__} -- Default solver {method}, {solver}")
+
         if self.theta_hat is not None and self.ihess is not None:
             _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- Optimal value known. Skipping MAP.")
         else:
             _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- Run MAP.")
             self.n_eval = 0
-            result = minimize(lambda t: -self.log_posterior(D, *t), x0=x0, method=solver, callback=callback,
-                              options={'disp': True,
-                                       'maxiter': 1e10,
-                                       'maxls': 1e10,
-                                       'gtol': 1e-15, #-15
-                                       'ftol': 1e-15, #-15
-                                       'eps': 1e-6}, ) #-6
+            result = minimize(lambda t: -self.log_posterior(D, *t), x0=x0,
+                              method=method, callback=callback,
+                              options=solver)
     
             if result.success:
                 self.theta_hat = result.x
                 self.ihess = result.hess_inv.todense()
                 self.laplace_posterior()
+                _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- MAP succeeded.")
+                _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- theta_hat {self.theta_hat}.")
+                _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- inverse_hessian {self.ihess}.")
             else:
                 raise Exception("MAP did not succeede.")
             
@@ -471,7 +489,7 @@ class AbstractBayes(ABC):
 
 class AbstractMAPViewer(ABC):
     
-    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float, **kwargs: Dict[str, float]) -> None:
+    def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float = "lin", **kwargs: Dict[str, float]) -> None:
         """
         Initialize the AbstractMAPViewer.
 
@@ -496,7 +514,6 @@ class AbstractMAPViewer(ABC):
             - name: str
                 name of the instance.
 
-
         Returns
         -------
         None
@@ -515,13 +532,14 @@ class AbstractMAPViewer(ABC):
         self.spacing = spacing
         setattr(self, "bounds_" + p1, b1)
         setattr(self, "bounds_" + p2, b2)
+        _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- {self}")
         
         X1, X2 = grid_factory(getattr(self, "bounds_" + p1),
                               getattr(self, "bounds_" + p2),
                               self.n1, self.n2, spacing)
         setattr(self, p1, X1)
         setattr(self, p2, X2)
-    
+
     @abstractmethod
     def contour(self):
         """

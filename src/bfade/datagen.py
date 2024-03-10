@@ -5,19 +5,24 @@ import scipy
 import matplotlib.pyplot as plt
 
 from bfade.abstract import AbstractCurve
-from bfade.util import grid_factory, YieldException
+from bfade.util import grid_factory, logger_factory, YieldException
+
+_log = logger_factory(name=__name__, level="DEBUG")
 
 class SyntheticDataset:
     """
     A class representing a synthetic dataset generated from a given curve.
 
     """
-    def __init__(self, curve: AbstractCurve) -> None:
+    def __init__(self, curve: AbstractCurve, **kwargs: Dict[str, Any]) -> None:
         """
         
 
         Parameters
         ----------
+        kwargs : Dict[str, Any]
+            Optional keyword arguments, such as 'name'.
+
         curve : AbstractCurve
             An instance of the AbstractCurve class representing the underlying curve.
 
@@ -26,9 +31,23 @@ class SyntheticDataset:
         None
 
         """
+        try:
+            self.name = kwargs.pop("name")
+        except KeyError:
+            self.name = "Untitled"
+
         self.pars, self.equation = curve.get_curve()
         self.X = None
         self.y = None
+        _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- {self}")
+        self.config()
+
+    def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300) -> None:
+        _log.debug(f"{self.__class__.__name__}.{self.config.__name__}")
+        self.save = save
+        self.folder = folder
+        self.fmt = fmt
+        self.dpi = dpi
         
     def make_grid(self, x1_bounds: List[float], x2_bounds: List[float],
                   n1: int, n2: int, spacing: str ="lin") -> None:
@@ -54,6 +73,7 @@ class SyntheticDataset:
         None
 
         """
+        _log.debug(f"{self.__class__.__name__}.{self.make_grid.__name__}")
         self.X = np.vstack(grid_factory(x1_bounds, x2_bounds, n1, n2, spacing)).T
     
     def make_tube(self, x1_bounds: List[float], n: int = 50, up: float = 0.1,
@@ -92,6 +112,7 @@ class SyntheticDataset:
         None
 
         """
+        _log.debug(f"{self.__class__.__name__}.{self.make_tube.__name__}")
         if spacing == "lin":
             steps = np.linspace(up, down, step)
             x1 = np.linspace(x1_bounds[0], x1_bounds[1], n)
@@ -128,7 +149,11 @@ class SyntheticDataset:
         None
 
         """
-        self.X = np.array([d for d in self.X if abs(self.equation(d[0]) - d[1]) > tol])
+        _log.debug(f"{self.__class__.__name__}.{self.clear_points.__name__} -- tol = {tol}")
+        if self.y is not None:
+            raise YieldException("Points must cleared before making classes.")
+        else:
+            self.X = np.array([d for d in self.X if abs(self.equation(d[0]) - d[1]) > tol])
         
     def make_classes(self):
         """
@@ -138,7 +163,8 @@ class SyntheticDataset:
         -------
         None
      
-        """       
+        """   
+        _log.debug(f"{self.__class__.__name__}.{self.make_classes.__name__}")    
         self.y = []
         for d in self.X:
             if self.equation(d[0]) > d[1]:
@@ -163,6 +189,7 @@ class SyntheticDataset:
         None
 
         """
+        _log.debug(f"{self.__class__.__name__}.{self.add_noise.__name__}")
         self.X[:,0] += scipy.stats.norm(loc = 0, scale = x1_std).rvs(size=self.X.shape[0])
         self.X[:,1] += scipy.stats.norm(loc = 0, scale = x2_std).rvs(size=self.X.shape[0])
     
@@ -182,6 +209,7 @@ class SyntheticDataset:
         None
             Displays a scatter plot of the synthetic dataset with an optional plot of the underlying curve.
         """
+        _log.debug(f"{self.__class__.__name__}.{self.inspect.__name__}")
         fig, ax = plt.subplots(dpi=300)
         ax.scatter(self.X[:,0], self.X[:,1], c=self.y, s=10)
         

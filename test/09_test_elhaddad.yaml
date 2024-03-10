@@ -1,0 +1,56 @@
+# common
+id: "ElHaddad_3_350"
+save: True
+dpi: 300
+fmt: png
+pic_folder: /home/ale/Desktop/plots
+
+curve:
+ dk_th: 3
+ ds_w: 350
+ y: 0.65
+ metrics: log10
+
+dataset:
+ x1: [1,1000]
+ x2: [50, 800]
+ n1: 5
+ n2: 5
+ spacing: log
+ tol: 1
+
+bayes:
+ log_likelihood: log_loss
+ log_normalise: True
+ p1: dk_th
+ p2: ds_w
+ x1: [1, 5]
+ x2: [200, 600]
+ n1: 10
+ n2: 10
+
+map:
+ guess: [1,200]
+ solver:
+  method: "L-BFGS-B"
+  disp: True
+  maxiter: 1.0e+10
+  maxls: 1.0e+10
+  gtol: 1.0e-15
+  ftol: 1.0e-15
+  eps: 1.0e-06
+
+laplace:
+ p1: dk_th
+ p2: ds_w
+ c1: 4
+ c2: 4
+ n1: 10
+ n2: 10
+
+montecarlo:
+ samples: 100
+ confidence: 95
+
+prepro:
+ name: 

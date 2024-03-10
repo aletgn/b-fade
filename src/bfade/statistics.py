@@ -176,7 +176,7 @@ class MonteCarlo:
         None
 
         """
-        _log.debug(f"{self.__class__.__name__}.{self.sample_joint.__name__}")
+        _log.debug(f"{self.__class__.__name__}.{self.sample_joint.__name__} -- Samples = {self.n_samples}")
         self.pars = bayes.pars
         self.samples = bayes.joint.rvs(self.n_samples)
 
@@ -194,7 +194,7 @@ class MonteCarlo:
         None
 
         """
-        _log.debug(f"{self.__class__.__name__}.{self.sample_marginals.__name__}")
+        _log.debug(f"{self.__class__.__name__}.{self.sample_marginals.__name__} -- Samples = {self.n_samples}")
         self.pars = bayes.pars
         self.samples = np.array([getattr(bayes, "marginal_" + p).rvs(self.n_samples) for p in bayes.pars]).T
 
@@ -237,7 +237,7 @@ class MonteCarlo:
             - 'x1': abscissa along with the prediction interval is computed.
 
         """
-        _log.info(f"{self.__class__.__name__}.{self.prediction_interval.__name__}")
+        _log.info(f"{self.__class__.__name__}.{self.prediction_interval.__name__} -- Confidence = {self.confidence/100}%")
         curves = []
         if spacing == "log":
             x1 = np.logspace(np.log10(x_edges[0]), np.log10(x_edges[1]), n)
