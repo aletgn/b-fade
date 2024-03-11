@@ -178,6 +178,7 @@ class MonteCarlo:
         """
         _log.debug(f"{self.__class__.__name__}.{self.sample_joint.__name__} -- Samples = {self.n_samples}")
         self.pars = bayes.pars
+        self.deterministic = bayes.deterministic
         self.samples = bayes.joint.rvs(self.n_samples)
 
     def sample_marginals(self, bayes) -> None:
@@ -196,9 +197,10 @@ class MonteCarlo:
         """
         _log.debug(f"{self.__class__.__name__}.{self.sample_marginals.__name__} -- Samples = {self.n_samples}")
         self.pars = bayes.pars
+        self.deterministic = bayes.deterministic
         self.samples = np.array([getattr(bayes, "marginal_" + p).rvs(self.n_samples) for p in bayes.pars]).T
 
-    def prediction_interval(self, x_edges: List[float], n: int, spacing: str, **args: Dict[str, Any]) -> Tuple:
+    def prediction_interval(self, x_edges: List[float], n: int, spacing: str) -> Tuple:
         """
         Compute prediction intervals for a curve.
 
@@ -223,8 +225,7 @@ class MonteCarlo:
             Edges of the x-axis over which the curve is plotted.
         n : int, optional
             Resolution of the curve (number of points over x-axis). The default is 100.
-        kwargs:
-            extra input parameters of the curve not included in AbstractBayes
+
         Returns
         -------
         result : Tuple
@@ -245,8 +246,7 @@ class MonteCarlo:
             x1 = np.linspace(x_edges[0], x_edges[1], n)
 
         for s in self.samples:
-            d = dict(zip(self.pars, s))
-            d.update(**args)
+            d = dict(zip(self.pars, s)) | self.deterministic
             curves.append(self.curve(**d).equation(x1))
 
         curves = np.array(curves)

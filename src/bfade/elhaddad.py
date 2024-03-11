@@ -243,6 +243,8 @@ class ElHaddadBayes(AbstractBayes):
             An array containing the logistic predictions.
 
         """
-        eh = ElHaddadCurve(metrics=np.log10, dk_th=P[0], ds_w=P[1], y=0.73)
+        # merge dicts keeping order (probabilistic and deterministic)
+        all_pars = dict(zip(self.pars, P)) | self.deterministic
+        eh = ElHaddadCurve(metrics=np.log10, **all_pars)
         signed_distance, _, _ = eh.signed_distance_to_dataset(D)
         return expit(signed_distance)

@@ -339,7 +339,6 @@ class PreProViewer():
             elif k == "prediction_interval":
                 _log.info("Inspect prediction interval")
                 mean, pred, _ = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, **self.det_pars)
-                # self.ax.plot(self.x, mean, "k")
                 self.ax.plot(self.x, mean - pred, "-.k", label=fr"Pred. band. (@{50 - kwargs[k].confidence/2}$\%$)")
                 self.ax.plot(self.x, mean + pred, "--k", label=fr"Pred. band. (@{50 + kwargs[k].confidence/2}$\%$)")
                 self.state += "_pi"

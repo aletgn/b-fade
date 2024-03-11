@@ -249,7 +249,7 @@ class AbstractBayes(ABC):
 
         """
         try:
-            self.name = args["name"]
+            self.name = args.pop("name")
         except:
             self.name = "Untitled"
         
@@ -258,14 +258,24 @@ class AbstractBayes(ABC):
         _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- {self}")
         
         try:
-            self.theta_hat = args["theta_hat"]
-            self.ihess = args["ihess"]
+            self.theta_hat = args.pop("theta_hat")
+            self.ihess = args.pop("ihess")
             self.laplace_posterior()
+            _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__}"+\
+                          f" -- Optimal values known -- theta_hat = {self.theta_hat}" +\
+                          f"ihess = {self.ihess}")
         except:
             self.theta_hat = None
             self.ihess = None
             _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- Optimal values unknown. Must run MAP.")
         
+        try:
+            self.deterministic = args
+            _log.info(f"{self.__class__.__name__}.{self.__init__.__name__} -- Deterministic parameter(s) {self.deterministic}")
+        except KeyError:
+            self.deterministic = None
+            _log.info(f"{self.__class__.__name__}.{self.__init__.__name__} -- No deterministic parameter(s)")
+
     def load_prior(self, par: str, dist, **args: Dict) -> None:
         """
         Load a prior distribution for a specified parameter.
@@ -352,7 +362,7 @@ class AbstractBayes(ABC):
         ----------
         D : AbstractDataset
             Input dataset.
-        P : Dict[str]
+        P : Dict[str, float]
             Trainable parameters.
     
         Returns
@@ -415,8 +425,7 @@ class AbstractBayes(ABC):
             _log.info(f"{self.__class__.__name__}.{self.MAP.__name__} -- User defined solver {method}, {solver}")
         except (KeyError, AttributeError):
             method = "L-BFGS-B"
-            solver = {'disp': True, 'maxiter': 1e10, 'maxls': 1e10, 'gtol': 1e-15,
-                       'ftol': 1e-15, 'eps': 1e-6}
+            solver = {'disp': True, 'maxiter': 1e10, 'maxls': 1e9, 'gtol': 1e-15, 'ftol': 1e-15, 'eps': 1e-6}
             _log.info(f"{self.__class__.__name__}.{self.MAP.__name__} -- Default solver {method}, {solver}")
 
         if self.theta_hat is not None and self.ihess is not None:
@@ -458,7 +467,7 @@ class AbstractBayes(ABC):
         for idx in range(self.theta_hat.shape[0]):
             setattr(self, "marginal_" + self.pars[idx], norm(loc=self.theta_hat[idx], scale=self.ihess[idx][idx]**0.5))
       
-    def predictive_posterior(self, posterior_samples: int, D) -> None:
+    def predictive_posterior(self, posterior_samples: int, D, post_op: callable = None, **kwargs) -> None:
         """
         Evaluate the predictive posterior using the specified number of samples.
 
@@ -481,12 +490,17 @@ class AbstractBayes(ABC):
         for k in range(0,self.posterior_samples):
             predictions.append(self.predictor(D, *self.joint.rvs(1)))
         predictions = np.array(predictions)
-        
-        return predictions
+
+        if post_op is not None:
+            _log.debug(f"{self.__class__.__name__}.{self.predictive_posterior.__name__} -- Return {post_op.__name__}")
+            return post_op(predictions, **kwargs)
+        else:
+            _log.debug(f"{self.__class__.__name__}.{self.predictive_posterior.__name__} -- Return prediction stack")
+            return predictions
     
     def __repr__(self) -> str:
-        attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
-        return f"{self.__class__.__name__}({attributes_str})"
+        # attributes_str = ',\n '.join(f'{key} = {vars(self)[key]}' for key in vars(self).keys())
+        return f"{self.__class__.__name__}({vars(self)})"
 
 class AbstractMAPViewer(ABC):
     
