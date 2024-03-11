@@ -4,7 +4,7 @@ __pycache__/
 
 # build distribution folders
 build/
-src/bfade.egg-info/
+src/b_fade.egg-info/
 
 # documentation folders
 docs/_build/
