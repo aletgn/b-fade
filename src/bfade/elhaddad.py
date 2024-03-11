@@ -248,3 +248,12 @@ class ElHaddadBayes(AbstractBayes):
         eh = ElHaddadCurve(metrics=np.log10, **all_pars)
         signed_distance, _, _ = eh.signed_distance_to_dataset(D)
         return expit(signed_distance)
+    
+ElHaddadTranslator = {"dk_th": "$\Delta K_{th,lc}$ [MPa $\sqrt{m}$]",
+                      "dk": "$\Delta K$ [MPa $\sqrt{m}$]",
+                      "ds_w": "$\Delta\sigma_w$ [MPa]",
+                      "sq_a0" : "$\sqrt{area}_0$ [$\mu$m]$",
+                      "sq_a": "$\sqrt{area}$ [$\mu$m]",
+                      "ds": "$\Delta\sigma$ [MPa]",
+                      "0": "Runout",
+                      "1": "Failed"}

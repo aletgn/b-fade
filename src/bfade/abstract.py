@@ -467,7 +467,7 @@ class AbstractBayes(ABC):
         for idx in range(self.theta_hat.shape[0]):
             setattr(self, "marginal_" + self.pars[idx], norm(loc=self.theta_hat[idx], scale=self.ihess[idx][idx]**0.5))
       
-    def predictive_posterior(self, posterior_samples: int, D, post_op: callable = None, **kwargs) -> None:
+    def predictive_posterior(self, posterior_samples: int, D, post_op: callable = None) -> None:
         """
         Evaluate the predictive posterior using the specified number of samples.
 
@@ -493,7 +493,7 @@ class AbstractBayes(ABC):
 
         if post_op is not None:
             _log.debug(f"{self.__class__.__name__}.{self.predictive_posterior.__name__} -- Return {post_op.__name__}")
-            return post_op(predictions, **kwargs)
+            return post_op(predictions, axis=0)
         else:
             _log.debug(f"{self.__class__.__name__}.{self.predictive_posterior.__name__} -- Return prediction stack")
             return predictions
@@ -569,7 +569,7 @@ class AbstractMAPViewer(ABC):
         self.fmt = fmt
         self.dpi = dpi
 
-    def config_contour(self, levels: int = 21, clevels: int = 11,  cmap: str = "viridis") -> None:
+    def config_contour(self, levels: int = 21, clevels: int = 11,  cmap: str = "viridis", translator: Dict = None) -> None:
         """
         Configure contour plot settings.
 
@@ -590,6 +590,13 @@ class AbstractMAPViewer(ABC):
         self.levels = levels
         self.clevels = clevels
         self.cmap = cmap
+
+        try:
+            self.xlabel = translator[self.p1]
+            self.ylabel = translator[self.p2]
+        except:
+            self.xlabel = self.p1
+            self.ylabel = self.p2
     
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())

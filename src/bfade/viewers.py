@@ -33,6 +33,9 @@ class BayesViewer(AbstractMAPViewer):
         None
         """
         _log.debug(f"{self.__class__.__name__}.{self.contour.__name__}. Contour: {element:s}")
+        el2latex = {"log_likelihood": r"$\log\ P[D | \theta]$",
+                    "log_prior": r"$\log P[\theta]$",
+                    "log_posterior": r"$\log P[\theta | D]$"}
         fig, ax = plt.subplots(dpi=300)
         
         if element == "log_prior":
@@ -52,11 +55,11 @@ class BayesViewer(AbstractMAPViewer):
                                   pad=0.1,
                                   format="%.3f",
                                   ticks=np.linspace(el_cnt.min(), el_cnt.max(), self.clevels),
-                                  label=element,
+                                  label=el2latex[element],
                                   alpha=0.65)
         
-        ax.set_xlabel(self.p1)
-        ax.set_ylabel(self.p2)
+        ax.set_xlabel(self.xlabel)
+        ax.set_ylabel(self.ylabel)
         ax.tick_params(direction='in', top=1, right =1)
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
         
@@ -125,6 +128,8 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
                                   label="joint posterior",
                                   alpha=0.65)
         ax.tick_params(direction='in', top=1, right =1)
+        ax.set_xlabel(self.xlabel)
+        ax.set_ylabel(self.ylabel)
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
         
         return fig, self.name + "_laplace_joint"
@@ -197,15 +202,25 @@ class PreProViewer():
         self.dpi = dpi
         self.legend_config = legend_config
 
-    def config_canvas(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = " ",
-               class0: str = "0", class1: str = "1") -> None:
+    def config_canvas(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = "aux",
+               class0: str = "0", class1: str = "1", legend_config: Dict = None, translator: Dict = None) -> None:
         
         _log.debug(f"{self.__class__.__name__}.{self.config_canvas.__name__}")
-        self.xlabel = xlabel
-        self.ylabel = ylabel
-        self.cbarlabel = cbarlabel
-        self.class0 = class0
-        self.class1 = class1
+        
+        try:
+            self.xlabel = translator[xlabel]
+            self.ylabel = translator[ylabel]
+            self.cbarlabel = translator[cbarlabel]
+            self.class0 = translator[class0]
+            self.class1 = translator[class1]
+        except:
+            self.xlabel = xlabel
+            self.ylabel = ylabel
+            self.cbarlabel = cbarlabel
+            self.class0 = class0
+            self.class1 = class1
+
+        self.legend_config = legend_config
        
     def add_colourbar(self, ref, vmin, vmax):
         """
@@ -274,7 +289,7 @@ class PreProViewer():
                                           cmap='RdYlBu_r',
                                           edgecolor='k',
                                           s=50,
-                                          label=self.class0+" (train)", zorder=10
+                                          label=self.class0+" (Train)", zorder=2
                                           )
 
                 self.ax.scatter(kwargs[k].X[y1, 0], kwargs[k].X[y1, 1],
@@ -283,7 +298,7 @@ class PreProViewer():
                                 cmap='RdYlBu_r',
                                 edgecolor='k',
                                 s=50,
-                                label=self.class1+" (train)", zorder=10
+                                label=self.class1+" (Train)", zorder=2
                                 )
                 if self.ss is None:
                     self.add_colourbar(self.sr, vmin, vmax)
@@ -312,7 +327,7 @@ class PreProViewer():
                                           cmap='RdYlBu_r',
                                           edgecolor='k',
                                           s=50,
-                                          label=self.class0+" (test)", zorder=10
+                                          label=self.class0+" (Test)", zorder=2
                                           )
                 
                 self.ax.scatter(kwargs[k].X[y1,0], kwargs[k].X[y1,1],
@@ -321,7 +336,7 @@ class PreProViewer():
                                           cmap='RdYlBu_r',
                                           edgecolor='k',
                                           s=50,
-                                          label=self.class1+" (test)", zorder=10
+                                          label=self.class1+" (Test)", zorder=2
                                           )
                 if self.sr is None:
                     self.add_colourbar(self.ss, vmin, vmax)
@@ -331,7 +346,7 @@ class PreProViewer():
             elif k == "curve":
                 _log.info("Inspect given curves")
                 for c in kwargs[k]:
-                    self.ax.plot(self.x, c.equation(self.x), label=c.name)
+                    self.ax.plot(self.x, c.equation(self.x), label=c.name, zorder=1)
                     
                     self.state += "_" + c.name.replace(" ", "")
                     _log.debug(f"State: {self.state}")
@@ -339,8 +354,8 @@ class PreProViewer():
             elif k == "prediction_interval":
                 _log.info("Inspect prediction interval")
                 mean, pred, _ = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, **self.det_pars)
-                self.ax.plot(self.x, mean - pred, "-.k", label=fr"Pred. band. (@{50 - kwargs[k].confidence/2}$\%$)")
-                self.ax.plot(self.x, mean + pred, "--k", label=fr"Pred. band. (@{50 + kwargs[k].confidence/2}$\%$)")
+                self.ax.plot(self.x, mean - pred, "-.k", label=fr"Pred. band. (@{50 - kwargs[k].confidence/2}$\%$)", zorder=1)
+                self.ax.plot(self.x, mean + pred, "--k", label=fr"Pred. band. (@{50 + kwargs[k].confidence/2}$\%$)", zorder=1)
                 self.state += "_pi"
                 _log.debug(f"State: {self.state}")
             
@@ -351,12 +366,12 @@ class PreProViewer():
                 pp = self.ax.tricontourf(post_data.X[:,0], post_data.X[:,1], predictions,
                                          cmap='RdBu_r',
                                          levels=np.linspace(predictions.min(), predictions.max()+1e-15, 21),
-                                         antialiased='False')
+                                         antialiased='False', zorder=0)
         
                 cbar = self.fig.colorbar(pp, ax=self.ax, orientation="vertical",
                                           pad=0.03, format="%.2f",
                                           ticks = list(np.linspace(predictions.min(), predictions.max(), 11)),
-                                          label=post_op.__name__)
+                                          label=post_op.__name__.capitalize())
                 cbar.ax.tick_params(direction='in', top=1, size=2.5)
                 self.state += "_" + post_op.__name__
                 _log.debug(f"State: {self.state}")
