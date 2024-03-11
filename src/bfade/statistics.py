@@ -140,7 +140,7 @@ class uniform():
 
 class MonteCarlo:
 
-    def __init__(self, n_samples: int, curve, confidence: float = 95) -> None:
+    def __init__(self, curve) -> None:
         """
         Initialise Monte Carlo simulation
 
@@ -159,48 +159,25 @@ class MonteCarlo:
 
         """
         _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__}")
-        self.n_samples = n_samples
         self.curve = curve
-        self.confidence = confidence
 
-    def sample_joint(self, bayes) -> None:
-        """
-        Sample the joint posterior distribution.
-
-        Parameters
-        ----------
-        bayes : AbstractBayes
-
-        Returns
-        -------
-        None
-
-        """
-        _log.debug(f"{self.__class__.__name__}.{self.sample_joint.__name__} -- Samples = {self.n_samples}")
+    def sample(self, n_samples, distribution, bayes):
+        self.n_samples = n_samples
         self.pars = bayes.pars
         self.deterministic = bayes.deterministic
-        self.samples = bayes.joint.rvs(self.n_samples)
 
-    def sample_marginals(self, bayes) -> None:
-        """
-        Sample the marginal posterior distributions.
+        if distribution == "joint":
+            _log.debug(f"{self.__class__.__name__}.{self.sample.__name__} -- Joint, samples = {self.n_samples}")
+            self.samples = bayes.joint.rvs(self.n_samples)
+        elif distribution == "marginals":
+            _log.debug(f"{self.__class__.__name__}.{self.sample.__name__} -- Marginals, samples = {self.n_samples}")
+            self.samples = np.array([getattr(bayes, "marginal_" + p).rvs(self.n_samples) for p in bayes.pars]).T
+        else:
+            raise Exception("Invalid distribution to sample.")
 
-        Parameters
-        ----------
-        bayes : AbstractBayes
+        return self.samples
 
-
-        Returns
-        -------
-        None
-
-        """
-        _log.debug(f"{self.__class__.__name__}.{self.sample_marginals.__name__} -- Samples = {self.n_samples}")
-        self.pars = bayes.pars
-        self.deterministic = bayes.deterministic
-        self.samples = np.array([getattr(bayes, "marginal_" + p).rvs(self.n_samples) for p in bayes.pars]).T
-
-    def prediction_interval(self, x_edges: List[float], n: int, spacing: str) -> Tuple:
+    def prediction_interval(self, x_edges: List[float], n: int, spacing: str, confidence: float) -> Tuple:
         """
         Compute prediction intervals for a curve.
 
@@ -238,6 +215,7 @@ class MonteCarlo:
             - 'x1': abscissa along with the prediction interval is computed.
 
         """
+        self.confidence = confidence
         _log.info(f"{self.__class__.__name__}.{self.prediction_interval.__name__} -- Confidence = {self.confidence/100}%")
         curves = []
         if spacing == "log":

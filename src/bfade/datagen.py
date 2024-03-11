@@ -113,6 +113,7 @@ class SyntheticDataset:
 
         """
         _log.debug(f"{self.__class__.__name__}.{self.make_tube.__name__}")
+        assert down < up
         if spacing == "lin":
             steps = np.linspace(up, down, step)
             x1 = np.linspace(x1_bounds[0], x1_bounds[1], n)

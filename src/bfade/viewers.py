@@ -250,10 +250,30 @@ class PreProViewer():
         self.sr = None
         self.ss = None
         self.state = self.name
-               
+
+        try:
+            mc_bayes = kwargs.pop("mc_bayes")
+        except KeyError:
+            pass
+
+        try:
+            mc_samples = kwargs.pop("mc_samples")
+        except KeyError:
+            pass
+
+        try:
+            mc_distribution = kwargs.pop("mc_distribution")
+        except KeyError:
+            pass
+
+        try:
+            confidence = kwargs.pop("confidence")
+        except KeyError:
+            pass
+
         try:
             post_samples = kwargs.pop("post_samples")
-        except:
+        except KeyError:
             pass
         
         try:
@@ -353,7 +373,8 @@ class PreProViewer():
 
             elif k == "prediction_interval":
                 _log.info("Inspect prediction interval")
-                mean, pred, _ = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, **self.det_pars)
+                kwargs[k].sample(mc_samples, mc_distribution, mc_bayes)
+                mean, pred, _, = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, confidence)
                 self.ax.plot(self.x, mean - pred, "-.k", label=fr"Pred. band. (@{50 - kwargs[k].confidence/2}$\%$)", zorder=1)
                 self.ax.plot(self.x, mean + pred, "--k", label=fr"Pred. band. (@{50 + kwargs[k].confidence/2}$\%$)", zorder=1)
                 self.state += "_pi"
