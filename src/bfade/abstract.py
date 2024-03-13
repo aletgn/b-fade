@@ -574,7 +574,9 @@ class AbstractMAPViewer(ABC):
         self.fmt = fmt
         self.dpi = dpi
 
-    def config_contour(self, levels: int = 21, clevels: int = 11,  cmap: str = "viridis", translator: Dict = dummy_translator) -> None:
+    def config_contour(self, levels: int = 21, clevels: int = 11,  cmap: str = "viridis",
+                       xlim = None, ylim = None,
+                       translator: Dict = dummy_translator) -> None:
         """
         Configure contour plot settings.
 
@@ -598,6 +600,10 @@ class AbstractMAPViewer(ABC):
 
         self.xlabel = translator[self.p1]
         self.ylabel = translator[self.p2]
+
+        if xlim is not None and xlim is not None:
+            self.b1 = xlim
+            self.b2 = ylim
     
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
