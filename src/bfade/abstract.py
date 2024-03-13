@@ -544,6 +544,8 @@ class AbstractMAPViewer(ABC):
         self.p2 = p2
         self.n1 = n1
         self.n2 = n2
+        self.b1 = b1
+        self.b2 = b2
         self.spacing = spacing
         setattr(self, "bounds_" + p1, b1)
         setattr(self, "bounds_" + p2, b2)

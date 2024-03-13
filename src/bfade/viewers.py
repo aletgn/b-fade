@@ -60,6 +60,8 @@ class BayesViewer(AbstractMAPViewer):
         
         ax.set_xlabel(self.xlabel)
         ax.set_ylabel(self.ylabel)
+        ax.set_xlim(self.b1)
+        ax.set_ylim(self.b2)
         ax.tick_params(direction='in', top=1, right =1)
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
         
@@ -130,6 +132,8 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         ax.tick_params(direction='in', top=1, right =1)
         ax.set_xlabel(self.xlabel)
         ax.set_ylabel(self.ylabel)
+        ax.set_xlim(self.b1)
+        ax.set_ylim(self.b2)
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
         
         return fig, self.name + "_laplace_joint"
