@@ -38,16 +38,16 @@ signed_dist, x1_min, x2_min = eh.signed_distance_to_dataset(sd)
 eh.inspect_signed_distance(np.linspace(1, 1000, 100), x1_min, x2_min, signed_dist, sd.X, scale="log")
 
 #%% Bayesian Inference -- uniform priors: MAP --> MLE
-bay = ElHaddadBayes(cf["bayes"]["p1"], cf["bayes"]["p2"], name=cf["id"])
+bay = ElHaddadBayes(cf["bayes"]["p1"], cf["bayes"]["p2"], y=cf["curve"]["y"], name=cf["id"])
 bay.load_log_likelihood(getattr(sklearn.metrics, cf["bayes"]["log_likelihood"]),
                         normalize=cf["bayes"]["log_normalise"])
 v = BayesViewer(cf["bayes"]["p1"], cf["bayes"]["x1"], cf["bayes"]["n1"],
                 cf["bayes"]["p2"], cf["bayes"]["x2"], cf["bayes"]["n2"], name=cf["id"])
 v.config(save=cf["save"], folder=cf["pic_folder"])
-v.contour("log_likelihood", bay, sd)
-v.contour("log_posterior", bay, sd)
+# v.contour("log_likelihood", bay, sd)
+# v.contour("log_posterior", bay, sd)
 
-bay.MAP(sd, x0=cf["map"]["guess"], solver=cf["map"]["solver"])
+# bay.MAP(sd, x0=cf["map"]["guess"])
 
 #%% Display approximated posterior
 l = LaplacePosteriorViewer(cf["laplace"]["p1"], cf["laplace"]["c1"], cf["laplace"]["n1"],
@@ -59,9 +59,10 @@ l.marginals("dk_th", bay)
 l.marginals("ds_w", bay)
 
 # %% Monte Carlo
-mc = MonteCarlo(cf["montecarlo"]["samples"], ElHaddadCurve, cf["montecarlo"]["confidence"])
-mc.sample_joint(bay)
-#mean, pred, _ = mc.prediction_interval([1,1000], 1000, "lin", y=0.65)
+mc = MonteCarlo(ElHaddadCurve)
+mc.sample(1000, "joint", bay)
+mc.sample(1000, "marginals", bay)
+mc.prediction_interval([1,1000], 1000, "lin", 95)
 
 # %% Pre- and Post-processing 
 p = PreProViewer(cf["prepro"]["x_edges"], cf["prepro"]["y_edges"], 
@@ -71,7 +72,8 @@ p.config(save=cf["save"], folder=cf["pic_folder"])
 p.view(train_data=sd)
 p.view(test_data=sd)
 p.view(train_data=sd, curve=[eh])
-p.view(train_data=sd, curve=[eh], prediction_interval=mc)
+p.view(train_data=sd, curve=[eh], prediction_interval=mc,
+       mc_samples=1000, mc_bayes=bay, mc_distribution="joint", confidence=95)
 p.view(predictive_posterior=bay, post_samples = 10, post_data=sd, post_op=np.mean, curve = [eh])
 
 

@@ -70,6 +70,9 @@ pp.config_canvas(xlabel="sq_a", ylabel="ds", cbarlabel="dk", translator=ET)
 # pp.view(train_data=sd)
 # pp.view(test_data=sd)
 # pp.view(curve=[eh])
-pp.view(prediction_interval=mc, mc_samples = 100, mc_bayes=bay_id, mc_distribution="joint", confidence=99)
+pp.view(prediction_interval=mc,
+        mc_samples = 100,
+        mc_bayes=bay_id,
+        mc_distribution="joint", confidence=99)
 # pp.view(predictive_posterior=bay_id, post_samples=5, post_data=sd, 
 #         post_op = np.mean, curve=[eh], prediction_interval=mc, train_data=sd)

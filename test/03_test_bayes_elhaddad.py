@@ -62,7 +62,7 @@ def calc_likelihood():
     d.make_classes()
     d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = ElHaddadBayes("dk_th", "ds_w")
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_log_likelihood(log_loss, normalize=True)
     
     l = b.log_likelihood(d, 5, 600)
@@ -79,7 +79,7 @@ def display_log_likelihood():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = ElHaddadBayes("dk_th", "ds_w")
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_log_likelihood(log_loss, normalize=True)
     
     dk_th, ds_w = grid_factory([3, 7], [400, 800], 10, 10, spacing="lin")
@@ -96,7 +96,7 @@ def display_log_prior():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = ElHaddadBayes("dk_th", "ds_w")
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     
@@ -114,7 +114,7 @@ def display_log_posterior():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = ElHaddadBayes("dk_th", "ds_w")
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -133,7 +133,7 @@ def display_bayes_tube():
     d.make_classes()
     d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = ElHaddadBayes("dk_th", "ds_w")
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -157,7 +157,7 @@ def run_map():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = ElHaddadBayes("dk_th", "ds_w")
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -176,7 +176,7 @@ def likelihood_args():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = ElHaddadBayes("dk_th", "ds_w")
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_log_likelihood(log_loss, normalize=True, eps="auto")
     
     # dk_th, ds_w = grid_factory([3, 7], [400, 800], 5, 5, spacing="lin")
@@ -188,14 +188,14 @@ def likelihood_args():
     
     
 if __name__ == "__main__":
-    istantiation()
-    b = priors()
-    calc_prior()
-    calc_likelihood()
-    display_log_likelihood()
-    display_log_prior()
-    display_log_posterior()
-    display_bayes_tube()
-    run_map()
-    likelihood_args()
+    # istantiation()
+    # b = priors()
+    # calc_prior()
+    # calc_likelihood()
+    # display_log_likelihood()
+    # display_log_prior()
+    # display_log_posterior()
+    # display_bayes_tube()
+    # run_map()
+    # likelihood_args()
     pass

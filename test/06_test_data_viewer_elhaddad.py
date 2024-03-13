@@ -24,20 +24,28 @@ def curves():
     pp.view(curve=[eh, eh1])
     
 def pi():
-    b = ElHaddadBayes("dk_th", "ds_w", theta_hat=np.array([5.00663972,600.18485208]),
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65, theta_hat=np.array([5.00663972,600.18485208]),
                       ihess=np.array([[ 5.06170001e-01, -1.01078680e+01],   [-1.01078680e+01,  1.40680324e+03]]))
 
-    m = MonteCarlo(1000, ElHaddadCurve, 95)
-    m.sample_joint(b)
-    # m.sample_marginals(b)
+    m = MonteCarlo(ElHaddadCurve)
+    m.sample(1000, "joint", b)
+    m.sample(1000, "marginals", b)
     # m.prediction_interval([1,1000], 1000, "lin", ElHaddadCurve, y=0.65)
     
-    pp = PreProViewer([1,1000], [100,700], 1000, "log", "y")
-    pp.view(prediction_interval=m, y=0.65)
+    pp = PreProViewer([1,1000], [100,700], 1000, "log")
+    pp.view(prediction_interval=m,
+            mc_samples = 100,
+            mc_bayes=b,
+            mc_distribution="joint",
+            confidence=95)
     
     eh = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=600, y=0.65)
     eh1 = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=500, y=0.65)
-    pp.view(curve = [eh, eh1], prediction_interval=m, y=0.65)
+    pp.view(curve = [eh, eh1], prediction_interval=m,
+            mc_samples = 100,
+            mc_bayes=b,
+            mc_distribution="joint",
+            confidence=95)
     
 def pred_post():
     eh = ElHaddadCurve(dk_th=5, ds_w=600, y=0.65)
@@ -48,17 +56,17 @@ def pred_post():
     d.make_grid([1, 1000],[100, 700], 15, 15, spacing="log")
     # d.inspect(scale="log")
     
-    b = ElHaddadBayes("dk_th", "ds_w",
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65,
                       theta_hat=np.array([5.00663972,600.18485208]),
-                      ihess=np.array([[ 5.06170001e-01, -1.01078680e+01], [-1.01078680e+01,  1.40680324e+03]]))
+                      ihess=np.array([[ 5.06170001e-01, -1.01078680e+01],
+                                      [-1.01078680e+01,  1.40680324e+03]]))
     
-    m = MonteCarlo(1000, ElHaddadCurve, 95)
-    m.sample_joint(b)
+    m = MonteCarlo(ElHaddadCurve)
+    m.sample(1000, "joint", b)
+    m.sample(1000, "marginals", b)
     
     pp = PreProViewer([1,1000], [100,700], 1000, "log", y=0.65)
     pp.view(predictive_posterior=b, post_samples = 10, post_data=d, post_op=np.mean, curve = [eh, eh1])
-    
-    #pp.view(prediction_interval=m, y=0.65)  
 
 def data_view():
     a = ElHaddadDataset(reader=pd.read_csv, path="./SyntheticEH.csv")
@@ -71,8 +79,8 @@ def data_view():
     pp.view(train_data=train, test_data=test)
 
 if __name__ == "__main__":
-    #curves()
-    #pi()
-    pred_post()
-    #data_view()
-    
+    # curves()
+    # pi()
+    # pred_post()
+    # data_view()
+    pass

@@ -31,14 +31,6 @@ bayes:
 
 map:
  guess: [1,200]
- solver:
-  method: "L-BFGS-B"
-  disp: True
-  maxiter: 1.0e+10
-  maxls: 1.0e+10
-  gtol: 1.0e-15
-  ftol: 1.0e-15
-  eps: 1.0e-06
 
 laplace:
  p1: dk_th

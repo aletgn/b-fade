@@ -33,30 +33,30 @@ def gen_data(curve):
 
 
 def bayesian_view(dataset):
-    bay = ElHaddadBayes("dk_th", "ds_w")
+    bay = ElHaddadBayes("dk_th", "ds_w", y=0.73)
     
     bay.load_log_likelihood(log_loss, normalize=True)
     bay.load_prior("dk_th", norm, loc=5, scale=1)
     bay.load_prior("ds_w", norm, loc=600, scale=50)
-    bay.MAP(sd)
-    v = BayesViewer("dk_th", [1, 5], 2, "ds_w", [200, 600], 2, spacing="lin", name="testBay")
+    bay.MAP(sd, x0=[2, 300])
+    v = BayesViewer("dk_th", [1, 5], 2,
+                    "ds_w", [200, 600], 2, spacing="lin",
+                    name="testBay")
 
     v.config_contour(cmap="RdYlBu_r")
     # v.contour("log_prior", bay)
     # v.contour("log_likelihood", bay, dataset)
     # v.contour("log_posterior", bay, dataset)
 
-    #print(bay)
-
 def laplace_view():
-    bay = ElHaddadBayes("dk_th", "ds_w", theta_hat = np.array([2.64310718, 400.28437582]),
+    bay = ElHaddadBayes("dk_th", "ds_w", y=0.73,
+                        theta_hat = np.array([2.64310718, 400.28437582]),
                         ihess = np.array([[ 2.60637826e-01, -1.33212611e+01],
                                         [-1.33212611e+01,  6.57914950e+03]]))
 
     l = LaplacePosteriorViewer("dk_th", 2, 50, "ds_w", 2, 50, bayes=bay)
-    #l.contour(bay)
+    l.contour(bay)
     l.marginals("ds_w", bay)
-
 
 if __name__ == "__main__":
     eh = invoke_curve()

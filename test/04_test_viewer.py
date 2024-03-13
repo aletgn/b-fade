@@ -33,7 +33,7 @@ def view_bayes():
     d.make_classes()
     # d.inspect(np.linspace(1, 1000, 1000), scale="log")
     
-    b = ElHaddadBayes("dk_th", "ds_w")
+    b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -72,7 +72,7 @@ def view_laplace():
     print(eh)
 
 if __name__ == "__main__":
-    # istantiation()
-    # view_bayes()
-    # view_laplace()
+    istantiation()
+    view_bayes()
+    view_laplace()
     pass

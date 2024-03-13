@@ -33,7 +33,7 @@ def signed_distance(curve, dataset):
     curve.inspect_signed_distance(np.linspace(1, 1000, 100), x1_min, x2_min, signed_dist, dataset.X, scale="log")
 
 def bayesian_inference(dataset):
-    bay = ElHaddadBayes("dk_th", "ds_w")
+    bay = ElHaddadBayes("dk_th", "ds_w", y=0.73)
     # bay.load_prior("dk_th", norm, loc=5, scale=1)
     # bay.load_prior("ds_w", norm, loc=600, scale=50)
     bay.load_log_likelihood(log_loss, normalize=True)
@@ -48,7 +48,7 @@ def bayesian_inference(dataset):
     return bay
 
 def laplace_view():
-    bay = ElHaddadBayes("dk_th", "ds_w", theta_hat = np.array([2.64310718, 400.28437582]),
+    bay = ElHaddadBayes("dk_th", "ds_w", y=0.73, theta_hat = np.array([2.64310718, 400.28437582]),
                         ihess = np.array([[ 2.60637826e-01, -1.33212611e+01],
                                           [-1.33212611e+01,  6.57914950e+03]]))
     
@@ -59,22 +59,23 @@ def laplace_view():
     l.marginals("ds_w", bay)
 
 def monte_carlo():
-    bay = ElHaddadBayes("dk_th", "ds_w", theta_hat = np.array([2.64310718, 400.28437582]),
+    bay = ElHaddadBayes("dk_th", "ds_w", y=0.65,
+                        theta_hat = np.array([2.64310718, 400.28437582]),
                         ihess = np.array([[ 2.60637826e-01, -1.33212611e+01],
                                           [-1.33212611e+01,  6.57914950e+03]]))
 
-    mc = MonteCarlo(100, ElHaddadCurve, 95)
-    mc.sample_marginals(bay)
-    mean, pred, _ = mc.prediction_interval([1,1000], 1000, "lin", y=0.65)
-
+    mc = MonteCarlo(ElHaddadCurve)
+    mc.sample(1000, "marginals", bay)
+    mean, pred, _ = mc.prediction_interval([1,1000], 1000, "lin", 95)
+    print(mean, pred)
 
 if __name__ == "__main__":
-    # eh = invoke_curve()
-    # sd = gen_data(eh)
-    # signed_distance(eh, sd)
-    # bay = bayesian_inference(sd)
-    # laplace_view()
-    # monte_carlo()
+    eh = invoke_curve()
+    sd = gen_data(eh)
+    signed_distance(eh, sd)
+    bay = bayesian_inference(sd)
+    laplace_view()
+    monte_carlo()
     pass
     
     
