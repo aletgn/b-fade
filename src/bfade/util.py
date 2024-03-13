@@ -311,6 +311,12 @@ def identity(X: np.ndarray) -> None:
     """
     return X
 
+class IdentityDictionary:
+    def __getitem__(self, key):
+        return key
+
+dummy_translator = IdentityDictionary()
+
 def grid_factory(x1_bounds: List[float], x2_bounds: List[float], n1: int, n2: int, spacing: str = "lin") -> Tuple[np.ndarray]:
     """
     Create a grid of points over a 2D space.

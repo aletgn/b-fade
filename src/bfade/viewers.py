@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from bfade.util import grid_factory, logger_factory,  state_modifier, printer
+from bfade.util import dummy_translator
 from bfade.abstract import AbstractMAPViewer
 
 _log = logger_factory(name=__name__, level="DEBUG")
@@ -127,7 +128,7 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
                                   orientation="vertical",
                                   pad=0.1,
                                   format="%.3f",
-                                  label="joint posterior",
+                                  label=r"$P[\theta | D]$",
                                   alpha=0.65)
         ax.tick_params(direction='in', top=1, right =1)
         ax.set_xlabel(self.xlabel)
@@ -160,12 +161,12 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         ax.plot(np.sort(getattr(self, p)),
                 getattr(bayes, "marginal_" + p).pdf(np.sort(getattr(self, p))), "k")
         ax.set_xlabel(p)
-        ax.set_ylabel("marginal posterior")
+        ax.set_ylabel(rf"Marginal Posterior Probability")
         ax.set_title(f"mean = {getattr(bayes, 'marginal_' + p).mean():.2f}" + \
                      f"-- st. dev. = {getattr(bayes, 'marginal_' + p).std():.2f}")
 
         ax.tick_params(direction='in', top=1, right =1)
-        
+        ax.set_xlabel(self.xlabel)
         return fig, self.name + "_lap_marginal_" + p
 
 
@@ -207,23 +208,15 @@ class PreProViewer():
         self.legend_config = legend_config
 
     def config_canvas(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = "aux",
-               class0: str = "0", class1: str = "1", legend_config: Dict = None, translator: Dict = None) -> None:
+               class0: str = "0", class1: str = "1", legend_config: Dict = None, translator: Dict = dummy_translator) -> None:
         
         _log.debug(f"{self.__class__.__name__}.{self.config_canvas.__name__}")
         
-        try:
-            self.xlabel = translator[xlabel]
-            self.ylabel = translator[ylabel]
-            self.cbarlabel = translator[cbarlabel]
-            self.class0 = translator[class0]
-            self.class1 = translator[class1]
-        except:
-            self.xlabel = xlabel
-            self.ylabel = ylabel
-            self.cbarlabel = cbarlabel
-            self.class0 = class0
-            self.class1 = class1
-
+        self.xlabel = translator[xlabel]
+        self.ylabel = translator[ylabel]
+        self.cbarlabel = translator[cbarlabel]
+        self.class0 = translator[class0]
+        self.class1 = translator[class1]
         self.legend_config = legend_config
        
     def add_colourbar(self, ref, vmin, vmax):

@@ -9,7 +9,7 @@ from scipy.optimize import minimize_scalar, minimize
 from numdifftools import Hessian
 
 from bfade.util import grid_factory, logger_factory
-from bfade.util import identity, printer
+from bfade.util import identity, printer, dummy_translator
 from bfade.statistics import distribution, uniform
 
 _log = logger_factory(name=__name__, level="DEBUG")
@@ -574,7 +574,7 @@ class AbstractMAPViewer(ABC):
         self.fmt = fmt
         self.dpi = dpi
 
-    def config_contour(self, levels: int = 21, clevels: int = 11,  cmap: str = "viridis", translator: Dict = None) -> None:
+    def config_contour(self, levels: int = 21, clevels: int = 11,  cmap: str = "viridis", translator: Dict = dummy_translator) -> None:
         """
         Configure contour plot settings.
 
@@ -596,12 +596,8 @@ class AbstractMAPViewer(ABC):
         self.clevels = clevels
         self.cmap = cmap
 
-        try:
-            self.xlabel = translator[self.p1]
-            self.ylabel = translator[self.p2]
-        except:
-            self.xlabel = self.p1
-            self.ylabel = self.p2
+        self.xlabel = translator[self.p1]
+        self.ylabel = translator[self.p2]
     
     def __repr__(self):
         attributes_str = ',\n '.join(f'{key} = {value}' for key, value in vars(self).items())
