@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import scipy
 from scipy.stats import norm, multivariate_normal
 from scipy.optimize import minimize_scalar, minimize
+from numdifftools import Hessian
 
 from bfade.util import grid_factory, logger_factory
 from bfade.util import identity, printer
@@ -424,8 +425,8 @@ class AbstractBayes(ABC):
             solver = solver
             _log.info(f"{self.__class__.__name__}.{self.MAP.__name__} -- User defined solver {method}, {solver}")
         except (KeyError, AttributeError):
-            method = "L-BFGS-B"
-            solver = {'disp': True, 'maxiter': 1e10, 'maxls': 1e9, 'gtol': 1e-15, 'ftol': 1e-15, 'eps': 1e-6}
+            method = "Nelder-Mead"
+            solver = {'disp': True, 'maxiter': 1e10}
             _log.info(f"{self.__class__.__name__}.{self.MAP.__name__} -- Default solver {method}, {solver}")
 
         if self.theta_hat is not None and self.ihess is not None:
@@ -436,14 +437,16 @@ class AbstractBayes(ABC):
             result = minimize(lambda t: -self.log_posterior(D, *t), x0=x0,
                               method=method, callback=callback,
                               options=solver)
-    
+
             if result.success:
-                self.theta_hat = result.x
-                self.ihess = result.hess_inv.todense()
-                self.laplace_posterior()
                 _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- MAP succeeded.")
-                _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- theta_hat {self.theta_hat}.")
-                _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- inverse_hessian {self.ihess}.")
+                self.theta_hat = result.x
+                hessfun = Hessian(lambda t: -self.log_posterior(D, *t))
+                _log.info(f"{self.__class__.__name__}.{self.MAP.__name__} -- Compute inverse Hessian Matrix.")
+                self.ihess = np.linalg.inv(hessfun(self.theta_hat))
+                self.laplace_posterior()
+                _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- theta_hat {self.theta_hat}")
+                _log.warning(f"{self.__class__.__name__}.{self.MAP.__name__} -- ihess {self.ihess}")
             else:
                 raise Exception("MAP did not succeede.")
             
@@ -462,7 +465,7 @@ class AbstractBayes(ABC):
         None.
 
         """
-        _log.debug(f"{self.__class__.__name__}.{self.laplace_posterior.__name__}")
+        _log.debug(f"{self.__class__.__name__}.{self.laplace_posterior.__name__} -- Load distributions.")
         self.joint = multivariate_normal(mean = self.theta_hat, cov=self.ihess)
         for idx in range(self.theta_hat.shape[0]):
             setattr(self, "marginal_" + self.pars[idx], norm(loc=self.theta_hat[idx], scale=self.ihess[idx][idx]**0.5))
