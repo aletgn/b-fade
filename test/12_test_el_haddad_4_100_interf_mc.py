@@ -13,7 +13,7 @@ from scipy.stats import norm
 
 from bfade.elhaddad import ElHaddadCurve, ElHaddadBayes
 from bfade.elhaddad import ElHaddadTranslator as ET
-from bfade.datagen import SyntheticDataset
+from bfade.dataset import SyntheticDataset
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer, PreProViewer
 from bfade.util import parse_arguments, get_config_file, config_matplotlib
 from bfade.statistics import MonteCarlo
@@ -24,10 +24,10 @@ eh = ElHaddadCurve(dk_th=4, ds_w=100, y=0.46, metrics=np.log10, name="EH_4_100")
 # eh.inspect(np.linspace(1,1000, 1000), scale="log")
 
 # %% Generate dataset
-sd = SyntheticDataset(eh, name="EH_4_100")
-sd.make_tube(x1_bounds=[1,2000], n=30, up=0.02, down=-0.02, step=8, spacing="log")
+sd = SyntheticDataset(name="EH_4_100")
+sd.make_tube(eh, x_bounds=[1,2000], n=30, up=0.02, down=-0.02, step=8, spacing="log")
 # sd.clear_points(tol=2)
-sd.make_classes()
+sd.make_classes(eh)
 # sd.config(save=cf["save"], folder=cf["pic_folder"])
 # sd.inspect(np.linspace(1, 2000, 1000), scale="log")
 # signed_dist, x1_min, x2_min = eh.signed_distance_to_dataset(sd)
@@ -44,7 +44,7 @@ v.config_contour(translator=ET)
 # v.contour("log_prior", bay)
 # v.contour("log_likelihood", bay, sd)
 # v.contour("log_posterior", bay, sd
-# bay.MAP(sd, x0=[3, 120])
+bay.MAP(sd, x0=[3, 120])
 
 theta_hat = np.array([3.9972668, 100.01953756])
 ihess = np.array([[ 0.00116242, -0.00203901], [-0.00203901, 0.05873539]])

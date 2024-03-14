@@ -1,27 +1,26 @@
-from typing import Dict, List, Tuple, Any
+from typing import List, Dict, Any
 
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split as tts
 
-from bfade.util import grid_factory, logger_factory, printer, sif_equiv, inv_sif_range, sif_range
-from bfade.util import identity, printer, dummy_translator, YieldException, MissingInputException
-from bfade.statistics import distribution, uniform
+from bfade.abstract import AbstractCurve
+from bfade.util import grid_factory, logger_factory, YieldException, printer
 
 _log = logger_factory(name=__name__, level="DEBUG")
 
 class Dataset:
-    
+
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         self.X = None
         self.y = None
-        
+
         try:
             self.name = kwargs.pop("name")
         except:
             self.name = "Untitled"
-        
+
         try:
             path = kwargs.pop("path")
             reader = kwargs.pop("reader")
@@ -35,7 +34,7 @@ class Dataset:
             _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- Data ready")
         except (TypeError, KeyError):
             pass
-        
+
         try:
             self.X = kwargs.pop("X")
             self.y = kwargs.pop("y")
@@ -51,8 +50,8 @@ class Dataset:
         try:
             [setattr(self, k, kwargs[k]) for k in kwargs.keys()]
         except KeyError:
-            pass       
-        
+            pass
+
         self.config()
 
     def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300) -> None:
@@ -75,7 +74,7 @@ class Dataset:
             self.name + "_curve"
         except:
             pass
-        
+
         ax.set_xlim(xlim)
         ax.set_ylim(ylim)
         ax.set_xscale(scale)
@@ -102,16 +101,16 @@ class Dataset:
 
                 return Dataset(X=X_tr, y=y_tr, name=self.name+"_train"),\
                     Dataset(X=X_ts, y=y_ts, name=self.name+"_test")
-            
+
             else:
                 raise AttributeError("No data in dataset.")
 
         elif method == "user":
-            
+
             if self.data is not None:
                 return Dataset(name=self.name+"_train", **self.populate(self.data.query("test == 0"))),\
-                Dataset(name=self.name+"_test", **self.populate(self.data.query("test == 1"))),               
-            
+                Dataset(name=self.name+"_test", **self.populate(self.data.query("test == 1"))),
+
             elif self.X is not None and self.y is not None:
                 class0 = np.where(self.test == 0)
                 class1 = np.where(self.test == 1)
@@ -124,11 +123,11 @@ class Dataset:
             raise Exception("Split method incorrectly provided.")
 
     def populate(self, data, X_labels=["x1", "x2"], y_label="y"):
-        _log.debug(f"{self.__class__.__name__}.{self.populate.__name__}")        
+        _log.debug(f"{self.__class__.__name__}.{self.populate.__name__}")
         return {"X": data[X_labels].to_numpy(), "y": data[y_label].to_numpy()}
-    
 
-class SyntheticData(Dataset):
+
+class SyntheticDataset(Dataset):
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__(**kwargs)
@@ -137,7 +136,7 @@ class SyntheticData(Dataset):
                   n1: int, n2: int, spacing: str ="lin") -> None:
         """
         Generate a grid of input points for the synthetic dataset.
-        
+
         Parameters
         ----------
         x1_bounds : List[float]
@@ -151,7 +150,7 @@ class SyntheticData(Dataset):
         scale : str, optional
             The scale of the grid spacing, either "lin" for linear or "log" for logarithmic.
             Default is "lin".
-        
+
         Returns
         -------
         None
@@ -164,7 +163,7 @@ class SyntheticData(Dataset):
                   down: float = -0.1, step: int = 4, spacing: str = "lin") -> None:
         """
         Generate a ``tube'' of points surrounding the given EH curve.
-        
+
         This method should be used in place of make_grid.
 
         The dataset is inspected via view_grid
@@ -201,7 +200,7 @@ class SyntheticData(Dataset):
         if spacing == "lin":
             steps = np.linspace(up, down, step)
             x1 = np.linspace(x_bounds[0], x_bounds[1], n)
-        
+
         else:
             steps = np.logspace(up, down, step)
             x1 = np.logspace(np.log10(x_bounds[0]), np.log10(x_bounds[1]), n)
@@ -222,13 +221,13 @@ class SyntheticData(Dataset):
     def make_classes(self, curve):
         """
         Assign class labels to the synthetic dataset based on the underlying curve.
-     
+
         Returns
         -------
         None
-     
-        """   
-        _log.debug(f"{self.__class__.__name__}.{self.make_classes.__name__}")    
+
+        """
+        _log.debug(f"{self.__class__.__name__}.{self.make_classes.__name__}")
         self.y = []
         for d in self.X:
             if curve.equation(d[0]) > d[1]:
@@ -240,13 +239,13 @@ class SyntheticData(Dataset):
     def clear_points(self, curve, tol: float = 1e-2):
         """
         Remove data points from the synthetic dataset based on the deviation from the underlying curve.
-    
+
         Parameters
         ----------
         tol : float, optional
             Tolerance level for determining the deviation. Points with a deviation less than `tol` will be removed.
             Default is 1e-2.
-    
+
         Returns
         -------
         None
@@ -261,14 +260,14 @@ class SyntheticData(Dataset):
     def add_noise(self, x1_std: float, x2_std: float) -> None:
         """
         Add Gaussian noise to the data points in the synthetic dataset.
-    
+
         Parameters
         ----------
         x1_std : float
             Standard deviation of the Gaussian noise to be added to the first feature (x1).
         x2_std : float
             Standard deviation of the Gaussian noise to be added to the second feature (x2).
-    
+
         Returns
         -------
         None
@@ -280,73 +279,3 @@ class SyntheticData(Dataset):
         self.X[:,0] += scipy.stats.norm(loc = 0, scale = x1_std).rvs(size=self.X.shape[0])
         self.X[:,1] += scipy.stats.norm(loc = 0, scale = x2_std).rvs(size=self.X.shape[0])
 
-
-class ElHaddadData(Dataset):
-
-    def __init__(self, **kwargs: Dict[str, Any]) -> None:
-        super().__init__(**kwargs)
-
-    def pre_process(self, **kwargs):
-        """
-        Pre-process the dataset:
-
-             - set 'Y'
-
-             - convert sqrt_area using the SIF equivalence
-
-             - compute SIF
-
-        Parameters
-        ----------
-        kwargs : Dict[str, Any]
-            Y_ref to specify the reference value for Y.
-
-        Raises
-        ------
-        MissingInputException
-            Raised if 'Y' is neither unique in the dataset nor provided\
-            as a keyword argument.
-
-        """
-        _log.debug(f"{self.__class__.__name__}.{self.pre_process.__name__}")
-        try:
-            self.Y = kwargs.pop("Y_ref")
-            _log.warning(f"Y_ref user-provided = {self.Y:.2f}")
-        except KeyError:
-            _log.warning(f"Y_ref not user-provided")
-            _log.warning("Verify uniqueness of Y")
-            if len(set(self.data.Y)) == 1:
-                self.Y = list(set(self.data.Y))[0]
-                _log.warning(f"Y is unique = {self.Y:.2f}")              
-            else:
-                _log.error(f"Y is not unique")
-                _log.debug(f"Values found: {set(self.data.Y)}")
-                raise MissingInputException("Y_ref is neither unique nor provided")
-
-        _log.info("Update dataframe")
-        self.data.rename(columns={"Y": "Y_"}, inplace=True)
-        self.data.insert(list(self.data.columns).index("Y_")+1, "Y", self.Y)
-
-        _log.warning(f"Convert sqrt_area by {self.Y:.2f}")
-        self.data.rename(columns={"sqrt_area": "sqrt_area_"}, inplace=True)
-        self.data.insert(list(self.data.columns).index("sqrt_area_")+1, "sqrt_area",
-                        sif_equiv(self.data.sqrt_area_, self.data.Y_, self.Y))
-
-        _log.info("Compute SIF range")
-        self.data.insert(list(self.data.columns).index("Y")+1, "dk",
-                        sif_range(self.data.delta_sigma, self.data.Y, self.data.sqrt_area*1e-6))
-
-        _log.debug(f"Calculate min max of delta_k for colour bars")
-        self.aux = self.data["dk"].to_numpy()
-        self.aux_min = self.aux.min()
-        self.aux_max = self.aux.max()
-
-        self.X = self.data[["sqrt_area", "delta_sigma"]].to_numpy()
-        self.y = self.data["failed"].to_numpy()
-        self.Y = self.data["Y"].to_numpy()
-        self.aux = self.data["dk"].to_numpy()
-        self.aux_min = self.aux_min
-        self.aux_max = self.aux_max
-
-    def populate(self, data, X_labels=["sqrt_area", "delta_sigma"], y_label="failed"):
-        return super().populate(data, X_labels, y_label)

@@ -5,7 +5,7 @@ syspath.append(ospath.join(ospath.expanduser("~"),
 
 from bfade.abstract import AbstractCurve
 from bfade.util import identity 
-from bfade.datagen import SyntheticDataset
+from bfade.dataset import SyntheticDataset
 
 import numpy as np
 
@@ -28,24 +28,25 @@ def inspection(m = 1, q = 0):
     
 def grid(m = 1, q = 0):
     l = Line(m = m, q = q)
-    d = SyntheticDataset(l)
-    d.make_grid([-5,5],[-5,5], 10, 10)
-    d.inspect()
-    d.make_classes()
-    d.inspect()
+    d = SyntheticDataset()
+    d.make_grid([-5, 5],[-5, 5], 10, 10)
+    d.inspect([-5, 5],[-5, 5], scale="linear")
+    d.make_classes(l)
+    d.inspect([-5, 5],[-5, 5], scale="linear", curve=l, x=np.linspace(-5,5,100))
     d.add_noise(0.1, 0.5)
-    d.inspect()
+    d.inspect([-5, 5],[-5, 5], scale="linear")
 
 def tube(m = 1, q = 0):
     l = Line(m = m, q = q)
-    d = SyntheticDataset(l)
-    d.make_tube([-5,5], up=3, down=-3, step=4)
-    d.inspect()
-    d.make_classes()
-    d.inspect(np.linspace(-10,10,100))
+    d = SyntheticDataset()
+    d.make_tube(curve=l, x_bounds=[-5,5], n=50, up=3, down=-3, step=4)
+    d.inspect([-5, 5],[-5, 5])
+    d.make_classes(l)
+    d.inspect([-5, 5],[-5, 5], scale="linear", curve=l, x=np.linspace(-5,5,100))
 
 if __name__ == "__main__":
-    istantiation()
-    inspection()
-    grid()
-    tube()
+    # istantiation()
+    # inspection()
+    # grid()
+    # tube()
+    pass

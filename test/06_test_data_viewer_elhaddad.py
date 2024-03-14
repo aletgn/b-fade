@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
-from bfade.datagen import SyntheticDataset
+from bfade.dataset import SyntheticDataset
 from bfade.elhaddad import ElHaddadBayes, ElHaddadCurve, ElHaddadDataset
 from bfade.statistics import uniform, MonteCarlo
 from bfade.util import grid_factory, logger_manager

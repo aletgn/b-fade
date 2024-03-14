@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 
-from bfade.datagen import SyntheticDataset
+from bfade.dataset import SyntheticDataset
 from bfade.elhaddad import ElHaddadCurve
 from bfade.elhaddad import ElHaddadBayes
 from bfade.statistics import uniform
@@ -27,6 +27,7 @@ def contour(x, y, z):
                        # label=el2latex[element],
                        alpha=0.65)
     ax.tick_params(direction='in', top=1, right=1)
+    plt.show()
 
 def istantiation():
     b = ElHaddadBayes("dkt", "dsw")
@@ -56,11 +57,11 @@ def calc_prior():
 def calc_likelihood():
     eh = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=600, y=0.65)
     
-    d = SyntheticDataset(eh)
+    d = SyntheticDataset()
     d.make_grid([1, 1000], [100,700], 5, 5, spacing="log")
-    d.clear_points(tol=1)
-    d.make_classes()
-    d.inspect(np.linspace(1, 1000, 1000), scale="log")
+    d.clear_points(eh, tol=1)
+    d.make_classes(eh)
+    d.inspect([1, 1000], [100,700], scale="log", curve=eh, x=np.linspace(1,1000,100))
     
     b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -73,11 +74,11 @@ def calc_likelihood():
 def display_log_likelihood():
     eh = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=600, y=0.65)
     
-    d = SyntheticDataset(eh)
+    d = SyntheticDataset()
     d.make_grid([1, 1000], [100,700], 20, 20, spacing="log")
-    d.clear_points(tol=1)
-    d.make_classes()
-    # d.inspect(np.linspace(1, 1000, 1000), scale="log")
+    d.clear_points(eh, tol=1)
+    d.make_classes(eh)
+    # d.inspect([1, 1000], [100,700], scale="log", curve=eh, x=np.linspace(1,1000,100))
     
     b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_log_likelihood(log_loss, normalize=True)
@@ -90,11 +91,11 @@ def display_log_likelihood():
 def display_log_prior():
     eh = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=600, y=0.65)
     
-    d = SyntheticDataset(eh)
+    d = SyntheticDataset()
     d.make_grid([1, 1000], [100,700], 20, 20, spacing="log")
-    d.clear_points(tol=1)
-    d.make_classes()
-    # d.inspect(np.linspace(1, 1000, 1000), scale="log")
+    d.clear_points(eh, tol=1)
+    d.make_classes(eh)
+    # d.inspect([1, 1000], [100,700], scale="log", curve=eh, x=np.linspace(1,1000,100))
     
     b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_prior("dk_th", norm, loc=5, scale=1)
@@ -108,11 +109,11 @@ def display_log_prior():
 def display_log_posterior():
     eh = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=600, y=0.65)
     
-    d = SyntheticDataset(eh)
+    d = SyntheticDataset()
     d.make_grid([1, 1000], [100,700], 20, 20, spacing="log")
-    d.clear_points(tol=1)
-    d.make_classes()
-    # d.inspect(np.linspace(1, 1000, 1000), scale="log")
+    d.clear_points(eh, tol=1)
+    d.make_classes(eh)
+    # d.inspect([1, 1000], [100,700], scale="log", curve=eh, x=np.linspace(1,1000,100))
     
     b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_prior("dk_th", norm, loc=5, scale=1)
@@ -127,11 +128,11 @@ def display_log_posterior():
 def display_bayes_tube():
     eh = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=600, y=0.65)
     
-    d = SyntheticDataset(eh)
-    d.make_tube([1, 1000], n=50, up=0.1, down=-0.1, step=5, spacing="log")
-    d.clear_points(tol=1)
-    d.make_classes()
-    d.inspect(np.linspace(1, 1000, 1000), scale="log")
+    d = SyntheticDataset()
+    d.make_tube(eh, [1, 1000], n=50, up=0.1, down=-0.1, step=5, spacing="log")
+    d.clear_points(eh, tol=1)
+    d.make_classes(eh)
+    d.inspect([1, 1000], [100,700], scale="log", curve=eh, x=np.linspace(1,1000,100))
     
     b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_prior("dk_th", norm, loc=5, scale=1)
@@ -151,11 +152,11 @@ def display_bayes_tube():
 def run_map():
     eh = ElHaddadCurve(metrics = np.log10, dk_th=5, ds_w=600, y=0.65)
     
-    d = SyntheticDataset(eh)
+    d = SyntheticDataset()
     d.make_grid([1, 1000], [100,700], 20, 20, spacing="log")
-    d.clear_points(tol=1)
-    d.make_classes()
-    # d.inspect(np.linspace(1, 1000, 1000), scale="log")
+    d.clear_points(eh, tol=1)
+    d.make_classes(eh)
+    # d.inspect([1, 1000], [100,700], scale="log", curve=eh, x=np.linspace(1,1000,100))
     
     b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_prior("dk_th", norm, loc=5, scale=1)
@@ -174,7 +175,7 @@ def likelihood_args():
     d.make_grid([1, 1000], [100,700], 20, 20, spacing="log")
     d.clear_points(tol=1)
     d.make_classes()
-    # d.inspect(np.linspace(1, 1000, 1000), scale="log")
+    # d.inspect([1, 1000], [100,700], scale="log", curve=eh, x=np.linspace(1,1000,100))
     
     b = ElHaddadBayes("dk_th", "ds_w", y=0.65)
     b.load_log_likelihood(log_loss, normalize=True, eps="auto")

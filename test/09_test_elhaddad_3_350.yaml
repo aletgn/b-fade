@@ -22,7 +22,7 @@ dataset:
 
 bayes:
  log_likelihood: log_loss
- log_normalise: True
+ log_normalise: False
  p1: dk_th
  p2: ds_w
  x1: [1, 5]

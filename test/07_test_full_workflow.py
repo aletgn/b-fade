@@ -7,7 +7,7 @@ import numpy as np
 np.seterr(divide='ignore', invalid='ignore')
 
 from bfade.elhaddad import ElHaddadCurve, ElHaddadBayes
-from bfade.datagen import SyntheticDataset
+from bfade.dataset import SyntheticDataset
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer
 from bfade.statistics import MonteCarlo
 
@@ -21,10 +21,10 @@ def invoke_curve():
     return eh
 
 def gen_data(curve):
-    sd = SyntheticDataset(curve)
+    sd = SyntheticDataset()
     sd.make_grid([1, 1000],[50, 800], 30, 30, spacing="log")
-    sd.clear_points(tol=1)
-    sd.make_classes()
+    sd.clear_points(curve, tol=1)
+    sd.make_classes(curve)
     # sd.inspect(np.linspace(1,1000,1000), scale="log")
     return sd
 
@@ -36,7 +36,7 @@ def bayesian_inference(dataset):
     bay = ElHaddadBayes("dk_th", "ds_w", y=0.73)
     # bay.load_prior("dk_th", norm, loc=5, scale=1)
     # bay.load_prior("ds_w", norm, loc=600, scale=50)
-    bay.load_log_likelihood(log_loss, normalize=True)
+    bay.load_log_likelihood(log_loss, normalize=False)
 
     # v = BayesViewer("dk_th", [1, 5], 2, "ds_w", [200, 600], 2, spacing="lin")
     # v.contour("log_prior", bay)
@@ -48,9 +48,9 @@ def bayesian_inference(dataset):
     return bay
 
 def laplace_view():
-    bay = ElHaddadBayes("dk_th", "ds_w", y=0.73, theta_hat = np.array([2.64310718, 400.28437582]),
-                        ihess = np.array([[ 2.60637826e-01, -1.33212611e+01],
-                                          [-1.33212611e+01,  6.57914950e+03]]))
+    bay = ElHaddadBayes("dk_th", "ds_w", y=0.73, theta_hat = np.array([  2.9684112, 400.30248376]),
+                        ihess = np.array([[ 1.57017706e-03, -1.19983496e-01],
+                                           [-1.19983496e-01,  2.54254012e+01]]))
     
 
 
@@ -60,9 +60,9 @@ def laplace_view():
 
 def monte_carlo():
     bay = ElHaddadBayes("dk_th", "ds_w", y=0.65,
-                        theta_hat = np.array([2.64310718, 400.28437582]),
-                        ihess = np.array([[ 2.60637826e-01, -1.33212611e+01],
-                                          [-1.33212611e+01,  6.57914950e+03]]))
+                        theta_hat = np.array([  2.9684112,  400.30248376]),
+                        ihess = np.array([[ 1.57017706e-03, -1.19983496e-01],
+                                           [-1.19983496e-01,  2.54254012e+01]]))
 
     mc = MonteCarlo(ElHaddadCurve)
     mc.sample(1000, "marginals", bay)
@@ -70,12 +70,12 @@ def monte_carlo():
     print(mean, pred)
 
 if __name__ == "__main__":
-    eh = invoke_curve()
-    sd = gen_data(eh)
-    signed_distance(eh, sd)
-    bay = bayesian_inference(sd)
-    laplace_view()
-    monte_carlo()
+    # eh = invoke_curve()
+    # sd = gen_data(eh)
+    # signed_distance(eh, sd)
+    # bay = bayesian_inference(sd)
+    # laplace_view()
+    # monte_carlo()
     pass
     
     

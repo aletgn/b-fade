@@ -10,7 +10,7 @@ np.seterr(divide='ignore', invalid='ignore')
 import sklearn.metrics
 
 from bfade.elhaddad import ElHaddadCurve, ElHaddadBayes
-from bfade.datagen import SyntheticDataset
+from bfade.dataset import SyntheticDataset
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer, PreProViewer
 from bfade.util import parse_arguments, get_config_file, config_matplotlib
 from bfade.statistics import MonteCarlo
@@ -25,14 +25,14 @@ eh.config(save=cf["save"], folder=cf["pic_folder"])
 eh.inspect(np.linspace(1,1000, 1000), scale="log")
 
 #%% Generate dataset based on the given curve
-sd = SyntheticDataset(eh, name=cf["id"])
+sd = SyntheticDataset(name=cf["id"])
 sd.make_grid(cf["dataset"]["x1"], cf["dataset"]["x2"],
              cf["dataset"]["n1"], cf["dataset"]["n2"],
              spacing=cf["dataset"]["spacing"])
-sd.clear_points(tol=cf["dataset"]["tol"])
-sd.make_classes()
+sd.clear_points(eh, tol=cf["dataset"]["tol"])
+sd.make_classes(eh)
 sd.config(save=cf["save"], folder=cf["pic_folder"])
-sd.inspect(np.linspace(1, 1000, 1000), scale="log")
+sd.inspect([1, 1000], [100,700], scale="log", curve=eh, x=np.linspace(1,1000,100))
 
 signed_dist, x1_min, x2_min = eh.signed_distance_to_dataset(sd)
 eh.inspect_signed_distance(np.linspace(1, 1000, 100), x1_min, x2_min, signed_dist, sd.X, scale="log")
@@ -47,7 +47,7 @@ v.config(save=cf["save"], folder=cf["pic_folder"])
 # v.contour("log_likelihood", bay, sd)
 # v.contour("log_posterior", bay, sd)
 
-# bay.MAP(sd, x0=cf["map"]["guess"])
+bay.MAP(sd, x0=cf["map"]["guess"])
 
 #%% Display approximated posterior
 l = LaplacePosteriorViewer(cf["laplace"]["p1"], cf["laplace"]["c1"], cf["laplace"]["n1"],
