@@ -40,8 +40,8 @@ def read_split_inspect_curve():
     # d_tr.inspect([1,1000], [1,1000], scale="log", curve=eh, x = np.linspace(1,1000,100))
     # d_ts.inspect([1,1000], [1,1000], scale="log", curve=eh, x = np.linspace(1,1000,100))
 
-    p = PreProViewer()
-    p.view(train_data=d)
+    p = PreProViewer([10,1000], [50,300], scale="log")
+    p.view(train_data = d_tr, test_data=d_ts)
 
 def noisy_dataset():
     eh = ElHaddadCurve(dk_th=3, ds_w=180, y=.73)
@@ -52,13 +52,15 @@ def noisy_dataset():
     sd.make_classes(eh)
     sd.add_noise(10,10)
     # sd.inspect(xlim=[1,1000], ylim=[50,300], scale="log")
+    d_tr, d_ts = sd.partition(method="random")
+    p = PreProViewer([10,1000], [50,300], scale="log")
+    p.view(train_data=d_tr, test_data=d_ts)
 
-    p = PreProViewer([1,1000], [50,300], scale="log")
-    p.view(train_data=sd) 
+    # print(sd.aux)
 
 if __name__ == "__main__":
     # istantiation_and_split()
     # read_split_inspect()
-    # read_split_inspect_curve()
-    # noisy_dataset()
+    read_split_inspect_curve()
+    noisy_dataset()
     pass

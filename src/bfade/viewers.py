@@ -207,7 +207,7 @@ class PreProViewer():
         self.dpi = dpi
         self.legend_config = legend_config
 
-    def config_canvas(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = "aux",
+    def config_canvas(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = "class",
                class0: str = "0", class1: str = "1", legend_config: Dict = None, translator: Dict = dummy_translator) -> None:
         
         _log.debug(f"{self.__class__.__name__}.{self.config_canvas.__name__}")
@@ -218,7 +218,31 @@ class PreProViewer():
         self.class0 = translator[class0]
         self.class1 = translator[class1]
         self.legend_config = legend_config
-       
+
+    def add_scatter(self, x1, x2, marker, label, c, vmin, vmax):
+        return self.ax.scatter(x1, x2, marker=marker,
+                               c=c, vmin=vmin, vmax=vmax,
+                               cmap='RdYlBu_r', edgecolor='k',
+                               s=50, label=label, zorder=2)
+
+    @staticmethod
+    def cbar_edges(data):
+        y0 = np.where(data.y==0)
+        y1 = np.where(data.y==1)
+
+        try:
+            c0 = data.aux[y0]
+            c1 = data.aux[y1]
+            vmin = data.aux_min
+            vmax = data.aux_max
+        except:
+            c0 = [0]*len(y0[0])
+            c1 = [1]*len(y1[0])
+            vmin = 0
+            vmax = 1
+        print("hey hey")
+        return y0, y1, c0, c1, vmin, vmax
+
     def add_colourbar(self, ref, vmin, vmax):
         """
         Add a colorbar to the El Haddad plot.
@@ -286,37 +310,14 @@ class PreProViewer():
         for k in kwargs:
             if k == "train_data":
                 _log.info("Inspect training data")
-                y0 = np.where(kwargs[k].y==0)
-                y1 = np.where(kwargs[k].y==1)
+                y0, y1, c0, c1, vmin, vmax = self.cbar_edges(kwargs[k])
+                self.sr = self.add_scatter(kwargs[k].X[y0, 0], kwargs[k].X[y0, 1],
+                                           'o', self.class0+" (Train)", c0,
+                                           vmin=vmin, vmax=vmax)
+                self.add_scatter(kwargs[k].X[y1, 0], kwargs[k].X[y1, 1],
+                                 'X', self.class1+" (Train)", c1,
+                                 vmin, vmax)
 
-                try:
-                    c0=kwargs[k].aux[y0]
-                    c1=kwargs[k].aux[y1]
-                    vmin=kwargs[k].aux_min
-                    vmax=kwargs[k].aux_max
-                except:
-                    c0 = [0]*len(y0[0])
-                    c1 = [1]*len(y1[0])
-                    vmin = 0
-                    vmax = 1
-
-                self.sr = self.ax.scatter(kwargs[k].X[y0, 0], kwargs[k].X[y0, 1],
-                                          marker='o',
-                                          c=c0, vmin=vmin, vmax=vmax,
-                                          cmap='RdYlBu_r',
-                                          edgecolor='k',
-                                          s=50,
-                                          label=self.class0+" (Train)", zorder=2
-                                          )
-
-                self.ax.scatter(kwargs[k].X[y1, 0], kwargs[k].X[y1, 1],
-                                marker='X',
-                                c=c1, vmin=vmin, vmax=vmax,
-                                cmap='RdYlBu_r',
-                                edgecolor='k',
-                                s=50,
-                                label=self.class1+" (Train)", zorder=2
-                                )
                 if self.ss is None:
                     self.add_colourbar(self.sr, vmin, vmax)
                 self.state = state_modifier(self.state, "test", "data", "train")
@@ -324,37 +325,14 @@ class PreProViewer():
 
             elif k == "test_data":
                 _log.info("Inspect test data")
-                y0 = np.where(kwargs[k].y==0)
-                y1 = np.where(kwargs[k].y==1)
-                
-                try:
-                    c0=kwargs[k].aux[y0]
-                    c1=kwargs[k].aux[y1]
-                    vmin=kwargs[k].aux_min
-                    vmax=kwargs[k].aux_max
-                except:
-                    c0 = [0]*len(y0[0])
-                    c1 = [1]*len(y1[0])
-                    vmin = 0
-                    vmax = 1
+                y0, y1, c0, c1, vmin, vmax = self.cbar_edges(kwargs[k])
+                self.ss = self.add_scatter(kwargs[k].X[y0, 0], kwargs[k].X[y0, 1],
+                                           's', self.class0+" (Test)", c0,
+                                           vmin, vmax)
+                self.add_scatter(kwargs[k].X[y1, 0], kwargs[k].X[y1, 1],
+                                 'P', self.class1+" (Test)", c1,
+                                 vmin, vmax)
 
-                self.ss = self.ax.scatter(kwargs[k].X[y0,0], kwargs[k].X[y0,1],
-                                          marker='s',
-                                          c=c0, vmin=vmin, vmax=vmax,
-                                          cmap='RdYlBu_r',
-                                          edgecolor='k',
-                                          s=50,
-                                          label=self.class0+" (Test)", zorder=2
-                                          )
-                
-                self.ax.scatter(kwargs[k].X[y1,0], kwargs[k].X[y1,1],
-                                          marker='P',
-                                          c=c1, vmin=vmin, vmax=vmax,
-                                          cmap='RdYlBu_r',
-                                          edgecolor='k',
-                                          s=50,
-                                          label=self.class1+" (Test)", zorder=2
-                                          )
                 if self.sr is None:
                     self.add_colourbar(self.ss, vmin, vmax)
                 self.state = state_modifier(self.state, "train", "data", "test")
