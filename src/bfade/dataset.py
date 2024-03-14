@@ -257,7 +257,7 @@ class SyntheticDataset(Dataset):
         else:
             self.X = np.array([d for d in self.X if abs(curve.equation(d[0]) - d[1]) > tol])
 
-    def add_noise(self, x1_std: float, x2_std: float) -> None:
+    def add_noise(self, x1_std: float, x2_std: float, random_state=0) -> None:
         """
         Add Gaussian noise to the data points in the synthetic dataset.
 
@@ -274,8 +274,24 @@ class SyntheticDataset(Dataset):
 
         """
         _log.debug(f"{self.__class__.__name__}.{self.add_noise.__name__}")
+        np.random.seed(0)
         if self.y is None:
             raise YieldException("Noise must be added after making classes.")
         self.X[:,0] += scipy.stats.norm(loc = 0, scale = x1_std).rvs(size=self.X.shape[0])
         self.X[:,1] += scipy.stats.norm(loc = 0, scale = x2_std).rvs(size=self.X.shape[0])
+
+    def crop_points(self):
+        _log.debug(f"{self.__class__.__name__}.{self.crop_points.__name__}")
+        X = []
+        y = []
+
+        for xx, yy in zip(self.X, self.y):
+            if xx[0] > 0 and xx[1] > 0:
+                X.append(xx)
+                y.append(yy)
+            else:
+                pass
+
+        self.X = np.array(X)
+        self.y = np.array(y)
 
