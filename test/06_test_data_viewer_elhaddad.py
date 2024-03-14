@@ -69,14 +69,14 @@ def pred_post():
     pp.view(predictive_posterior=b, post_samples = 10, post_data=d, post_op=np.mean, curve = [eh, eh1])
 
 def data_view():
-    a = ElHaddadDataset(reader=pd.read_csv, path="./SyntheticEH.csv")
+    a = ElHaddadDataset(reader=pd.read_csv, path="/home/ale/Downloads/SyntheticEH.csv")
     data = a.pre_process()
     train, test = a.partition("user")
-
     pp = PreProViewer([1,1000], [100,700], 1000, "log")
     pp.config(save=False, folder="/home/ale/Desktop/plots/", fmt="png", dpi=300)
     pp.config_canvas(class0="Runout", class1="Failed", xlabel="sqrt_area", ylabel="delta_sigma", cbarlabel="delta_k")
     pp.view(train_data=train, test_data=test)
+
 
 if __name__ == "__main__":
     # curves()

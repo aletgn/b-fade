@@ -102,7 +102,7 @@ ElHaddadTranslator = {"dk_th": "$\Delta K_{th,lc}$ [MPa $\sqrt{m}$]",
                       "1": "Failed"}
 
 
-class ElHaddadData(Dataset):
+class ElHaddadDataset(Dataset):
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
         super().__init__(**kwargs)
@@ -170,4 +170,9 @@ class ElHaddadData(Dataset):
         self.aux_max = self.aux_max
 
     def populate(self, data, X_labels=["sqrt_area", "delta_sigma"], y_label="failed"):
-        return super().populate(data, X_labels, y_label)
+        return {"X": data[X_labels].to_numpy(),
+                "y": data[y_label].to_numpy(),
+                "aux": data["dk"].to_numpy(),
+                "aux_min": self.aux_min,
+                "aux_max": self.aux_max,
+                "Y": self.Y}
