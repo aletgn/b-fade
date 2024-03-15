@@ -20,7 +20,7 @@ from bfade.statistics import MonteCarlo
 config_matplotlib(font_size=10, font_family="sans-serif", use_latex=False, interactive=False)
 
 # %% Istantiate El Haddad curve
-eh = ElHaddadCurve(dk_th=4, ds_w=100, y=0.46, metrics=np.log10, name="EH_4_100")
+eh = ElHaddadCurve(dk_th=4, ds_w=100, Y=0.46, metrics=np.log10, name="EH_4_100")
 # eh.inspect(np.linspace(1,1000, 1000), scale="log")
 
 # %% Generate dataset
@@ -34,7 +34,7 @@ sd.make_classes(eh)
 # eh.inspect_signed_distance(np.linspace(1, 1000, 100), x1_min, x2_min, signed_dist, sd.X, scale="log")
 
 # %% Baysian Inference
-bay = ElHaddadBayes("dk_th", "ds_w", y=0.46, name="EH_4_100")
+bay = ElHaddadBayes("dk_th", "ds_w", Y=0.46, name="EH_4_100")
 bay.load_log_likelihood(sklearn.metrics.log_loss, normalize=False)
 # bay.load_prior("dk_th", norm, loc=1, scale=0.1)
 # bay.load_prior("ds_w", norm, loc=250, scale=10)
@@ -49,7 +49,7 @@ bay.MAP(sd, x0=[3, 120])
 theta_hat = np.array([3.9972668, 100.01953756])
 ihess = np.array([[ 0.00116242, -0.00203901], [-0.00203901, 0.05873539]])
 
-bay_id = ElHaddadBayes("dk_th", "ds_w", theta_hat=theta_hat, ihess=ihess, y=0.5, name="EH_2_250")
+bay_id = ElHaddadBayes("dk_th", "ds_w", theta_hat=theta_hat, ihess=ihess, Y=0.46, name="EH_2_250")
 
 ll = LaplacePosteriorViewer("dk_th", 4, 10, "ds_w", 4, 10, bayes=bay_id)
 ll.config_contour(translator=ET)

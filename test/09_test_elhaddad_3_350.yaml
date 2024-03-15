@@ -9,7 +9,7 @@ pic_folder: /home/ale/Desktop/plots/
 curve:
  dk_th: 3
  ds_w: 350
- y: 0.65
+ Y: 0.65
  metrics: log10
 
 dataset:
@@ -53,4 +53,3 @@ prepro:
  y_edges: [50, 800]
  n: 1000
  scale: log
- y: 0.65

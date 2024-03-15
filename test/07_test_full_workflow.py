@@ -16,7 +16,7 @@ from scipy.stats import norm
 
 
 def invoke_curve():
-    eh = ElHaddadCurve(dk_th=3, ds_w=400, y=0.73, name = "EH test", metrics=np.log10)
+    eh = ElHaddadCurve(dk_th=3, ds_w=400, Y=0.73, name = "EH test", metrics=np.log10)
     # eh.inspect(np.linspace(1,1000, 1000), scale="log")
     return eh
 
@@ -33,7 +33,7 @@ def signed_distance(curve, dataset):
     curve.inspect_signed_distance(np.linspace(1, 1000, 100), x1_min, x2_min, signed_dist, dataset.X, scale="log")
 
 def bayesian_inference(dataset):
-    bay = ElHaddadBayes("dk_th", "ds_w", y=0.73)
+    bay = ElHaddadBayes("dk_th", "ds_w", Y=0.73)
     # bay.load_prior("dk_th", norm, loc=5, scale=1)
     # bay.load_prior("ds_w", norm, loc=600, scale=50)
     bay.load_log_likelihood(log_loss, normalize=False)
@@ -48,7 +48,7 @@ def bayesian_inference(dataset):
     return bay
 
 def laplace_view():
-    bay = ElHaddadBayes("dk_th", "ds_w", y=0.73, theta_hat = np.array([  2.9684112, 400.30248376]),
+    bay = ElHaddadBayes("dk_th", "ds_w", Y=0.73, theta_hat = np.array([  2.9684112, 400.30248376]),
                         ihess = np.array([[ 1.57017706e-03, -1.19983496e-01],
                                            [-1.19983496e-01,  2.54254012e+01]]))
     
@@ -59,7 +59,7 @@ def laplace_view():
     l.marginals("ds_w", bay)
 
 def monte_carlo():
-    bay = ElHaddadBayes("dk_th", "ds_w", y=0.65,
+    bay = ElHaddadBayes("dk_th", "ds_w", Y=0.65,
                         theta_hat = np.array([  2.9684112,  400.30248376]),
                         ihess = np.array([[ 1.57017706e-03, -1.19983496e-01],
                                            [-1.19983496e-01,  2.54254012e+01]]))

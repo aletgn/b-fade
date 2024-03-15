@@ -20,13 +20,13 @@ from bfade.statistics import MonteCarlo
 config_matplotlib(font_size=10, font_family="sans-serif", use_latex=False, interactive=False)
 
 # %% Istantiate El Haddad curve
-eh = ElHaddadCurve(dk_th=2, ds_w=250, y=0.5, metrics=np.log10, name="EH_2_250")
+eh = ElHaddadCurve(dk_th=2, ds_w=250, Y=0.5, metrics=np.log10, name="EH_2_250")
 # eh.inspect(np.linspace(1,1000, 1000), scale="log")
 
 # %% Generate dataset
 sd = SyntheticDataset(name="EH_2_250")
 sd.make_grid([1,1500], [30, 1200], 30, 30, spacing="log")
-sd.clear_points(eh, tol=2)
+# sd.clear_points(eh, tol=2)
 sd.make_classes(eh)
 # sd.config(save=cf["save"], folder=cf["pic_folder"])
 # sd.inspect(np.linspace(1, 1000, 1000), scale="log")
@@ -34,8 +34,8 @@ sd.make_classes(eh)
 # eh.inspect_signed_distance(np.linspace(1, 1000, 100), x1_min, x2_min, signed_dist, sd.X, scale="log")
 
 # %% Baysian Inference
-bay = ElHaddadBayes("dk_th", "ds_w", y=0.5, name="EH_2_250")
-bay.load_log_likelihood(sklearn.metrics.log_loss, normalize=False)
+bay = ElHaddadBayes("dk_th", "ds_w", Y=0.5, name="EH_2_250")
+bay.load_log_likelihood(sklearn.metrics.log_loss, normalize=True)
 bay.load_prior("dk_th", norm, loc=1, scale=0.1)
 bay.load_prior("ds_w", norm, loc=250, scale=10)
 
@@ -44,13 +44,13 @@ v.config_contour(translator=ET)
 # v.contour("log_prior", bay)
 # v.contour("log_likelihood", bay, sd)
 # v.contour("log_posterior", bay, sd)
-# bay.MAP(sd, x0=[1, 200])
+bay.MAP(sd, x0=[1, 200])
 
 theta_hat = np.array([1.88469824, 259.87746964])
 ihess = np.array([[ 5.09897539e-04, -2.00390519e-02],
                     [-2.00390519e-02,  6.50215252e+00]])
 
-bay_id = ElHaddadBayes("dk_th", "ds_w", theta_hat=theta_hat, ihess=ihess, y=0.5, name="EH_2_250")
+bay_id = ElHaddadBayes("dk_th", "ds_w", theta_hat=theta_hat, ihess=ihess, Y=0.5, name="EH_2_250")
 
 # ll = LaplacePosteriorViewer("dk_th", 4, 10, "ds_w", 4, 10, bayes=bay_id)
 # ll.config_contour(translator=ET)

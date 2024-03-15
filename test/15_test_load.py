@@ -30,5 +30,5 @@ pred1 = bay.predict(point)
 print(pred1)
 
 # must not work -- did so to test exception in predict method (wrapper)
-bay_exc = ElHaddadBayes("dk_th", "ds_w", y=0.8)
+bay_exc = ElHaddadBayes("dk_th", "ds_w", Y=0.8)
 bay_exc.predict(point)

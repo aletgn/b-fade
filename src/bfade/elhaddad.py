@@ -44,7 +44,7 @@ class ElHaddadCurve(AbstractCurve):
             Evaluated El Haddad curve along the given sqrt_area values.
             
         """
-        self.sqrt_a0 = inv_sif_range(self.dk_th*1000, self.ds_w, self.y)
+        self.sqrt_a0 = inv_sif_range(self.dk_th*1000, self.ds_w, self.Y)
         return self.ds_w * ((self.sqrt_a0/(X+self.sqrt_a0))**0.5)
 
 

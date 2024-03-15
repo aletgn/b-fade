@@ -46,10 +46,10 @@ predpost:
 montecarlo:
  samples: 100
  confidence: 95
+ distribution: joint
 
 prepro:
  x_edges: [1,1000]
  y_edges: [50, 800]
  n: 1000
  scale: log
- y: 0.73

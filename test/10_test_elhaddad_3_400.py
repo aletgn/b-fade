@@ -19,7 +19,7 @@ config_matplotlib(font_size=14, font_family="serif", use_latex=True, interactive
 cf = get_config_file(parse_arguments("./10_test_elhaddad_3_400.yaml"))
 
 #%% Istantiate El Haddad curve
-eh = ElHaddadCurve(dk_th=cf["curve"]["dk_th"], ds_w=cf["curve"]["ds_w"], y=cf["curve"]["y"],
+eh = ElHaddadCurve(dk_th=cf["curve"]["dk_th"], ds_w=cf["curve"]["ds_w"], Y=cf["curve"]["y"],
                    metrics=getattr(np, cf["curve"]["metrics"]), name=cf["id"])
 eh.config(save=cf["save"], folder=cf["pic_folder"])
 #eh.inspect(np.linspace(1,1000, 1000), scale="log")
@@ -29,7 +29,7 @@ sd = SyntheticDataset(name=cf["id"])
 sd.make_grid(cf["dataset"]["x1"], cf["dataset"]["x2"],
              cf["dataset"]["n1"], cf["dataset"]["n2"],
              spacing=cf["dataset"]["spacing"])
-sd.clear_points(eh, tol=cf["dataset"]["tol"])
+# sd.clear_points(eh, tol=cf["dataset"]["tol"])
 sd.make_classes(eh)
 sd.config(save=cf["save"], folder=cf["pic_folder"])
 sd.inspect([1,1000], [1,1000], curve=eh, x=np.linspace(1, 1000, 1000))
@@ -38,7 +38,7 @@ signed_dist, x1_min, x2_min = eh.signed_distance_to_dataset(sd)
 #eh.inspect_signed_distance(np.linspace(1, 1000, 100), x1_min, x2_min, signed_dist, sd.X, scale="log")
 
 # %% Bayesian Inference -- uniform priors: MAP --> MLE
-bay = ElHaddadBayes(cf["bayes"]["p1"], cf["bayes"]["p2"], y=cf["curve"]["y"], name=cf["id"])
+bay = ElHaddadBayes(cf["bayes"]["p1"], cf["bayes"]["p2"], Y=cf["curve"]["y"], name=cf["id"])
 bay.load_log_likelihood(getattr(sklearn.metrics, cf["bayes"]["log_likelihood"]),
                         normalize=cf["bayes"]["log_normalise"])
 v = BayesViewer(cf["bayes"]["p1"], cf["bayes"]["x1"], cf["bayes"]["n1"],
@@ -66,15 +66,16 @@ mc.prediction_interval([1,1000], 1000, "lin", 95)
 
 # %% Pre- and Post-processing 
 p = PreProViewer(cf["prepro"]["x_edges"], cf["prepro"]["y_edges"], 
-                 cf["prepro"]["n"], cf["prepro"]["scale"],
-                 y=cf["prepro"]["y"], name=cf["id"])
+                 cf["prepro"]["n"], cf["prepro"]["scale"], name=cf["id"])
 
 p.config(save=cf["save"], folder=cf["pic_folder"])
 p.view(train_data=sd)
 p.view(test_data=sd)
 p.view(train_data=sd, curve=[eh])
 p.view(train_data=sd, curve=[eh], prediction_interval=mc,
-       mc_samples=1000, mc_bayes=bay, mc_distribution="joint", confidence=95)
+       mc_samples=cf["montecarlo"]["samples"], mc_bayes=bay,
+       mc_distribution=cf["montecarlo"]["distribution"],
+       confidence=cf["montecarlo"]["confidence"])
 
 p.view(predictive_posterior=bay,
        post_samples = 10, 

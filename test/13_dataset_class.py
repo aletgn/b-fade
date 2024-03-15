@@ -25,14 +25,14 @@ def istantiation_and_split():
 
 def read_split_inspect():
     d = Dataset(reader=pd.read_csv, path=data_path)
-    eh = ElHaddadCurve(dk_th=3, ds_w=180, y=.73)
+    eh = ElHaddadCurve(dk_th=3, ds_w=180, Y=.73)
     d_tr, d_ts = d.partition("user")
     print(d_tr.X.shape, "\n", d_ts.X.shape)
     d_tr.inspect(xlim=[1,1000], ylim=[50,300], scale="log", curve=eh, x = np.linspace(1,1000,100))
     d_ts.inspect(xlim=[1,1000], ylim=[50,300], scale="log", curve=eh, x = np.linspace(1,1000,100))
 
 def read_split_inspect_curve():
-    eh = ElHaddadCurve(dk_th=3, ds_w=180, y=.73)
+    eh = ElHaddadCurve(dk_th=3, ds_w=180, Y=.73)
     d = ElHaddadDataset(reader=pd.read_csv, path=data_path)
     d.pre_process()
     d_tr, d_ts = d.partition(method="random")
@@ -44,7 +44,7 @@ def read_split_inspect_curve():
     p.view(train_data = d_tr, test_data=d_ts)
 
 def noisy_dataset():
-    eh = ElHaddadCurve(dk_th=3, ds_w=180, y=.73)
+    eh = ElHaddadCurve(dk_th=3, ds_w=180, Y=.73)
     sd = SyntheticDataset()
     sd.make_grid([1,1000], [50,300], 20, 20, spacing="log")
     # sd.make_tube(eh, [1,1000], 50, 0.1, -0.1, 5, spacing="log")
@@ -59,8 +59,8 @@ def noisy_dataset():
     # print(sd.aux)
 
 if __name__ == "__main__":
-    # istantiation_and_split()
-    # read_split_inspect()
+    istantiation_and_split()
+    read_split_inspect()
     read_split_inspect_curve()
     noisy_dataset()
     pass

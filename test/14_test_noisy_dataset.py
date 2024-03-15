@@ -20,7 +20,7 @@ from bfade.viewers import PreProViewer, BayesViewer, LaplacePosteriorViewer
 from bfade.util import save
 
 
-eh = ElHaddadCurve(dk_th=8, ds_w=1100, y=0.8)
+eh = ElHaddadCurve(dk_th=8, ds_w=1100, Y=0.8)
 
 sd = SyntheticDataset()
 sd.make_grid([1,1000], [200, 1500], 20, 20, spacing="log")
@@ -30,13 +30,13 @@ sd.add_noise(50,500)
 sd.crop_points()
 # sd.inspect([0.5, 1500], [100, 2000], scale="log", curve=eh, x=np.linspace(1,1000,1000))
 
-bay = ElHaddadBayes("dk_th", "ds_w", y=0.8)
+bay = ElHaddadBayes("dk_th", "ds_w", Y=0.8, name="BayesNotReg")
 bay.load_log_likelihood(log_loss, normalize=False)
 
 v = BayesViewer("dk_th", [7,13], 15, "ds_w", [900, 1500], 15)
 # v.contour("log_likelihood", bay, sd)
 
-bay_reg = ElHaddadBayes("dk_th", "ds_w", y=0.8)
+bay_reg = ElHaddadBayes("dk_th", "ds_w", Y=0.8, name="BayesReg")
 bay_reg.load_log_likelihood(log_loss, normalize=True)
 bay_reg.load_prior("dk_th", norm, loc=8, scale=1)
 bay_reg.load_prior("ds_w", norm, loc=1100, scale=50)
@@ -46,12 +46,12 @@ bay_reg.load_prior("ds_w", norm, loc=1100, scale=50)
 bay.MAP(sd, x0=[5, 500])
 bay_reg.MAP(sd, x0=[5, 500])
 
-# bay = ElHaddadBayes("dk_th", "ds_w", y=0.8,
+# bay = ElHaddadBayes("dk_th", "ds_w", Y=0.8,
 #                     theta_hat=np.array([11.00317884, 1357.16796931]),
 #                     ihess=np.array([[3.50694209e-03, -3.11428133e-01], [-3.11428133e-01,  5.13663539e+01]]),
 #                     name="BayesNotReg")
 
-# bay_reg = ElHaddadBayes("dk_th", "ds_w", y=0.8,
+# bay_reg = ElHaddadBayes("dk_th", "ds_w", Y=0.8,
 #                         theta_hat= np.array([8.49759908, 1105.07891879]),
 #                         ihess= np.array([[9.08663233e-01, 4.65971142e+00], [4.65971142e+00, 2.34423343e+03]]),
 #                         name="BayesReg")
@@ -61,8 +61,8 @@ bay_reg.MAP(sd, x0=[5, 500])
 # l.contour(bay)
 # l.contour(bay_reg)
 
-opt = ElHaddadCurve(dk_th=bay.theta_hat[0], ds_w=bay.theta_hat[1], y=0.8, name="NotReg")
-opt_reg = ElHaddadCurve(dk_th=bay_reg.theta_hat[0], ds_w=bay_reg.theta_hat[1], y=0.8, name="Reg")
+opt = ElHaddadCurve(dk_th=bay.theta_hat[0], ds_w=bay.theta_hat[1], Y=0.8, name="NotReg")
+opt_reg = ElHaddadCurve(dk_th=bay_reg.theta_hat[0], ds_w=bay_reg.theta_hat[1], Y=0.8, name="Reg")
 mc = MonteCarlo(ElHaddadCurve)
 
 evald = SyntheticDataset()
@@ -81,3 +81,4 @@ print(pred)
 pred = bay.predictor(point, bay.theta_hat[0], bay.theta_hat[1])
 print(pred)
 
+save(bay, bay_reg, folder="./")
