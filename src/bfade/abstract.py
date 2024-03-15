@@ -337,6 +337,12 @@ class AbstractBayes(ABC):
     
         """
         ...
+
+    def predict(self, D):
+        try:
+            return self.predictor(D, *self.theta_hat)
+        except (AttributeError, TypeError):
+            raise TypeError("Optimal value not available. Must run MAP.")
     
     def log_prior(self, *P: Dict[str, Any]) -> float:
         """
