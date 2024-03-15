@@ -6,7 +6,7 @@ from scipy.special import expit
 
 from sklearn.model_selection import train_test_split as tts
 
-from bfade.abstract import AbstractBayes, AbstractCurve, AbstractDataset
+from bfade.abstract import AbstractBayes, AbstractCurve
 from bfade.dataset import Dataset
 from bfade.util import sif_equiv, inv_sif_range, sif_range
 from bfade.util import MissingInputException, YieldException, logger_factory
