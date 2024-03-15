@@ -87,7 +87,9 @@ class ElHaddadBayes(AbstractBayes):
 
         """
         # merge dicts keeping order (probabilistic and deterministic)
-        all_pars = dict(zip(self.pars, P)) | self.deterministic
+        # all_pars = dict(zip(self.pars, P)) | self.deterministic # as of python 3.9
+        all_pars = dict(zip(self.pars, P))
+        all_pars.update(self.deterministic)
         eh = ElHaddadCurve(metrics=np.log10, **all_pars)
         signed_distance, _, _ = eh.signed_distance_to_dataset(D)
         return expit(signed_distance)

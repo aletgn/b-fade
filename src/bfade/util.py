@@ -193,7 +193,7 @@ def save(*args: Tuple, **kwargs: Dict[str, Any]) -> None:
         raise MissingInputException(f"{KE} not provided")
 
     for data in args:
-        with open(folder + data.name + "_" + data.__class__.__name__ + ".bvs", 'wb') as file:
+        with open(folder + data.name + "_" + data.__class__.__name__ + ".bfd", 'wb') as file:
             pickle.dump(data, file)
 
 def load(**kwargs: Dict[str, Any]) -> List:

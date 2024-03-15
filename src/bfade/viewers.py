@@ -198,16 +198,14 @@ class PreProViewer():
         self.config()
         self.config_canvas()
 
-    def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300, 
-               legend_config: Dict[str, Any] = None):
+    def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300):
         _log.debug(f"{self.__class__.__name__}.{self.config.__name__}")
         self.save = save
         self.folder = folder
         self.fmt = fmt
         self.dpi = dpi
-        self.legend_config = legend_config
 
-    def config_canvas(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = "class",
+    def config_canvas(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = "Class",
                class0: str = "0", class1: str = "1", legend_config: Dict = None, translator: Dict = dummy_translator) -> None:
         
         _log.debug(f"{self.__class__.__name__}.{self.config_canvas.__name__}")
@@ -240,7 +238,6 @@ class PreProViewer():
             c1 = [1]*len(y1[0])
             vmin = 0
             vmax = 1
-        print("hey hey")
         return y0, y1, c0, c1, vmin, vmax
 
     def add_colourbar(self, ref, vmin, vmax):
@@ -350,8 +347,8 @@ class PreProViewer():
                 _log.info("Inspect prediction interval")
                 kwargs[k].sample(mc_samples, mc_distribution, mc_bayes)
                 mean, pred, _, = kwargs[k].prediction_interval(self.x_edges, self.n, self.x_scale, confidence)
-                self.ax.plot(self.x, mean - pred, "-.k", label=fr"Pred. band. (@{50 - kwargs[k].confidence/2}$\%$)", zorder=1)
-                self.ax.plot(self.x, mean + pred, "--k", label=fr"Pred. band. (@{50 + kwargs[k].confidence/2}$\%$)", zorder=1)
+                self.ax.plot(self.x, mean - pred, "-.k", label=fr"Pred. band. @{50 - kwargs[k].confidence/2}$\%$", zorder=1)
+                self.ax.plot(self.x, mean + pred, "--k", label=fr"Pred. band. @{50 + kwargs[k].confidence/2}$\%$", zorder=1)
                 self.state += "_pi"
                 _log.debug(f"State: {self.state}")
             

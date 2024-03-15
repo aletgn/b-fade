@@ -37,8 +37,13 @@ class Dataset:
 
         try:
             self.X = kwargs.pop("X")
+            _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- Load X data")
+        except KeyError:
+            pass
+
+        try:
             self.y = kwargs.pop("y")
-            _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- Load data from X, y")
+            _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- Load y data")
         except KeyError:
             pass
 

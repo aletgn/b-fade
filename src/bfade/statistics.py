@@ -224,7 +224,9 @@ class MonteCarlo:
             x1 = np.linspace(x_edges[0], x_edges[1], n)
 
         for s in self.samples:
-            d = dict(zip(self.pars, s)) | self.deterministic
+            # d = dict(zip(self.pars, s)) | self.deterministic # as of Python 3.9
+            d = dict(zip(self.pars, s))
+            d.update(self.deterministic)
             curves.append(self.curve(**d).equation(x1))
 
         curves = np.array(curves)
