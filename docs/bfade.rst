@@ -12,10 +12,10 @@ bfade.abstract module
    :undoc-members:
    :show-inheritance:
 
-bfade.datagen module
+bfade.dataset module
 --------------------
 
-.. automodule:: bfade.datagen
+.. automodule:: bfade.dataset
    :members:
    :undoc-members:
    :show-inheritance:
