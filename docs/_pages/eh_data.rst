@@ -1,20 +1,6 @@
 Dataset
 =======
 
-Units of Measurement
---------------------
-Data must be provided complying with the following units of measurement:
-
-- :math:`[\sqrt{\text{area}}] = \mu\text{m}`
-
-- :math:`[\Delta\sigma] = \text{MPa}`
-
-- :math:`[\Delta K] = \text{MPa}\sqrt{\text{m}}`
-
-- :math:`[\Delta\sigma_w] = \text{MPa}`
-
-- :math:`[\Delta K_{th,lc}] = \text{MPa}\sqrt{\text{m}}`
-
 Structure
 ---------
 
@@ -138,7 +124,7 @@ Train/Test Split
 
 	.. code-block:: python
 
-		dat.partition("random", test_size=0.2)
+		dat_tr, dat_ts = dat.partition("random", test_size=0.2)
 
 	which wraps ``train_test_split`` from ``sklearn.model_selection``. In this case, 80% samples are reserved for training the El Haddad parameters and 20% are treated as test samples.
 
@@ -146,34 +132,64 @@ Train/Test Split
 
 	.. code-block:: python
 
-		dat.partition("user") 
+		dat_tr, dat_ts = dat.partition("user") 
 
 	this option requires users to indicate 0 or 1 in  ``test`` column of the input files, thus marking specimens as test (1), or train (0).
 
-The invoked method returns two new instances of :py:mod:`bfade.elhaddad.ElHaddadDataset`, the training and test dataset, respectively.
+The invoked method returns two new instances of :py:mod:`bfade.elhaddad.ElHaddadDataset`, the training (``dat_tr``) and test (``dat_ts``) dataset, respectively.
 
-.. Generation
-.. ----------
+Generation
+----------
 
-.. B-FADE also offers a subclass of :py:mod:`bfade.elhaddad.Dataset` to create synthetic datasets (grids or tubes) for test/evaluation purposes, i.e. :py:mod:`bfade.datset.SyntheticDataset`. To this end, B-FADE defines :py:mod:`bfade.datagen.ElHaddadGrid`, inheriting from :py:mod:`bfade.elhaddad.ElHaddad`.
+B-FADE also offers a subclass of :py:mod:`bfade.elhaddad.Dataset` to create synthetic datasets (grids or tubes) for test/evaluation purposes, i.e. :py:mod:`bfade.datset.SyntheticDataset`. To this end, B-FADE defines :py:mod:`bfade.datagen.ElHaddadGrid`, inheriting from :py:mod:`bfade.elhaddad.ElHaddad`. For instance if we wish to make a :math:`\sqrt{\text{area}} \times \Delta\sigma` grid, we do:
 
-.. Initially, we can make up two reference values for :math:`\Delta K_{th,lc}` and :math:`\Delta\sigma_w` which function as the "reference values" whereby the dataset is generated. Accordingly, we invoke the constructor of :py:mod:`bfade.datagen.ElHaddadGrid`:
+	.. code-block:: python
 
-.. .. code-block:: python
+		grd = SyntheticDataset(name=aStringName)
+		grd.make_grid(aListX1Bounds, aListX2Bounds, aIntN1, aIntN2, aStringSpacing)
 
-.. 	grd = ElHaddadGrid(y=0.65, delta_sigma_w=aFloat, delta_k_th_lc=aFloat, name="aName") # a given name
+where ``aListX*`` are the bounds along the x- and y-axis, ``aIntN*`` is the spacing of the points, ``aStringSpacing`` is the type of spacing of the grid (``linear``, or ``log``). In case of a tube:
 
-.. Next, we generate a regular grid of points, which makes use of :py:mod:`bfade.util.grid_factory`:
+	.. code-block:: python
 
-.. .. code-block:: python
+		grd = SyntheticDataset(name=aStringName)
+		grd.make_tube(aCurve, aListX1Bounds, aIntStepUp, aIntStepDown, aIntSteps, aStringSpacing)
 
-.. 	grd.make_grid(x_bounds=aList, y_bounds=aList, x_res=aInt, y_res=aInt)
+where ``aCurve`` is an istance of ``ElHaddadCurve``, ``aIntSteps``, defines how many times the curve is translated upwards and downwards to make the tube, and ``aIntStep*`` is the step for the translation. If one would like to remove the point that might be overlapping the curve, they call:
 
-.. Following, we perturb the grid by Gaussian random noise:
+	.. code-block::python
 
-.. .. code-block:: python
+		grd.clear_points(aCurve, tol=aFloatTolerance)
 
-.. 	grd.perturb_grid(std_sa=aFloat, std_ds=aFloat)
+Finally, we can easily make the labels/classes upon ``aCurve`` by invoking:
+
+	.. code-block::python
+
+			grd.make_classes(aCurve)
+
+After generating the classes, it is also possible to add noise, thereby perturbing the dataset:
+
+	.. code-block:: python
+
+			grd.add_noise(aFloatStdDevX1, aFloatStdDevX2)
+
+where ``aFloatStdDevX*`` are the standard deviation of the noise added to the data with respect to the x- and y-axis. Plese, remember to remove the unphysical data i.e. those datum such that :math:`\sqrt{\text{area}}\le 0` and :math:`\Delta \sigma\le 0`. Hence, use:
+
+	.. code-block:: python
+
+			grd.crop_point()
+
+Inspection
+----------
+
+We can also obtain a quick overview of the dataset (along with the corresponding curve, optionally) by calling:
+
+	.. code-block:: python
+
+			grd.inspect(aListX1Bounds, aListX2Bounds, scale="log", curve=eh,
+								x=np.linspace(aFloatStart, aFloatEnd, aIntStep))
+
+where ``eh`` is the curve, which generated the dataset, but, in fact, can be any.
 
 .. Finally, the dataset is exported by:
 

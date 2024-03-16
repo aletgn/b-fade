@@ -27,4 +27,4 @@ The documentation uses the following notation to describe the functionalities of
 
 - :math:`D` is a dataset.
 
-- :math:`\theta` is the aggregated vector of the El Haddad parameters.
+- :math:`\theta` is the aggregated vector of the trainable parameters.

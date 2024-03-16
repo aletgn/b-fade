@@ -1,5 +1,6 @@
 B-FADE: Bayesian FAtigue Diagram Estimator
 ==========================================
+
 .. toctree::
       :maxdepth: 1
       :caption: Configuration
@@ -19,10 +20,14 @@ B-FADE: Bayesian FAtigue Diagram Estimator
 
 .. toctree::
       :maxdepth: 1
-      :caption: El Haddad Curve
+      :caption: El Haddad
 
+      _pages/eh_curve.rst
       _pages/eh_data.rst
-
+      _pages/eh_bayes.rst
+      _pages/eh_crack.rst
+      _pages/eh_viewers.rst
+      _pages/eh_io.rst
 
 .. toctree::
         :maxdepth: 1
