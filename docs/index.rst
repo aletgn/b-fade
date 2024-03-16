@@ -30,6 +30,20 @@ B-FADE: Bayesian FAtigue Diagram Estimator
       _pages/eh_io.rst
 
 .. toctree::
+      :maxdepth: 1
+      :caption: Examples
+      
+      _examples/eh_dataset.ipynb
+      _examples/eh_notebook.ipynb
+      _pages/eh_script.rst
+
+.. toctree::
+        :maxdepth: 1
+        :caption: Downloads
+
+        _pages/downloads.rst
+
+.. toctree::
         :maxdepth: 1
         :caption: API Reference
 

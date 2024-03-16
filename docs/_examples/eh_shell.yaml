@@ -1,0 +1,45 @@
+name: EH-8-700
+
+logger:
+  level: DEBUG
+
+matplotlib:
+  font_size: 12
+  font_family: sans-serif
+  use_latex: False
+  interactive: True
+
+export:
+  save: True
+  folder: ./
+
+inspect_eh:
+  start: 1
+  stop: 1000
+  step: 2000
+  scale: log
+
+inspect_bayes:
+  b1: [5,10]
+  b2: [500, 900]
+  n1: 20
+  n2: 20
+
+train:
+  x1: [1,1000]
+  x2: [100, 1500]
+  n1: 35
+  n2: 35
+  spacing: log
+
+curve:
+  dk_th: 8
+  ds_w: 700
+  Y: 0.9
+  metrics: log10
+
+log_likelihood:
+  function: log_loss
+  normalize: False #!!!
+
+map_guess: [6, 500]
