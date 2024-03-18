@@ -15,7 +15,18 @@ from bfade.statistics import distribution, uniform
 _log = logger_factory(name=__name__, level="DEBUG")
 
 class AbstractCurve(ABC):
-    
+    """Abstract curve to instantiate curves to perform MAP over.
+
+    Contains:
+
+        - representation
+
+        - inspection
+
+        - computation of its distance to a given dataset.
+
+    """
+
     def __init__(self, metrics: callable = identity, **pars: Dict[str, Any]) -> None:
         """
         Initialise curve.
@@ -27,9 +38,10 @@ class AbstractCurve(ABC):
             whether minimum distance points are sought over the lin-lin or log-log space.
             
         pars: Dict[str, Any]
-            parameters of the curve.
-        
-
+            name : Dict[str, str]
+                name of the instance.
+            remainder of arguments : Dict[str, float]
+                parameters of the curve
         Returns
         -------
         None
@@ -51,6 +63,25 @@ class AbstractCurve(ABC):
         self.config()
 
     def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300) -> None:
+        """
+        Configure settings for saving plots.
+
+        Parameters
+        ----------
+        save : bool, optional
+            Flag indicating whether to save plots. The default is False.
+        folder : str, optional
+            Folder path where plots will be saved. The default is "./".
+        fmt : str, optional
+            Format for saving plots. The default is "png".
+        dpi : int, optional
+            Dots per inch for saving plots. The default is 300.
+
+        Returns
+        -------
+        None
+
+        """
         self.save = save
         self.folder = folder
         self.fmt = fmt
@@ -63,9 +94,18 @@ class AbstractCurve(ABC):
         """
         ...
 
-    def squared_distance(self, t: float, X: np.ndarray) -> None:
+    def squared_distance(self, t: float, X: np.ndarray) -> float:
         """
         Calculate the squared distance between two points over the feature plane.
+
+        This is just an auxiliary function, which ought not to be used directly,
+        rather it must be used in conjunction with signed_distance_to_dataset.
+
+        .. math::
+            d^2 = (\mathcal{M}(x1) - \mathcal{M}(t))^2 + (\mathcal{M}(x2) - \mathcal{M}(f(t)))^2
+
+        where :math:`\mathcal{M}` is the metrics whereby the optimal distance will
+        be computed.
         
         Parameters
         ----------
@@ -83,13 +123,19 @@ class AbstractCurve(ABC):
         return (self.metrics(X[0]) - self.metrics(t))**2 +\
                (self.metrics(X[1]) - self.metrics(self.equation(t)))**2
     
-    def signed_distance_to_dataset(self, D) -> Tuple:
+    def signed_distance_to_dataset(self, D) -> Tuple[np.ndarray]:
         """
-        Wraps squared_distance to compute the minimum squared distance of each point of the dataset\
-        to the given curve
+        Minimises squared_distance to compute the minimum squared distance of
+        each point of the dataset to the target curve.
 
-        D : dataset
-            Any object containing attributes X and y as features and output, respectively.
+        .. math::
+
+            \min_{\\theta} d^2
+
+        where :math:`\\theta` gather the parameters of the target curve.
+
+        D : Dataset
+            Dataset instance containing attributes X and y as features and output, respectively.
 
         """
         x_opt = []
@@ -132,20 +178,19 @@ class AbstractCurve(ABC):
     def inspect(self, x: np.ndarray, scale: str = "linear", **data: Dict[str, Any]) -> None:
         """
         Plot the equation of the curve and optionally the provided dataset.
-        
+
         Parameters
         ----------
         x : np.ndarray
             Array of x-values for plotting the equation curve.
         scale : str, optional
-            The scale of the plot. Default is "linear".
-        data : dict
+            The scale of the plot. The default is "linear".
+        data : Dict[str, Any]
             Additional data for scatter points. Expected keys: "X", "y".
-        
+
         Returns
         -------
         None
-
         """
         _log.warning(f"{self.__class__.__name__}.{self.inspect.__name__}")
         fig, ax = plt.subplots(dpi=300)
@@ -164,9 +209,9 @@ class AbstractCurve(ABC):
     def inspect_signed_distance(self, x: np.ndarray, x_opt: np.ndarray, y_opt: np.ndarray, dis: np.ndarray,
                                 X: np.ndarray = None, y: np.ndarray = None, scale: str = "linear") -> None:
         """
-        Visualize the signed distance of data points to an minumum-distance (optimal) point
-        along the curve.
-    
+        Visualize the signed distance of data points to a minimum-distance
+        (optimal) point along the curve.
+
         Parameters
         ----------
         x : np.ndarray
@@ -183,7 +228,7 @@ class AbstractCurve(ABC):
             Target values of the synthetic dataset.
         scale : str, optional
             Scale for both x and y axes. Options are "linear" (default) or "log".
-    
+
         Returns
         -------
         None
@@ -225,11 +270,25 @@ class AbstractCurve(ABC):
 
 
 class AbstractBayes(ABC):
-    """Bayesian framework to perform Maximum a Posterior Estimation and predictions."""
+    """Bayesian framework to perform Maximum a Posterior Estimation and predictions.
     
-    def __init__(self, *pars: List[float], **args: Dict[str, Any]) -> None:
+    Contains:
+
+        - core method to perform map
+
+        - abstract predictor
+
+        - methods to instantiate priors, log-likelihood, and log-posterior
+
+        - Variational (Laplace) approximation of the posterior
+
+        - computation of the predictive posterior.
+
+    """
+    
+    def __init__(self, *pars: List[str], **args: Dict[str, Any]) -> None:
         """
-        Initialize the instance with a given name.
+        Initialize the instance.
         
         Parameters
         ----------
@@ -243,6 +302,12 @@ class AbstractBayes(ABC):
 
             - ihess : np.ndarray
                 Inverse Hessian matrix of the log-posterior (if available).
+
+            - name : str
+                Name of the instance.
+
+            - other parameters : float
+                Deterministic parameters, if any.
         
         Returns
         -------
@@ -277,7 +342,7 @@ class AbstractBayes(ABC):
             self.deterministic = None
             _log.info(f"{self.__class__.__name__}.{self.__init__.__name__} -- No deterministic parameter(s)")
 
-    def load_prior(self, par: str, dist, **args: Dict) -> None:
+    def load_prior(self, par: str, dist: callable, **args: Dict) -> None:
         """
         Load a prior distribution for a specified parameter.
     
@@ -285,10 +350,10 @@ class AbstractBayes(ABC):
         ----------
         par : str
             The name of the parameter.
-        dist :
+        dist : callable
             The distribution function or class.
         args : Dict[str]
-            Additional arguments to be passed to the distribution function or class.
+            Additional arguments to be passed to the distribution function.
     
         Returns
         -------
@@ -306,12 +371,12 @@ class AbstractBayes(ABC):
         ----------
         log_loss_fn : callable
             Log-likelihood function.
-        **args : Dict[str, Any]
+        args : Dict[str, Any]
             Arguments of the log-likelihood function.
 
         Returns
         -------
-        None.
+        None
 
         """
         _log.info(f"{self.__class__.__name__}.{self.load_log_likelihood.__name__} -- {log_loss_fn}")
@@ -319,16 +384,16 @@ class AbstractBayes(ABC):
         self.log_likelihood_loss = log_loss_fn
     
     @abstractmethod
-    def predictor(self, D, *P: Dict[str, Any]) -> None:
+    def predictor(self, D, *P: Dict[str, float]) -> None:
         """
         Abstract method for making predictions using a model.
          
         Parameters
         ----------
-        D : AbstractDataset
-            Training Input dataset.
-        P : Dict[str, Any]
-            Trainable parameters.
+        D : Dataset
+            Training dataset.
+        P : Dict[str, float]
+            Value of the parameters of the target curve.
          
         Returns
         -------
@@ -338,7 +403,25 @@ class AbstractBayes(ABC):
         """
         ...
 
-    def predict(self, D):
+    def predict(self, D) -> np.ndarray:
+        """
+        Wraps predictor to predict via the trained model.
+
+        Parameters
+        ----------
+        D : Dataset
+            Data for prediction.
+
+        Returns
+        -------
+        np.ndarray
+            Predictions.
+
+        Raises
+        ------
+        TypeError
+            If the optimal value is not available. Must run MAP.
+        """
         try:
             return self.predictor(D, *self.theta_hat)
         except (AttributeError, TypeError):
@@ -346,8 +429,12 @@ class AbstractBayes(ABC):
     
     def log_prior(self, *P: Dict[str, Any]) -> float:
         """
-        Calculate the log-prior probability hypthesising initially independent distributions.
-    
+        Calculate the log-prior probability hypothesising initially independent distributions.
+
+        .. math::
+
+            \log P[\\theta] = \sum \log P[\\theta_i]
+
         Parameters
         ----------
         P : Dict[str, Any]
@@ -364,13 +451,17 @@ class AbstractBayes(ABC):
     def log_likelihood(self, D, *P: Dict[str, Any]) -> float:
         """
         Calculate the log-likelihood.
+
+        .. math::
+
+            \log P[D | \\theta]
     
         Parameters
         ----------
-        D : AbstractDataset
+        D : Dataset
             Input dataset.
         P : Dict[str, float]
-            Trainable parameters.
+            Value of trainable parameters for the target curve.
     
         Returns
         -------
@@ -383,10 +474,14 @@ class AbstractBayes(ABC):
     def log_posterior(self, D, *P: Dict[str, Any]) -> float:
         """
         Calculate the log-posterior.
+
+        .. math::
+
+            \log P[\\theta] = \log P[D | \\theta] + \log P[\\theta]
     
         Parameters
         ----------
-        D : AbstractDataset
+        D : Dataset
             Input dataset.
         P : Dict[str, Any]
             Trainable parameters.
@@ -403,14 +498,21 @@ class AbstractBayes(ABC):
         """
         Find the Maximum A Posteriori (MAP) estimate for the parameters.
 
+        .. math::
+
+            \min_{\\theta} -\log P[\\theta | D]
+
+        If MAP succeeds, the optimal parameters are stored in theta_hat. Whilst
+        the Hessian Matrix is stored in ihess.
+
         Parameters
         ----------
-        D : AbstractDataset
-            The input data.
+        D : Dataset
+            Training dataset.
         x0 : list, optional
             Initial guess for the parameters, by default [1, 1].
         solver : str, optional
-            The optimization solver to use, by default "L-BFGS-B".
+            The optimization solver to use, by default "Nelder-Mead".
 
         Raises
         ------
@@ -423,6 +525,19 @@ class AbstractBayes(ABC):
 
         """
         def callback(X):
+            """
+            Callback function for optimization.
+
+            Parameters
+            ----------
+            X : array-like
+                Current parameter values.
+
+            Returns
+            -------
+            None
+
+            """
             current_min = -self.log_posterior(D, *X)
             _log.info(f"Iter: {self.n_eval:d} -- Params: {X} -- Min {current_min:.3f}")
             self.n_eval += 1
@@ -476,21 +591,24 @@ class AbstractBayes(ABC):
         for idx in range(self.theta_hat.shape[0]):
             setattr(self, "marginal_" + self.pars[idx], norm(loc=self.theta_hat[idx], scale=self.ihess[idx][idx]**0.5))
       
-    def predictive_posterior(self, posterior_samples: int, D, post_op: callable = None) -> None:
+    def predictive_posterior(self, posterior_samples: int, D, post_op: callable = None) -> np.ndarray:
         """
         Evaluate the predictive posterior using the specified number of samples.
 
         Parameters
         ----------
         posterior_samples : int
-            The number of posterior samples to generate. Default is 10.
-        D : AbstractDataset
-            The input data for prediction.
+            The number of posterior samples to generate.
+        D : Dataset
+            The dataset supplied for predicting the corresponding output.
+        post_op : Callable[..., Any], optional
+            Posterior operation function. Default is None.
 
         Returns
         -------
         np.ndarray
-            Predictive posterior samples.
+            Predictive posterior samples processed via post_op, if provided.
+
         """
         _log.debug(f"{self.__class__.__name__}.{self.predictive_posterior.__name__}")
         self.posterior_samples = posterior_samples
@@ -512,6 +630,10 @@ class AbstractBayes(ABC):
         return f"{self.__class__.__name__}({vars(self)})"
 
 class AbstractMAPViewer(ABC):
+    """
+    Abstract viewer for inspecting MAP elements and Laplace's Variational approximation
+    of the posterior.
+    """
     
     def __init__(self, p1: str, b1: list, n1: int, p2: str, b2: list, n2: int, spacing: float = "lin", **kwargs: Dict[str, float]) -> None:
         """
@@ -533,7 +655,7 @@ class AbstractMAPViewer(ABC):
             Number of grid points for the second parameter.
         spacing : float
             Spacing between grid points, linear of logarithmic.
-        kwargs: Dict[str, float]
+        kwargs: Dict[str, Any]
 
             - name: str
                 name of the instance.
@@ -574,6 +696,25 @@ class AbstractMAPViewer(ABC):
         ...
     
     def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300) -> None:
+        """
+        Configure settings for saving plots.
+
+        Parameters
+        ----------
+        save : bool, optional
+            Flag indicating whether to save plots. The default is False.
+        folder : str, optional
+            Folder path where plots will be saved. The default is "./".
+        fmt : str, optional
+            Format for saving plots. The default is "png".
+        dpi : int, optional
+            Dots per inch for saving plots. The default is 300.
+
+        Returns
+        -------
+        None
+
+        """
         _log.debug(f"{self.__class__.__name__}.{self.config.__name__}")
         self.save = save
         self.folder = folder
@@ -589,11 +730,13 @@ class AbstractMAPViewer(ABC):
         Parameters
         ----------
         levels : int, optional
-            The number of contour levels for the main plot. Default 21.
+            The number of contour levels for the main plot. The default is 21.
         clevels : int, optional
-            The number of contour levels for the colorbar. Default 11.
+            The number of contour levels for the colorbar. The default is 11.
         cmap : str, optional
-            The colormap to use for the plot, by default "viridis".
+            The colormap to use for the plot. The default is "viridis".
+        translator: Dict or callable
+            Mapper for labels.
 
         Returns
         -------

@@ -11,8 +11,43 @@ from bfade.util import grid_factory, logger_factory, YieldException, printer
 _log = logger_factory(name=__name__, level="DEBUG")
 
 class Dataset:
+    """General dataset class for managing datasets."""
 
     def __init__(self, **kwargs: Dict[str, Any]) -> None:
+        """
+        Initialize the instance.
+
+        Parameters
+        ----------
+        **kwargs : Dict[str, Any]
+
+            -name : str
+                Name of the instance.
+
+            - X : np.ndarray
+                Input features
+
+            - y: np.ndarray
+                Output feature.
+
+            - test: np.ndarray
+                Binary vector indicating whether a datum has to be used to train.
+
+            - reader: callable
+                Pandas reader
+
+            - remainder of the arguments: arguments for the viewer
+
+        Note
+        ----
+            The initialisation can be done passing a dataset containing X, and y
+            as keys and related items.
+
+        Returns
+        -------
+        None
+
+        """
         self.X = None
         self.y = None
 
@@ -60,6 +95,25 @@ class Dataset:
         self.config()
 
     def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300) -> None:
+        """
+        Configure settings for saving plots.
+
+        Parameters
+        ----------
+        save : bool, optional
+            Flag indicating whether to save plots. The default is False.
+        folder : str, optional
+            Folder path where plots will be saved. The default is "./".
+        fmt : str, optional
+            Format for saving plots. The default is "png".
+        dpi : int, optional
+            Dots per inch for saving plots. The default is 300.
+
+        Returns
+        -------
+        None
+
+        """
         _log.debug(f"{self.__class__.__name__}.{self.config.__name__}")
         self.save = save
         self.folder = folder
@@ -67,7 +121,27 @@ class Dataset:
         self.dpi = dpi
 
     @printer
-    def inspect(self, xlim=[1,1000], ylim=[1,1000], scale="linear", **kwargs):
+    def inspect(self, xlim=[1,1000], ylim=[1,1000], scale="linear", **kwargs: Dict[str, Any]):
+        """
+        Visualize the data and optionally a curve.
+
+        Parameters
+        ----------
+        xlim : list, optional
+            Limits for the x-axis. Default is [1, 1000].
+        ylim : list, optional
+            Limits for the y-axis. Default is [1, 1000].
+        scale : str, optional
+            Scale for both x and y axes. Options are "linear" (default) or "log".
+        **kwargs : Dict[str, Any]
+
+            - curve: AbstractCurve
+                Curve to inspect.
+
+            - x: np.ndarray
+                Abscissa for the curve
+
+        """
         _log.debug(f"{self.__class__.__name__}.{self.inspect.__name__}")
         fig, ax = plt.subplots(dpi=300)
         ax.scatter(self.X[:,0], self.X[:,1], c=self.y, s=10)
@@ -87,7 +161,31 @@ class Dataset:
 
         return fig, self.name + "_data"
 
-    def partition(self, method="random", test_size = 0.2, random_state = 0):
+    def partition(self, method: str = "random", test_size: float = 0.2, random_state: int = 0):
+        """
+        Partition the dataset into training and testing sets.
+
+        Parameters
+        ----------
+        method : str, optional
+            Method for partitioning. Options are "random" (default) or "user".
+        test_size : float, optional
+            The proportion of the dataset to include in the test split. Default is 0.2.
+        random_state : int, optional
+            Random seed for reproducibility. Default is 0.
+
+        Returns
+        -------
+        Tuple[Dataset, Dataset]
+            Training and testing datasets.
+
+        Raises
+        ------
+        AttributeError
+            If no data is available in the dataset.
+        Exception
+            If split method is incorrectly provided.
+        """
         _log.info(f"{self.__class__.__name__}.{self.partition.__name__}")
         _log.warning(f"Train/test split. Method: {method}")
         if method == "random":
@@ -127,7 +225,24 @@ class Dataset:
         else:
             raise Exception("Split method incorrectly provided.")
 
-    def populate(self, data, X_labels=["x1", "x2"], y_label="y"):
+    def populate(self, data, X_labels: List[str] = ["x1", "x2"], y_label: str = "y") -> Dict[str, np.ndarray]:
+        """
+        Populate data into features and target labels.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Input data containing features and target labels.
+        X_labels : list of str
+            Feature column labels. The default is ["x1", "x2"].
+        y_label : str
+            Target column label. The default is "y".
+
+        Returns
+        -------
+        dict
+            Dictionary containing features and target labels.
+        """
         _log.debug(f"{self.__class__.__name__}.{self.populate.__name__}")
         return {"X": data[X_labels].to_numpy(), "y": data[y_label].to_numpy()}
 
@@ -227,6 +342,9 @@ class SyntheticDataset(Dataset):
         """
         Assign class labels to the synthetic dataset based on the underlying curve.
 
+        curve: AbstractCurve
+            The curve used to separated the dataset and make classes accordingly.
+
         Returns
         -------
         None
@@ -245,11 +363,14 @@ class SyntheticDataset(Dataset):
         """
         Remove data points from the synthetic dataset based on the deviation from the underlying curve.
 
+        curve: AbstractCurve
+            The curve used to separated the dataset and make classes accordingly.
+
         Parameters
         ----------
         tol : float, optional
-            Tolerance level for determining the deviation. Points with a deviation less than `tol` will be removed.
-            Default is 1e-2.
+            Tolerance level for determining the deviation. Points with a
+            deviation less than `tol` will be removed. The default is 1e-2.
 
         Returns
         -------
@@ -262,7 +383,7 @@ class SyntheticDataset(Dataset):
         else:
             self.X = np.array([d for d in self.X if abs(curve.equation(d[0]) - d[1]) > tol])
 
-    def add_noise(self, x1_std: float, x2_std: float, random_state=0) -> None:
+    def add_noise(self, x1_std: float, x2_std: float, random_state: int = 0) -> None:
         """
         Add Gaussian noise to the data points in the synthetic dataset.
 
@@ -272,14 +393,15 @@ class SyntheticDataset(Dataset):
             Standard deviation of the Gaussian noise to be added to the first feature (x1).
         x2_std : float
             Standard deviation of the Gaussian noise to be added to the second feature (x2).
-
+        random_state: int
+            Random state. The default is 0.
         Returns
         -------
         None
 
         """
         _log.debug(f"{self.__class__.__name__}.{self.add_noise.__name__}")
-        np.random.seed(0)
+        np.random.seed(random_state)
         if self.y is None:
             raise YieldException("Noise must be added after making classes.")
         self.X[:,0] += scipy.stats.norm(loc = 0, scale = x1_std).rvs(size=self.X.shape[0])

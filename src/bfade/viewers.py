@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -16,22 +16,23 @@ class BayesViewer(AbstractMAPViewer):
         self.config_contour()
 
     @printer
-    def contour(self, element="log_prior", bayes=None, dataset=None):
+    def contour(self, element:str = "log_prior", bayes=None, dataset=None):
         """
         Create a contour plot for the specified element.
 
         Parameters
         ----------
         element : str, optional
-            The element for which the contour plot is generated. Default is "log_prior".
-        bayes : ElHaddadBayes, optional
-            An instance of the Bayesian class. Default is default None.
-        dataset : AbstractDataset
-            The trainin dataset. Default is None.
+            The element for which the contour plot is generated. The default is "log_prior".
+        bayes : AbstractBayes
+            An instance of the Bayesian class. The default is None.
+        dataset : Dataset
+            The training dataset. The default is None.
 
         Returns
         -------
         None
+
         """
         _log.debug(f"{self.__class__.__name__}.{self.contour.__name__}. Contour: {element:s}")
         el2latex = {"log_likelihood": r"$\log\ P[D | \theta]$",
@@ -80,13 +81,13 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         p1 : str
             Name of the first parameter.
         c1 : float
-            Coverage factore for the first parameter.
+            Coverage factor for the first parameter.
         n1 : int
             Number of grid points for the first parameter.
         p2 : str
             Name of the second parameter.
         c2 : float
-            Coverage factore for  the second parameter.
+            Coverage factor for  the second parameter.
         n2 : int
             Number of grid points for the second parameter.
         bayes : AbstractBayes
@@ -111,9 +112,14 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         self.config_contour()
     
     @printer
-    def contour(self, bayes) -> None:
+    def contour(self, bayes):
         """
-        Plot joint posterior distribution.
+        Plot the contour of joint posterior distribution.
+
+        Parameters
+        ----------
+        bayes :  AbstractBayes
+            The Bayesian infrastructure for the considered problem.
 
         """
         _log.debug(f"{self.__class__.__name__}.{self.contour.__name__} -- joint poterior")
@@ -140,7 +146,7 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
         return fig, self.name + "_laplace_joint"
 
     @printer
-    def marginals(self, p: str, bayes) -> None:
+    def marginals(self, p: str, bayes):
         """
         Plot marginal posterior distribution.
 
@@ -172,9 +178,31 @@ class LaplacePosteriorViewer(AbstractMAPViewer):
 
 class PreProViewer():
     
-    def __init__(self, x_edges=[1,1000], y_edges=[100,700], n=1000, scale="linear",
-                 **args: Dict[str, Any]) -> None:
-        
+    def __init__(self, x_edges: List[float] = [1,1000], y_edges: List[float]=[100,1000],
+                 n: int = 1000, scale: str = "linear", **args: Dict[str, Any]) -> None:
+        """
+        Initialize the instance.
+
+        Parameters
+        ----------
+        x_edges : List[float]
+            Edges for the x-axis. Default is [1, 1000].
+        y_edges : List[float]
+            Edges for the y-axis. Default is [100, 1000].
+        n : int
+            Resolution of the curves along the x-axis. The default is 1000.
+        scale : str, optional
+            Scale for both x and y axes. Options are "linear" (default) or "log".
+        **args : Dict[str, Any]
+
+            - name : str
+                The name of the instance.
+
+        Returns
+        -------
+        None
+
+        """
         self.x_edges = x_edges
         self.y_edges = y_edges
         self.x_scale = scale
@@ -198,7 +226,26 @@ class PreProViewer():
         self.config()
         self.config_canvas()
 
-    def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300):
+    def config(self, save: bool = False, folder: str = "./", fmt: str = "png", dpi: int = 300) -> None:
+        """
+        Configure settings for saving plots.
+
+        Parameters
+        ----------
+        save : bool, optional
+            Flag indicating whether to save plots. The default is False.
+        folder : str, optional
+            Folder path where plots will be saved. The default is "./".
+        fmt : str, optional
+            Format for saving plots. The default is "png".
+        dpi : int, optional
+            Dots per inch for saving plots. The default is 300.
+
+        Returns
+        -------
+        None
+
+        """
         _log.debug(f"{self.__class__.__name__}.{self.config.__name__}")
         self.save = save
         self.folder = folder
@@ -207,7 +254,31 @@ class PreProViewer():
 
     def config_canvas(self, xlabel: str = "x1", ylabel: str = "x2", cbarlabel: str = "Class",
                class0: str = "0", class1: str = "1", legend_config: Dict = None, translator: Dict = dummy_translator) -> None:
-        
+        """
+        Configure the canvas for plotting.
+
+        Parameters
+        ----------
+        xlabel : str, optional
+            Label for the x-axis. The default is "x1".
+        ylabel : str, optional
+            Label for the y-axis. The default is "x2".
+        cbarlabel : str, optional
+            Label for the color bar. The default is "Class".
+        class0 : str, optional
+            Label for class 0. The default is "0".
+        class1 : str, optional
+            Label for class 1. The default is "1".
+        legend_config : Dict, optional
+            Configuration for the legend. The default is None.
+        translator : Dict or callable
+            Translator for labels. The default is dummy_translator (from util).
+
+        Returns
+        -------
+        None
+
+        """
         _log.debug(f"{self.__class__.__name__}.{self.config_canvas.__name__}")
         
         self.xlabel = translator[xlabel]
@@ -217,14 +288,55 @@ class PreProViewer():
         self.class1 = translator[class1]
         self.legend_config = legend_config
 
-    def add_scatter(self, x1, x2, marker, label, c, vmin, vmax):
+    def add_scatter(self, x1: np.ndarray, x2: np.ndarray,
+                    marker: str, label: str, c: np.ndarray, vmin: float, vmax: float):
+        """
+        Add scatter plot to the canvas.
+
+        Parameters
+        ----------
+        x1 : np.ndarray
+            x-coordinates.
+        x2 : np.ndarray
+            y-coordinates.
+        marker : str
+            Marker style.
+        label : str
+            Label for the scatter plot.
+        c : np.ndarray
+            Color values.
+        vmin : float
+            Minimum value for color normalization.
+        vmax : float
+            Maximum value for color normalization.
+
+        Returns
+        -------
+        matplotlib.collections.PathCollection
+            Scatter plot.
+        """
         return self.ax.scatter(x1, x2, marker=marker,
                                c=c, vmin=vmin, vmax=vmax,
                                cmap='RdYlBu_r', edgecolor='k',
                                s=50, label=label, zorder=2)
 
     @staticmethod
-    def cbar_edges(data):
+    def cbar_edges(data) -> Tuple:
+        """
+        Compute color bar edges.
+
+        Parameters
+        ----------
+        data : Dataset
+            Dataset containing color information.
+
+        Returns
+        -------
+        Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, float, float]
+            Indices of class 0, indices of class 1, color values for class 0,
+            color values for class 1, minimum value for color normalization,
+            maximum value for color normalization.
+        """
         y0 = np.where(data.y==0)
         y1 = np.where(data.y==1)
 
@@ -240,7 +352,7 @@ class PreProViewer():
             vmax = 1
         return y0, y1, c0, c1, vmin, vmax
 
-    def add_colourbar(self, ref, vmin, vmax):
+    def add_colourbar(self, ref, vmin: float, vmax: float):
         """
         Add a colorbar to the El Haddad plot.
 
@@ -248,6 +360,10 @@ class PreProViewer():
         ----------
         ref : matplotlib.image.AxesImage
             A reference to the image onto which the colorbar is drawn.
+        vmin : float
+            Minimum value for color normalization.
+        vmax : float
+            Maximum value for color normalization.
 
         Returns
         -------
@@ -263,7 +379,45 @@ class PreProViewer():
         cbar.ax.tick_params(direction='in', top=1, size=2.5)
 
     @printer
-    def view(self, **kwargs):
+    def view(self, **kwargs: Dict[str, Any]):
+        """
+        Compose canvas.
+
+        Regarding the prediction interval and predictive posterior kwargs are used
+        to probe the interface of the corresponding methods.
+
+        kwargs : Dict[str, Any]
+            - train_data : Dataset
+                Training data to display.
+            - test_data : Dataset
+                Test data to display.
+
+            - curve : List[AbstractCurve]
+                Curves to plot. 
+            
+            - prediction_interval : MonteCarlo
+                An instance of MonteCarlo.
+            - mc_bayes : AbstractBayes
+                Bayesian infrastructure.
+            - mc_samples : int
+                Sample to draw from the posterior.
+            - mc_distribution : str
+                Posterior to be sampled: "joint" or "marginals".
+            - confidence : float
+                Confidence level for the prediction interval.
+
+            - predictive_posterior : AbstractBayes
+                Instance of AbstractBayes that contains the predictive_posterior
+                to probe.   
+            - post_samples : int
+                Samples to draw from the posterior.
+            - post_data : Dataset
+                Provided input to forecast.
+            - post_op : callable
+                Function used to post-process.
+
+
+        """
         self.fig, self.ax = plt.subplots(dpi=self.dpi)
         self.sr = None
         self.ss = None

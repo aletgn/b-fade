@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -68,14 +68,12 @@ class ElHaddadBayes(AbstractBayes):
         and :math:`\mathbf{x}_i \in D` is a sample from the given dataset.
 
         :math:`\mathcal{H}(\mathbf{x}_i, \\theta)` is the signed distance of the sample
-        to the El Haddad curve of parameters :math:`\\theta`.
-
-        The position of the training points wrt the target curve are computed over\
-        the log-log plane.
+        to the El Haddad curve of parameters :math:`\\theta`. The position of
+        the training points wrt the target curve are computed over the log-log plane.
 
         Parameters
         ----------
-        D : ElHaddadDataset
+        D : Dataset
         
         P : Dict[str, float]
             Dictionary of the trainable parameters
@@ -111,13 +109,15 @@ class ElHaddadDataset(Dataset):
 
     def pre_process(self, **kwargs):
         """
-        Pre-process the dataset:
+        Pre-process the dataset.
 
-             - set 'Y'
+            - set 'Y'
 
-             - convert sqrt_area using the SIF equivalence
+            - convert sqrt_area using the SIF equivalence
 
-             - compute SIF
+            - compute SIF
+
+            - set attributes.
 
         Parameters
         ----------
@@ -127,7 +127,7 @@ class ElHaddadDataset(Dataset):
         Raises
         ------
         MissingInputException
-            Raised if 'Y' is neither unique in the dataset nor provided\
+            Raised if 'Y' is neither unique in the dataset nor provided
             as a keyword argument.
 
         """
@@ -171,7 +171,8 @@ class ElHaddadDataset(Dataset):
         self.aux_min = self.aux_min
         self.aux_max = self.aux_max
 
-    def populate(self, data, X_labels=["sqrt_area", "delta_sigma"], y_label="failed"):
+    def populate(self, data, X_labels: List[str] = ["sqrt_area", "delta_sigma"], y_label: str ="failed"):
+        """Overload the method by providing keys pertinent to the El Haddad Curve."""
         return {"X": data[X_labels].to_numpy(),
                 "y": data[y_label].to_numpy(),
                 "aux": data["dk"].to_numpy(),

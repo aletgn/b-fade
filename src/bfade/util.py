@@ -40,7 +40,8 @@ def config_matplotlib(font_size: int = 12,
         Whether to enable LaTeX text rendering in Matplotlib. The default is False.
 
     interactive : bool, optional
-        Whether to enable plt.show() output. The default is False, i.e. display.
+        Whether to enable plt.show() output. The default is False, i.e. display
+        and keep window open.
 
     Returns
     -------
@@ -154,7 +155,7 @@ def printer(func: callable):
     callable
         The decorated function.
     """
-    @functools.wraps(func)
+    @functools.wraps(func) # <- preserve function signature
     def saver(self, *args, **kwargs):
         fig, title = func(self, *args, **kwargs)
         if self.save == True:
@@ -257,7 +258,7 @@ def parse_arguments(config_path: str = "./config.yaml") -> argparse.Namespace:
     Parameters
     ----------
     config_path : str
-        Path to yaml config file.
+        Path to yaml config file. The default is "./config.yaml"
 
     Command Line Arguments
     ----------------------
@@ -295,7 +296,7 @@ def get_config_file(args: argparse.Namespace) -> Dict:
         config = yaml.safe_load(config_file)
     return config
 
-def identity(X: np.ndarray) -> None:
+def identity(X: np.ndarray) -> np.ndarray:
     """
     Return the input array unchanged.
     
@@ -308,6 +309,7 @@ def identity(X: np.ndarray) -> None:
     -------
     numpy.ndarray
         Unchanged input array.
+
     """
     return X
 
@@ -336,7 +338,7 @@ def grid_factory(x1_bounds: List[float], x2_bounds: List[float], n1: int, n2: in
 
     Returns
     -------
-    tuple
+    Tuple
         A tuple of two arrays:
         1. X1: Flattened array of X-axis points for the entire grid.
         2. X2: Flattened array of Y-axis points for the entire grid.
@@ -371,7 +373,7 @@ def sif_range(delta_sigma: np.ndarray, y: np.ndarray, sqrt_area: np.ndarray) -> 
     y :  array-like
         geometric factor of the defects.
     sqrt_area : array-like
-         murakami's characteristic length.
+        Murakami's characteristic length.
 
     Returns
     -------

@@ -8,7 +8,7 @@ _log = logger_factory(name=__name__, level="DEBUG")
 class distribution():
     """Interface to scipy random variables.
     
-    This class istantiates distribution probilities relying on scipy.stats.
+    This class instantiates distribution probabilities relying on scipy.stats.
     """
 
     def __init__(self, dist, **kwargs: Dict[str, Any]) -> None:
@@ -20,7 +20,7 @@ class distribution():
         dist : callable
             Function representing a probability distribution
             (e.g., scipy.stats.norm for a normal distribution).
-        **kwargs : Dict[str, Any]
+        kwargs : Dict[str, Any]
             Parameters of the selected distribution.
 
         Returns
@@ -95,13 +95,12 @@ class uniform():
     returns 0 if the input point is outside the set range. This can cause issues
     to the likelihood for under-conservative choices of the lower and the upper
     bound of the range. Therefore, this custom uniform distribution is designed
-    to return a given value everywhere. Obviosly, this constrast the CDF but
+    to return a given value everywhere. Obviously, this contrast the CDF but
     facilitates the computation of the likelihood.
 
     The methods simulate part of the typical interface of scipy's random vars.
 
     """
-
     def __init__(self, **kwargs) -> None:
         """
         Initialize Uniform distribution.
@@ -146,10 +145,6 @@ class MonteCarlo:
 
         Parameters
         ----------
-        samples : int
-            number of samples to draw.
-        confidence : int, optional
-            Confidence level of the prediction interval. The default is 95.
         curve : AbstractCurve
             Reference curve.    
 
@@ -161,7 +156,30 @@ class MonteCarlo:
         _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__}")
         self.curve = curve
 
-    def sample(self, n_samples, distribution, bayes):
+    def sample(self, n_samples: int, distribution: str, bayes) -> np.ndarray:
+        """
+        Sample from the Bayesian model.
+
+        Parameters
+        ----------
+        n_samples : int
+            Number of samples to generate.
+        distribution : str
+            Distribution type to sample from. Options are "joint" or "marginals".
+        bayes : AbstractBayes
+            Bayesian model object.
+
+        Returns
+        -------
+        np.ndarray
+            Generated samples.
+
+        Raises
+        ------
+        Exception
+            If an invalid distribution type is provided.
+
+        """
         self.n_samples = n_samples
         self.pars = bayes.pars
         self.deterministic = bayes.deterministic
@@ -177,7 +195,7 @@ class MonteCarlo:
 
         return self.samples
 
-    def prediction_interval(self, x_edges: List[float], n: int, spacing: str, confidence: float) -> Tuple:
+    def prediction_interval(self, x_edges: List[float], n: int, spacing: str, confidence: float = 95) -> Tuple:
         """
         Compute prediction intervals for a curve.
 
@@ -196,12 +214,14 @@ class MonteCarlo:
 
         Parameters
         ----------
-        spacing : str, optional
-            spacing for x and y axes.
         x_edges : list of float, optional
             Edges of the x-axis over which the curve is plotted.
         n : int, optional
-            Resolution of the curve (number of points over x-axis). The default is 100.
+            Resolution of the curve (number of points over x-axis).
+        spacing : str, optional
+            spacing for x and y axes.
+        confidence: float
+            Confidence level of the prediction intervals. The default is 95.
 
         Returns
         -------
