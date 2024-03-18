@@ -10,14 +10,14 @@ The dataset is ready to undergo Maximum a Posteriori Estimation (MAP). It is now
 
         bay = ElHaddadBayes("dk_th", "ds_w", Y=aFloat, name=dat.name) # The default name is 'Untitled'
 
-where ``name`` can be any string, though we load ``name = dat.name`` (the name of the dataset) for later referencing. Using a consistent naming shall help organise exported files and figure. Please note that ``dk_th`` and ``ds_w`` are the probilistic trainable parameters, whereas `Y` is regarded as deterministic. Specifically, we infer the vector :math:`\theta=\left[\Delta K_{th, lc}\quad \Delta\sigma_w\right]`, using the input feature vector :math:`\mathbf{x} = \left[\sqrt{\text{area}} \quad \Delta\sigma \right]`.
+where ``name`` can be any string, though we load ``name = dat.name`` (the name of the dataset) for later referencing. Using a consistent naming shall help organise exported files and figure. Please note that ``dk_th`` and ``ds_w`` are the probabilistic trainable parameters, whereas `Y` is regarded as deterministic. Specifically, we infer the vector :math:`\theta=\left[\Delta K_{th, lc}\quad \Delta\sigma_w\right]`, using the input feature vector :math:`\mathbf{x} = \left[\sqrt{\text{area}} \quad \Delta\sigma \right]`.
 
 :py:mod:`bfade.abstract.AbstractBayes` comes with an intuitive interface to progressively build the elements of Bayes' theorem, which :py:mod:`bfade.elhaddad.ElHaddadBayes` inherits. 
 
 Prior
 -----
 
-We initially define the prior over each parameter. B-FADE enables the prior to be istantiated from any ``scipy.stats``'s probability distribution. Alongside this, a custom Uniform distribution is provided in :py:mod:`bfade.statistics.uniform` (the motivation is highlighted in the function's documentation). In this example, we hypothesise a Gaussian and a Uniform distribution for :math:`\Delta K_{th,lc}` and :math:`\Delta\sigma_w`, respectively:
+We initially define the prior over each parameter. B-FADE enables the prior to be instantiated from any ``scipy.stats``'s probability distribution. Alongside this, a custom Uniform distribution is provided in :py:mod:`bfade.statistics.uniform` (the motivation is highlighted in the function's documentation). In this example, we hypothesise a Gaussian and a Uniform distribution for :math:`\Delta K_{th,lc}` and :math:`\Delta\sigma_w`, respectively:
 
     .. math::
         \Delta K_{th,lc} \sim \mathcal{N(\mu, \sigma)}
@@ -86,7 +86,7 @@ In this respect, we must pay attention to the keyword ``normalize``. Precisely, 
 
         bay.load_log_likelihood(log_loss, normalize=False)
 
-By constrast if we use other priors, we are regularising the likelihood. Therefore, this requires:
+By contrast, if we use other priors, we are regularising the likelihood. Therefore, this requires:
 
     .. code-block:: python
 
@@ -101,8 +101,7 @@ Before proceeding, we ought to spend a few words on computing the signed distanc
 
         eh = ElHaddadCurve(metrics=np.log10, **all_pars)
 
-using ``np.log10`` as ``metrics``. Then, the distances between the given and the mimimum-distance points are computed using the common Euclidean metrics over the lin-lin plane.
-
+using ``np.log10`` as ``metrics``. Then, the distances between the given and the mimimum-distance points are computed using the common Euclidean metrics over the lin-lin plane. If, for a certain reason, the user needs to compute the minimum-distance points over the lin-lin plane, just invoke the curve with ``metrics=identity``, where ``identity`` is :py:mod:`bfade.util.identity`.
 
 Posterior
 ---------

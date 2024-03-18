@@ -1,7 +1,7 @@
 Fracture Mechanics
 ==================
 
-Before proceeding it is worth recalling a few notions of Fracture Mechanics, which shall turn out to be useful later on.
+Before proceeding it is worth recalling a few concepts of Fracture Mechanics, which shall turn out to be useful later on.
 
 Stress Intensity Factor Range
 -----------------------------

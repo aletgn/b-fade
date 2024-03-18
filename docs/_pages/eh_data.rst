@@ -41,12 +41,12 @@ B-FADE accepts both ``.csv`` and spreadsheets as input files. Spreadsheets forma
 
 		sqrt_area,delta_sigma,y,failed,test
 
-In both cases, the first two columns are obviously :math:`\sqrt{\text{area}}`, :math:`\Delta\sigma`, :math:`Y` is the geometric factor for defects. Regarding ``failed``, this column is binary, i.e. 0 and 1 means runout and failed samples, respectively. The last column serves the purpose of testing. This column, in fact, allows for performing a custom train/test split of the data. If you do not wish to do so fill out this column with 0. For headerless files the same columns must be provided without writing the column names.
+In both cases, the first two columns are obviously :math:`\sqrt{\text{area}}`, :math:`\Delta\sigma`, :math:`Y` is the geometric factor for defects. Regarding ``failed``, this column is binary, i.e. 0 and 1 means runout and failed samples, respectively. The last column serves the purpose of testing. This column, in fact, allows for performing a custom train/test split of the data. If you do not wish to do so, fill out this column with 0. For headerless files the same columns must be provided without writing the column names.
 
 Acquisition
 -----------
 
-No conditional statements regulates the acquisition of the different format files. To ensure more versatility the user can invoke a specific ``reader`` from ``pandas`` when istantiating :py:mod:`bfade.elhaddad.ElHaddadDataset` which subclass'es :py:mod:`bfade.dataset.Dataset`
+No conditional statements regulates the acquisition of the different format files. To ensure more versatility the user can invoke a specific ``reader`` from ``pandas`` when instantiating :py:mod:`bfade.elhaddad.ElHaddadDataset` which subclass'es :py:mod:`bfade.dataset.Dataset`
 
 - To read a spreadsheet, do:
 
@@ -112,7 +112,7 @@ finally:
 	.. math::
 		\sqrt{\text{area}}_{ref}=\sqrt{\text{area}}_{i}\,\bigg({{Y_{i}} \over {Y_{ref}}}\bigg)^2
 
-The user shall find the dataset stored in ``dat.data``.
+The user shall find the acquired data in a ``pandas`` dataframe stored in ``dat.data``. This is, however, the first stage of the acquisition, which the user is expected to carry out. The next stage, is directly accomplished via the class's method. In this instance, the class automatically fills out the attributes required for MAP. These attributes are ``X`` and  ``y``, which are the matrix of the training features, and the vector of the labels. In particular, ``X`` shall collate :math:`\left[\sqrt{\text{area}} \quad \Delta\sigma\right]`. Furthermore, ``ElHaddadDataset`` gathers in attribute ``aux``, the values of :math:`\Delta K` for each datum. This shall be exploited for visualisation purposes.
 
 
 Train/Test Split
@@ -155,7 +155,7 @@ where ``aListX*`` are the bounds along the x- and y-axis, ``aIntN*`` is the spac
 		grd = SyntheticDataset(name=aStringName)
 		grd.make_tube(aCurve, aListX1Bounds, aIntStepUp, aIntStepDown, aIntSteps, aStringSpacing)
 
-where ``aCurve`` is an istance of ``ElHaddadCurve``, ``aIntSteps``, defines how many times the curve is translated upwards and downwards to make the tube, and ``aIntStep*`` is the step for the translation. If one would like to remove the point that might be overlapping the curve, they call:
+where ``aCurve`` is an instance of ``ElHaddadCurve``, ``aIntSteps``, defines how many times the curve is translated upwards and downwards to make the tube, and ``aIntStep*`` is the step for the translation. If one would like to remove the point that might be overlapping the curve, they call:
 
 	.. code-block::python
 
@@ -190,11 +190,3 @@ We can also obtain a quick overview of the dataset (along with the corresponding
 								x=np.linspace(aFloatStart, aFloatEnd, aIntStep))
 
 where ``eh`` is the curve, which generated the dataset, but, in fact, can be any.
-
-.. Finally, the dataset is exported by:
-
-.. .. code-block:: python
-
-.. 	grd.make_dataset(writer="aPandasWriter",
-.. 					 extension="anExtension",
-.. 					 folder="aFolder")

@@ -3,7 +3,7 @@ Propagating Crack Region
 
 Frequentist (Monte Carlo)
 -------------------------
-The posterior can be sampled to determine the El Haddad curve at different failure probabilities, thereby obtaining the estimation of the probabilistic propagating crack region.
+The posterior can be sampled to determine the El Haddad curve at different failure probabilities, thereby estimating the probabilistic propagating crack region.
 
 Firstly, let us instance an object of class :py:mod:`bfade.statistics.MonteCarlo`:
 
@@ -11,7 +11,7 @@ Firstly, let us instance an object of class :py:mod:`bfade.statistics.MonteCarlo
 
         mc = MonteCarlo(ElHaddadCurve)
 
-In ``samples`` input how many samples must be drawn from the posterior. Now, we can sample:
+We can now sample:
 
 - the *joint* posterior distribution
 
@@ -24,6 +24,8 @@ In ``samples`` input how many samples must be drawn from the posterior. Now, we 
     .. code-block:: python
 
         mc.sample(aIntNSamples, "marginals", bay)
+
+where ``aIntNSample`` is the number of samples drawn from the posterior.
 
 That's it, the Monte Carlo simulation is accomplished. If we wish to computed the prediction interval, i.e. the frequentist propagating crack region, we invoke:
 
@@ -44,6 +46,8 @@ where :math:`\overline{\mathcal{E}^{(\mathsf{M})}}` is the :math:`\sqrt{\text{ar
 
 in which :math:`T_\beta` is the :math:`1-\beta/2` percentile of :math:`T`-Student distribution, and :math:`S^{(\sf M)}` is the :math:`\sqrt{\text{area}}`-wise standard deviation of the history of the :math:`\mathsf{M}` EH curves.
 
+It is worth mentioning we prefer not to call ``prediction_interval`` (although possible) to compute the prediction interval. Rather, we retrieve those using the corresponding viewer's interface (see the forthcoming sections).
+
 Bayesian
 --------
 An alternative approach to outlining the crack is offered in :py:mod:`bfade.ElHaddadBayes.predictive_posterior`. The method implements the numerical computation of the predictive posterior:
@@ -62,11 +66,7 @@ Let us prepare a grid of points over which the posterior is evaluated. We user t
 
     .. code-block:: python
 
-        X1, X2 = grid_factory("log",
-                              aListX1Edges,
-                              aListX2Edges,
-                              aIntN1,
-                              aIntN1)
+        X1, X2 = grid_factory(aListX1Edges, aListX2Edges, aIntN1, aIntN2, spacing="log")
 
 which basically creates a regular rectangular grid (:math:`\sqrt{\text{area}}\times \Delta\sigma_w`) whose point are ``log``-spaced, spanning ``aListX1Edges`` and ``aListX2Edges``, with a number of ``aIntN1`` and ``aIntN1``.
 
@@ -77,3 +77,5 @@ The evaluation of the predictive posterior is done by:
         pred = bay.predictive_posterior(aIntSamples, dataset, aFunction)
 
 where ``aIntSamples`` is the number of samples drawn from the posterior, and ``dataset`` is an instance of `bfade.dataset.Dataset`. Importantly, ``aFunction`` can be used to load numpy functions to process the predictions. For instance, we can compute the mean and the standard deviation by passing ``np.mean`` and ``np.std`` , respectively.
+
+Similarly to the frequentist counterpart, we prefer to retrieve the predictive posterior by using the corresponding viewer's interface (see the forthcoming sections).
