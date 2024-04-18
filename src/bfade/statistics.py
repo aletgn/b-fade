@@ -139,14 +139,16 @@ class uniform():
 
 class MonteCarlo:
 
-    def __init__(self, curve) -> None:
+    def __init__(self, curve, random_state: int = 0) -> None:
         """
         Initialise Monte Carlo simulation
 
         Parameters
         ----------
         curve : AbstractCurve
-            Reference curve.    
+            Reference curve.
+        random_state: int
+            Random state for numpy to sample the posterior. The default is 0.
 
         Returns
         -------
@@ -155,6 +157,7 @@ class MonteCarlo:
         """
         _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__}")
         self.curve = curve
+        np.random.seed(random_state)
 
     def sample(self, n_samples: int, distribution: str, bayes) -> np.ndarray:
         """
