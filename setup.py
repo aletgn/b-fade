@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 setup(
     name="b-fade",
     version="0.0.0",
-    description="TODO",
+    description="B-FADE: Bayesian FAtigue Model Estimator",
     long_description=long_description,
     long_description_content_type="text/markdown",
         

@@ -1,6 +1,6 @@
-# B-FADE: Bayesian FAtigue Diagram Estimator
+# B-FADE: Bayesian FAtigue Model Estimator
 
-The package implements Maximum a Posteriori Estimation (MAP) to accomplish the estimation of fatigue diagrams. Currently the package is designed to identify the El Haddad (EH) curve given a fatigue & defectivity characterisation dataset. Other curve are forseen in future developments.
+The package implements Maximum a Posteriori Estimation (MAP) to accomplish the estimation of fatigue models' parameters. Currently the package is designed to identify the El Haddad (EH) curve given a fatigue & defectivity characterisation dataset. Other curves are forseen in future developments.
 
 ## Features
 
