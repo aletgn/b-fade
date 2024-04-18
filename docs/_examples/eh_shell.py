@@ -7,7 +7,6 @@ syspath.append(ospath.join(ospath.expanduser("~"),
 # Erase the line above if you installed the package.
 
 import numpy as np
-np.seterr(divide='ignore', invalid='ignore')
 import sklearn.metrics
 
 from bfade.elhaddad import ElHaddadCurve, ElHaddadBayes

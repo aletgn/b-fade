@@ -6,7 +6,6 @@ syspath.append(ospath.join(ospath.expanduser("~"),
                            '/home/ale/Desktop/b-fade/src'))
 
 import numpy as np
-np.seterr(divide='ignore', invalid='ignore')
 import pandas as pd
 from sklearn.metrics import log_loss
 from scipy.stats import norm

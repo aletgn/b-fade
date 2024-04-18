@@ -4,7 +4,6 @@ syspath.append(ospath.join(ospath.expanduser("~"),
                            '/home/ale/Desktop/b-fade/src'))
 
 import numpy as np
-np.seterr(divide='ignore', invalid='ignore')
 
 from bfade.elhaddad import ElHaddadCurve, ElHaddadBayes
 from bfade.dataset import SyntheticDataset

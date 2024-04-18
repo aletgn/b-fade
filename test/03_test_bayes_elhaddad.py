@@ -162,8 +162,6 @@ def run_map():
     b.load_prior("dk_th", norm, loc=5, scale=1)
     b.load_prior("ds_w", norm, loc=600, scale=50)
     b.load_log_likelihood(log_loss, normalize=True)
-    np.seterr(divide='ignore', 
-              invalid='ignore')
     b.MAP(d)
     
     print(b)
