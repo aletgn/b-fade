@@ -15,6 +15,18 @@ The quantities that the El Haddad curve necessitates must be provided complying 
 
 - :math:`[\Delta K_{th,lc}] = \text{MPa}\sqrt{\text{m}}`
 
+Implemented Variables
+---------------------
+As concerns the practical implementation of MAP for EH curves, please note that:
+
+- :math:`\Delta K_{th,lc}` is represented as ``dk_th``
+
+- :math:`\Delta\sigma_w` is represented as ``ds_w``
+
+- :math:`Y` is represented, obviously, as ``Y``.
+
+Having shorter names, yet sufficiently explanatory, helps contract the code.
+
 Instantiation
 -------------
 
