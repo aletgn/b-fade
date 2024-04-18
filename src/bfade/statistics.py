@@ -5,7 +5,7 @@ from bfade.util import MissingInputException, logger_factory
 
 _log = logger_factory(name=__name__, level="DEBUG")
 
-class distribution():
+class Distribution():
     """Interface to scipy random variables.
     
     This class instantiates distribution probabilities relying on scipy.stats.

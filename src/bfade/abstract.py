@@ -10,7 +10,7 @@ from numdifftools import Hessian
 
 from bfade.util import grid_factory, logger_factory
 from bfade.util import identity, printer, dummy_translator
-from bfade.statistics import distribution, uniform
+from bfade.statistics import Distribution, uniform
 
 _log = logger_factory(name=__name__, level="DEBUG")
 
@@ -323,7 +323,7 @@ class AbstractBayes(ABC):
             self.name = "Untitled"
         
         self.pars = pars
-        [setattr(self, "prior_" + p, distribution(uniform, unif_value=1)) for p in self.pars]
+        [setattr(self, "prior_" + p, Distribution(uniform, unif_value=1)) for p in self.pars]
         _log.debug(f"{self.__class__.__name__}.{self.__init__.__name__} -- {self}")
         
         try:
@@ -364,7 +364,7 @@ class AbstractBayes(ABC):
 
         """
         _log.info(f"{self.__class__.__name__}.{self.load_prior.__name__} for {par}")
-        setattr(self, "prior_" + par, distribution(dist, **args))
+        setattr(self, "prior_" + par, Distribution(dist, **args))
         
     def load_log_likelihood(self, log_loss_fn: callable, **args: Dict[str, Any]) -> None:
         """

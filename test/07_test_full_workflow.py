@@ -80,7 +80,3 @@ if __name__ == "__main__":
     # laplace_view()
     # monte_carlo()
     pass
-    
-    
-    
-    
