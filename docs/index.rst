@@ -1,5 +1,5 @@
-B-FADE: Bayesian FAtigue Diagram Estimator
-==========================================
+B-FADE: Bayesian FAtigue moDel Estimator
+========================================
 
 .. toctree::
       :maxdepth: 1
