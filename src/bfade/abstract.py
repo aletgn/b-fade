@@ -594,7 +594,7 @@ class AbstractBayes(ABC):
         for idx in range(self.theta_hat.shape[0]):
             setattr(self, "marginal_" + self.pars[idx], norm(loc=self.theta_hat[idx], scale=self.ihess[idx][idx]**0.5))
       
-    def predictive_posterior(self, posterior_samples: int, D, post_op: callable = None) -> np.ndarray:
+    def predictive_posterior(self, posterior_samples: int, D, post_op: callable = None, random_state: int = 0) -> np.ndarray:
         """
         Evaluate the predictive posterior using the specified number of samples.
 
@@ -606,6 +606,8 @@ class AbstractBayes(ABC):
             The dataset supplied for predicting the corresponding output.
         post_op : Callable[..., Any], optional
             Posterior operation function. Default is None.
+        random_state: int
+            Random state for numpy to sample the posterior. The default is 0.
 
         Returns
         -------
@@ -613,6 +615,7 @@ class AbstractBayes(ABC):
             Predictive posterior samples processed via post_op, if provided.
 
         """
+        np.random.seed(0)
         _log.debug(f"{self.__class__.__name__}.{self.predictive_posterior.__name__}")
         self.posterior_samples = posterior_samples
         predictions = []
