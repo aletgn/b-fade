@@ -4,12 +4,17 @@ syspath.append(ospath.join(ospath.expanduser("~"),
                            '/home/ale/Desktop/b-fade/src'))
 
 import numpy as np
-np.seterr(divide='ignore', invalid='ignore')
+# np.seterr(divide='ignore', invalid='ignore')
 
 from bfade.elhaddad import ElHaddadCurve, ElHaddadBayes
 from bfade.dataset import SyntheticDataset
 from bfade.viewers import BayesViewer, LaplacePosteriorViewer
 from bfade.statistics import MonteCarlo
+
+# change the bound of the distance minimizer
+# import bfade
+# bfade.abstract.MINIMZER_LO_BOUND = aFloat
+# bfade.abstract.MINIMZER_UP_BOUND = aFloat
 
 from sklearn.metrics import log_loss
 from scipy.stats import norm
@@ -22,7 +27,7 @@ def invoke_curve():
 
 def gen_data(curve):
     sd = SyntheticDataset()
-    sd.make_grid([1, 1000],[50, 800], 30, 30, spacing="log")
+    sd.make_grid([1, 1000],[50, 800], 35, 35, spacing="log")
     sd.clear_points(curve, tol=1)
     sd.make_classes(curve)
     # sd.inspect(np.linspace(1,1000,1000), scale="log")
@@ -48,21 +53,19 @@ def bayesian_inference(dataset):
     return bay
 
 def laplace_view():
-    bay = ElHaddadBayes("dk_th", "ds_w", Y=0.73, theta_hat = np.array([  2.9684112, 400.30248376]),
-                        ihess = np.array([[ 1.57017706e-03, -1.19983496e-01],
-                                           [-1.19983496e-01,  2.54254012e+01]]))
+    bay = ElHaddadBayes("dk_th", "ds_w", Y=0.73, theta_hat = np.array([3.00243386, 400.00344183]),
+                        ihess = np.array([[ 1.84780103e-03, -5.94696958e-02],
+                                          [-5.94696958e-02,  1.32796603e+01]]))
     
-
-
-    l = LaplacePosteriorViewer("dk_th", 2, 10, "ds_w", 2, 10, bayes=bay)
+    l = LaplacePosteriorViewer("dk_th", 4, 10, "ds_w", 4, 10, bayes=bay)
     l.contour(bay)
     l.marginals("ds_w", bay)
 
 def monte_carlo():
     bay = ElHaddadBayes("dk_th", "ds_w", Y=0.65,
-                        theta_hat = np.array([  2.9684112,  400.30248376]),
-                        ihess = np.array([[ 1.57017706e-03, -1.19983496e-01],
-                                           [-1.19983496e-01,  2.54254012e+01]]))
+                        theta_hat = np.array([3.00243386, 400.00344183]),
+                        ihess = np.array([[ 1.84780103e-03, -5.94696958e-02],
+                                          [-5.94696958e-02,  1.32796603e+01]]))
 
     mc = MonteCarlo(ElHaddadCurve)
     mc.sample(1000, "marginals", bay)

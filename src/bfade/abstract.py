@@ -14,6 +14,9 @@ from bfade.statistics import distribution, uniform
 
 _log = logger_factory(name=__name__, level="DEBUG")
 
+MINIMZER_LO_BOUND = 0
+MINIMZER_UP_BOUND = 1e20
+
 class AbstractCurve(ABC):
     """Abstract curve to instantiate curves to perform MAP over.
 
@@ -145,9 +148,9 @@ class AbstractCurve(ABC):
         signa = []
         
         for x in D.X:
-            res = minimize_scalar(self.squared_distance, args=(x), 
-                                  method="golden",
-                                  # bounds=(0, 100000),
+            res = minimize_scalar(self.squared_distance, args=(x),
+                                  method="bounded",
+                                  bounds=(MINIMZER_LO_BOUND, MINIMZER_UP_BOUND),
                                   )
             
             if res.success:
