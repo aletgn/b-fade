@@ -13,6 +13,8 @@ release = '0.0.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+import sys, os
+sys.path.insert(0, os.path.abspath("../src/"))
 
 extensions = ["sphinx.ext.todo", "sphinx.ext.viewcode", "sphinx.ext.autodoc", 'sphinxcontrib.bibtex', 'sphinx_copybutton',"nbsphinx"]
 bibtex_bibfiles = ['references.bib']
