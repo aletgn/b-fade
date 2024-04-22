@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="b-fade",
-    version="0.0.0",
+    version="0.0.0.rc0",
     description="B-FADE: Bayesian FAtigue moDel Estimator",
     long_description=long_description,
     long_description_content_type="text/markdown",
