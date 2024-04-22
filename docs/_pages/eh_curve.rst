@@ -38,7 +38,7 @@ To instantiate an El Haddad curve, we do:
 
 		eh = ElHaddadCurve(metrics=aCallable, dk_th=aFloat, ds_w=aFloat, Y=aFloat, name=aStringName)
 
-So, we instantiate the curve via :math:`\Delta k_{th, lc}`, and :math:`\Delta\sigma_w`, whilst :math:`\sqrt{\text{area}_0}` is computed accordingly. The choice of ``metrics`` shall be discussed later. 
+So, we instantiate the curve via :math:`\Delta K_{th, lc}`, and :math:`\Delta\sigma_w`, whilst :math:`\sqrt{\text{area}_0}` is computed accordingly. The choice of ``metrics`` shall be discussed later. 
 
 Preliminary Inspection
 ----------------------
