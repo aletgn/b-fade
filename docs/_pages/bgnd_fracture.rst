@@ -28,7 +28,7 @@ where :math:`\sqrt{\text{area}}` is the projected area of the defect onto the pl
 .. math::
 	\Delta K = Y\, \Delta\sigma \sqrt{\pi\, \sqrt{\text{area}}}
 
-where, in this case, :math:`Y` determined upon the distance between the defect's centroid and the free surface of the fatigue specimen :cite:`salvati_defect-based_2022`.
+where, in this case, :math:`Y` is determined upon the distance between the defect's centroid and the free surface of the fatigue specimen :cite:`salvati_defect-based_2022`.
 
 Given the above, the EH curve is analytically defined as :cite:`zerbst_damage_2021`:
 
