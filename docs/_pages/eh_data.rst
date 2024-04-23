@@ -7,12 +7,12 @@ Structure
 B-FADE requires fatigue data & defect characterisation to accomplish the identification of the EH parameters. As concerns fatigue data, we assume that :math:`\mathsf{N}` experimental results have been collected, for given applied stress ranges :math:`\Delta\sigma` and for a fixed stress ratio :math:`R`, i.e. :math:`N_i,\Delta\sigma_i\ \forall\, i=1,2,\dots,\mathsf{N}`. Upon setting a runout threshold :math:`N_w`, the experimental points are distinguished as *Failed* and *Runout*, according to:
 
 .. math::
-	y_i = \begin{align}\begin{cases} \text{Runout}\ &\text{if}\ N_i \le N_w\\ \text{Failed}\ &\text{if}\ N_i > N_w \end{cases}\end{align}
+	y_i = \begin{align}\begin{cases} \text{Runout}\ &\text{if}\ N_i \ge N_w\\ \text{Failed}\ &\text{if}\ N_i < N_w \end{cases}\end{align}
 
 which is translated, from a computational perspective as:
 
 .. math::
-	y_i = \begin{align}\begin{cases} 0\ &\text{if}\ N_i \le N_w\\ 1\ &\text{if}\ N_i > N_w \end{cases}\end{align}
+	y_i = \begin{align}\begin{cases} 0\ &\text{if}\ N_i \ge N_w\\ 1\ &\text{if}\ N_i < N_w \end{cases}\end{align}
 
 B-FADE does not implement the above conditional, so data must be provided already labelled by :math:`y_i` (0 or 1).
 
@@ -24,7 +24,7 @@ We also assume that :math:`\sqrt{\text{area}}` of the *killer* defect that trigg
 Format
 ------
 
-B-FADE accepts both ``.csv`` and spreadsheets as input files. Spreadsheets formats include ``.ods`` (LibreOffice, OpenOffice), and ``.xls`` & ``.xlsx`` (Microsoft Excel). The input file can be *headered* or *headerless*. Accordingly, the data can be loaded in two differente ways, though the former is more straightforward.
+B-FADE accepts both ``.csv`` and spreadsheets as input files. Spreadsheets formats include ``.ods`` (LibreOffice, OpenOffice), and ``.xls`` & ``.xlsx`` (Microsoft Excel). The input file can be *headered* or *headerless*. Accordingly, the data can be loaded in two different ways, though the former is more straightforward.
 
 - Headered spreadsheets files should be arranged as:
 
