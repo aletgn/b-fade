@@ -10,7 +10,7 @@ The package implements Maximum a Posteriori Estimation (MAP) to accomplish the e
 
 ## Quick Setup
 
-B-FADE is available on [PyPI](https://pypi.org/project/b-fade/) at (**add link when available**), therefore it can be installed using common package managers, such as `pip` or `conda`:
+B-FADE is available at [PyPI](https://pypi.org/project/b-fade/), so it can be installed using common package managers, such as `pip` or `conda`:
 
 ```
 pip install --user b-fade
@@ -24,4 +24,4 @@ For further instructions, please take a look at the documentation.
 
 ## Documentation
 
-Please refer to [ReadTheDocs](https://b-fade.readthedocs.io/en/latest/) (**Update with readthedocs when it is ready**) for detailed instructions about installing, utilising B-FADE and working examples.
+Please refer to [ReadTheDocs](https://b-fade.readthedocs.io/en/latest/) for detailed instructions about installing, utilising B-FADE and working examples.
