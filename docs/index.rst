@@ -35,6 +35,7 @@ B-FADE: Bayesian FAtigue moDel Estimator
       
       _examples/eh_dataset.ipynb
       _examples/eh_notebook.ipynb
+      _examples/custom_classes.ipynb
       _pages/eh_script.rst
 
 .. toctree::
