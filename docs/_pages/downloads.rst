@@ -22,13 +22,15 @@ To enable processing dataset files, these must be uploaded to Google Drive. Ther
 
 By default, Google Colab notebooks are located in subfolder ``/content/drive/My Drive/Colab Notebooks/``. Assuming the user uploaded their dataset file ``MyDataset.csv`` in such folder, B-FADE methods and function can get the dataset at: ``/content/drive/My Drive/Colab Notebooks/MyDataset.csv``.
 
-Before running `El Haddad Notebook`, please run `Fictitious Dataset` to generate the dataset for test purpose. If notebooks are run in Google Colab upload the dataset files to Google Drive and access them as indicate above (as you would do with real datasets).
+Before running `Parametrised El Haddad`, please run `Fictitious El Haddad Datasets` to generate the dataset for test purpose. If notebooks are run in Google Colab upload the dataset files to Google Drive and access them as indicate above (as you would do with real datasets).
 
 Available notebooks:
 
-- :download:`Fictitious Dataset <../_examples/eh_dataset.ipynb>`
+- :download:`Fictitious El Haddad Datasets <../_examples/eh_dataset.ipynb>`
 
-- :download:`El Haddad Notebook <../_examples/eh_notebook.ipynb>`
+- :download:`Parametrised El Haddad <../_examples/eh_notebook.ipynb>`
+
+- :download:`Custom Classes <../_examples/custom_classes.ipynb>`
 
 Python Scripts
 --------------
